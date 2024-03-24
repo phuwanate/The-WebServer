@@ -19,13 +19,13 @@ class LocationBlocks {
     private:
         std::string                     _path;
         std::string                     _root;
-        bool                            _autoIndex;
-        std::vector<std::string>        _index;
         std::string                     _alias;
-        std::map<std::string, bool>     _allowMethods;
         std::string                     _return;
+        std::vector<std::string>        _index;
         std::vector<std::string>        _cgiExt; //for file extension
         std::vector<std::string>        _cgiPath; //for cgi compiler path
+        std::map<std::string, bool>     _allowMethods;
+        bool                            _autoIndex;
         size_t                          _clientMaxBodySize;
 };
 

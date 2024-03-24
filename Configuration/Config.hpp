@@ -7,7 +7,8 @@
 
 class ServerBlocks;
 
-class Config{
+class Config {
+
     public:
             Config();
             Config(std::string const pathToConfigFile);

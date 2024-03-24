@@ -21,12 +21,12 @@ class ServerBlocks {
         int                         _portNumb; //setup port
         unsigned long               _hostIP; //setup host IP address
         std::string                 _serverName;
-        std::map<int, std::string>  _errorPage;
+        std::string                 _root;
         std::vector<std::string>    _index;
+        std::vector<LocationBlocks> _locationBlocks;
+        std::map<int, std::string>  _errorPage;
         bool                        _autoIndex;
         size_t                      _clientMaxBodySize;
-        std::vector<LocationBlocks> _locationBlocks;
-        std::string                 _root;
 
 };
 
