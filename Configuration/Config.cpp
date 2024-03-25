@@ -7,6 +7,7 @@ Config::Config() {
 
 Config::Config(std::string const pathToConfigFile) { 
     
+    //get every directives to all variable in Config class
     (void)pathToConfigFile;
     return;
 }

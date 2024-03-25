@@ -7,6 +7,7 @@ ServerBlocks::ServerBlocks() {
 
 ServerBlocks::ServerBlocks(std::string const &serverBlock) {
 
+    //get every directives to all variable in serverBlocks class
     (void)serverBlock;
     return;
 }
@@ -26,7 +27,7 @@ ServerBlocks &ServerBlocks::operator= (ServerBlocks const &serverBlockInstance) 
         this->_portNumb = serverBlockInstance._portNumb;
         this->_errorPage = serverBlockInstance._errorPage;
         this->_autoIndex = serverBlockInstance._autoIndex;
-        this->_serverName = serverBlockInstance._serverName;
+        this->_serverNames = serverBlockInstance._serverNames;
         this->_locationBlocks = serverBlockInstance._locationBlocks;
         this->_clientMaxBodySize = serverBlockInstance._clientMaxBodySize;
     }
