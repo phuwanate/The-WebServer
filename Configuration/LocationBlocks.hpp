@@ -22,8 +22,8 @@ class LocationBlocks {
         std::string                     _alias;
         std::string                     _return;
         std::vector<std::string>        _index;
-        std::vector<std::string>        _cgiExt; //for file extension
-        std::vector<std::string>        _cgiPath; //for cgi compiler path
+        std::vector<std::string>        _cgiFileExtention; //for file extension
+        std::vector<std::string>        _cgiCompilerPath; //for cgi compiler path
         std::map<std::string, bool>     _allowMethods;
         bool                            _autoIndex;
         size_t                          _clientMaxBodySize;

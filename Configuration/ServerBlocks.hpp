@@ -20,7 +20,7 @@ class ServerBlocks {
     private:
         int                         _portNumb; //setup port
         unsigned long               _hostIP; //setup host IP address
-        std::string                 _serverName;
+        std::string                 _serverNames;
         std::string                 _root;
         std::vector<std::string>    _index;
         std::vector<LocationBlocks> _locationBlocks;
