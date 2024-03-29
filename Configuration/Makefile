@@ -7,11 +7,13 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 SRCS =	main.cpp \
 		Config.cpp \
 		LocationBlocks.cpp \
-		ServerBlocks.cpp
+		ServerBlocks.cpp \
+		utils.cpp
 
 HEADERS =	Config.hpp \
 			LocationBlocks.hpp \
-			ServerBlocks.hpp
+			ServerBlocks.hpp \
+			utils.hpp
 
 OBJS = $(SRCS:.cpp=.o)
 

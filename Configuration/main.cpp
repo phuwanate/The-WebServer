@@ -13,9 +13,15 @@ int main (int ac, char **av) {
         std::cout << "webserv should have only 1 argument." << std::endl;
         return EXIT_FAILURE;
     }
-    ac == 2 ? pathToConfigFile = av[1] : pathToConfigFile = "./config_file/default.conf";
+    ac == 2 ? pathToConfigFile = av[1] : pathToConfigFile = "./config_files/default.conf";
 
-    Config config(pathToConfigFile);
+    try{
+     Config config(pathToConfigFile);
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
 
 
