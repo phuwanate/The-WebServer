@@ -11,7 +11,7 @@ Config::Config(std::string const &pathToConfigFile) {
     setPathToConfigFile(pathToConfigFile);
     if (__cleanContent() == false) {
 
-        throw std::invalid_argument("Error: Can not open config file.");
+        throw std::string("Error: Can not open config file.");
     }
     __generateConfig();
 
@@ -73,11 +73,9 @@ bool    Config::__cleanContent() {
             } else {
                 this->_fileContents += content[index];
             }
-        } else if (content[index] == '\n') {
+        } else if (content[index] == '\n')
             isComment = false;
-        }
     }
-    // std::cout << this->_fileContents << std::endl;
     return true;
 }
 bool    Config::__generateConfig() {
@@ -86,14 +84,21 @@ bool    Config::__generateConfig() {
     std::string serverBlock;
 
     for (size_t index = 0; index < content.length(); index += serverBlock.length()) {
-
+        
         content = this->_fileContents.substr(index, this->_fileContents.length());
         serverBlock = getBlock(content, "server", true);
         if (serverBlock.length() == 0)
             return false;
         index += findFirstBrace(content, "server");
-
-        ServerBlocks serverBlockInstance(serverBlock);   
+        ServerBlocks serverBlockInstance(serverBlock);
+        if (this->_serverBlocks.size() > 1) {
+            std::cout << "here" << std::endl;
+            for (size_t index = 0; index < this->_serverBlocks.size(); index++){    
+                isConflict(serverBlockInstance, this->_serverBlocks[index]);
+            }
+        }
+        this->_serverBlocks.push_back(serverBlockInstance);
+        // std::cout << this->_serverBlocks.size() << std::endl;
     }
     return true;
 }

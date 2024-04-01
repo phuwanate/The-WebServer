@@ -17,9 +17,8 @@ int main (int ac, char **av) {
 
     try{
      Config config(pathToConfigFile);
-    } catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
-        return EXIT_FAILURE;
+    } catch (std::string e) {
+        std::cout << e << std::endl;
     }
     return EXIT_SUCCESS;
 }

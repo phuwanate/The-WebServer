@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include "LocationBlocks.hpp"
+#include "utils.hpp"
 
 class LocationBlocks;
 
@@ -16,9 +17,19 @@ class ServerBlocks {
         ServerBlocks(ServerBlocks const &serverBlockInstance);
         ServerBlocks &operator= (ServerBlocks const &serverBlockInstance);
         ~ServerBlocks();
+
+        int                         getPortNumb();
+        unsigned long               getHostIP();
+        std::string                 getserverNames();
+
+        void                        setPortNumb(int val);
     
     private:
-        int                         _portNumb; //setup port
+        void                        __initAllAttributes(std::string const &serverBlock);
+        void                        __initServerAttribute(std::string const &directive, std::vector<std::string> values);
+        
+
+        size_t                      _portNumb; //setup port
         unsigned long               _hostIP; //setup host IP address
         size_t                      _clientMaxBodySize;
         std::string                 _serverNames;
