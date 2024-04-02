@@ -48,7 +48,7 @@ void        isConflict(ServerBlocks newInstance, ServerBlocks oldInstance) {
 
     if ( (newInstance.getHostIP() == oldInstance.getHostIP()) && \
     (newInstance.getPortNumb() == oldInstance.getPortNumb()) && \
-    (newInstance.getserverNames() == oldInstance.getserverNames()))
+    (newInstance.getServerName() == oldInstance.getServerName()))
         throw std::string("Error: found duplicating servers block.");
 }
 
@@ -139,6 +139,13 @@ unsigned long hostIPToNetworkByteOrder(std::string const &hostIP) {
     for (int index = 2; index >= 0; index --)
         result = (result * 256) + ipStorage[index];
     return result;
+}
+
+bool checkFileExists(std::string File) {
+
+    std::ifstream inputStream(File.c_str());
+
+    return  inputStream.good();
 }
 
 template <typename T>

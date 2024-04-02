@@ -20,11 +20,26 @@ class ServerBlocks {
 
         int                         getPortNumb();
         unsigned long               getHostIP();
-        std::string                 getserverNames();
+        std::string                 getServerName();
+        std::string                 getRoot();
+        size_t                      getClientMaxBodySize();
+        std::vector<std::string>    getIndex();
+        bool                        getAutoindex();
+        std::map<int, std::string>  getErrorPage();
+        
 
         void                        setPortNumb(int val);
         void                        setHostIP(unsigned long val);
-    
+        void                        setServerName(std::string val);
+        void                        setRoot(std::string val);
+        void                        setClientMaxBodySize(size_t val);
+        void                        setIndex(std::vector<std::string> val);
+        void                        setAutoindex(bool val);
+        void                        setErrorPage(int key, std::string val);
+
+        std::string                 pathToErrorPage(std::string values);
+
+
     private:
         void                        __initAllAttributes(std::string const &serverBlock);
         void                        __initServerParameters(std::string const &directive, std::vector<std::string> values);

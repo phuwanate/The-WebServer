@@ -48,10 +48,36 @@ unsigned long ServerBlocks::getHostIP() {
     return this->_hostIP;
 }
 
-std::string ServerBlocks::getserverNames() {
+std::string ServerBlocks::getServerName() {
 
     return this->_serverNames;
 }
+
+std::string ServerBlocks::getRoot() {
+
+    return this->_root;
+}
+
+size_t  ServerBlocks::getClientMaxBodySize() {
+
+    return this->_clientMaxBodySize;
+}
+
+std::vector<std::string> ServerBlocks::getIndex() {
+
+    return this->_index;
+}
+
+bool    ServerBlocks::getAutoindex() {
+
+    return this->_autoIndex;
+}
+
+std::map<int, std::string>  ServerBlocks::getErrorPage() {
+
+    return this->_errorPage;
+}
+
 
 void    ServerBlocks::setPortNumb(int val) {
     
@@ -62,6 +88,37 @@ void    ServerBlocks::setHostIP(unsigned long val) {
 
     this->_hostIP = val;
 }
+
+void    ServerBlocks::setServerName(std::string val) {
+
+    this->_serverNames = val;
+}
+
+void    ServerBlocks::setRoot(std::string val) {
+
+    this->_root = val;
+}
+
+void    ServerBlocks::setClientMaxBodySize(size_t val) {
+
+    this->_clientMaxBodySize = val;
+}
+
+void    ServerBlocks::setIndex(std::vector<std::string> val) {
+
+    this->_index = val;
+}
+
+void    ServerBlocks::setAutoindex(bool val) {
+
+    this->_autoIndex = val;
+}
+
+void    ServerBlocks::setErrorPage(int key, std::string val) {
+
+    this->_errorPage[key] = val;
+}
+
 
 void ServerBlocks::__initAllAttributes(std::string const &serverBlock) {
 
@@ -86,17 +143,16 @@ void ServerBlocks::__initAllAttributes(std::string const &serverBlock) {
         else if (target == "{") {
             if (currentDirective != "")
                 throw std::string("Error: unexpected \"{\" in configuration file.");
-            index += target.length();//index++
+            index += target.length();
         }
         else if (target == ";") {
             if (currentDirective == "") {
                 throw std::string ("Error: unexpected \";\" in configuration file.");          
             }
-            //get directive's value to server instance;
             __initServerParameters(currentDirective, values);
             currentDirective = "";
             values.clear();
-            index += target.length();//index++
+            index += target.length();
         }
         else {
             if (currentDirective == "")
@@ -117,6 +173,7 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
         if (isDigit(values[0]) == false)
             throw std::string("Error: invalid parameter \"" + values[0] + "\" in listen directive.");    
         setPortNumb(convertString<int>(values[0]));
+        //Debug
         std::cout << "Port: " << getPortNumb() << std::endl;
     }
     else if (directive == "host") {
@@ -128,6 +185,75 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
             values[0] = "127.0.0.1";
         validateHostIP(values[0]);
         setHostIP(hostIPToNetworkByteOrder(values[0]));
+        //Debug
         std::cout << "Host: " << getHostIP() << std::endl;
     }
+    else if (directive == "server_name") {
+        setServerName(values[0]);
+        //Debug
+        std::cout << "Server Name: " << getServerName() << std::endl;
+    }
+    else if (directive == "root") {
+        if (values.size() != 1)
+            throw std::string ("Error: invalid numbers of parameter in root directive.");
+        setRoot(values[0]);
+        //Debug
+        std::cout << "Root: " << getRoot() << std::endl;
+    }
+    else if (directive == "client_max_body_size") {
+        if (values.size() != 1 || isDigit(values[0]) == false)
+            throw std::string ("Error: invalid parameters in client_max_body_size directive.");
+        setClientMaxBodySize(convertString<size_t>(values[0]));
+        //Debug
+        std::cout << "client_max_body_size: " << getClientMaxBodySize() << std::endl;
+    }
+    else if (directive == "index") {
+        if (values.size() < 1)
+            throw std::string ("Error: invalid numbers of parameter in index directive.");
+        setIndex(values);
+        //Debug
+        std::cout << "index: ";
+        std::vector<std::string> tmp = getIndex();
+        std::vector<std::string>::iterator it = tmp.begin();
+        for (; it != tmp.end(); it++)
+            std::cout << *it << " ";
+        std::cout << std::endl;
+    }
+    else if (directive == "autoindex") {
+
+        if (values.size() != 1)
+            throw std::string("Error: invalid numbers of parameter in autoindex directive.");
+        if (values[0] == "on")
+            setAutoindex(true);
+        else if (values[0] == "off")
+            setAutoindex(false);
+        else
+            throw std::string("Error: invalid  parameter" + values[0] + "in autoindex directive.");
+        //Debug
+        std::cout << std::boolalpha <<"Autoindex: " << getAutoindex() << std::endl;
+    }
+    else if (directive == "error_page") {
+
+        if (values.size() != 2 || isDigit(values[0]) == false)
+            throw std::string("Error: invalid  parameters in error_page directive.");
+        // pathToErrorPage(values[1])
+        if (checkFileExists(pathToErrorPage(values[1])) == true) {
+            setErrorPage(convertString<int>(values[0]), values[1]);
+        }
+        //Debug
+        std::map<int, std::string> errpage =  getErrorPage();
+        std::cout << errpage[convertString<int>(values[0])] << std::endl; 
+    }
 }
+
+std::string ServerBlocks::pathToErrorPage(std::string errorFilePath) {
+
+    std::string rootPath = getRoot();
+
+    if (rootPath[rootPath.length() - 1] == '/' && errorFilePath[0] == '/')
+        return (rootPath.substr(0, rootPath.length() - 1) + errorFilePath);
+    if (rootPath[rootPath.length() - 1] != '/' && errorFilePath[0] != '/')
+        return (rootPath + "/" + errorFilePath);
+    return (rootPath + errorFilePath);
+}
+
