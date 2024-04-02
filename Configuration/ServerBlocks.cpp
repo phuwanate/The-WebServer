@@ -126,7 +126,7 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
         
         if (values[0] == "localhost")
             values[0] = "127.0.0.1";
-        validateHostNumber(values[0]);
+        validateHostIP(values[0]);
         setHostIP(hostIPToNetworkByteOrder(values[0]));
         std::cout << "Host: " << getHostIP() << std::endl;
     }

@@ -3,6 +3,8 @@
 #include "ServerBlocks.hpp"
 
 #include <iostream>
+#include <cstdlib>
+#include <string>
 
 
 int main (int ac, char **av) {

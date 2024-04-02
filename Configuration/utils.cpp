@@ -91,7 +91,7 @@ bool  is_digit(std::string values) {
     return true;
 }
 
-void    validateHostNumber(std::string value) {
+void    validateHostIP(std::string value) {
     int validateRange;
     while (true) {
         // std::cout << "here" << std::endl;

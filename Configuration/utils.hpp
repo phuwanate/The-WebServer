@@ -15,7 +15,7 @@ void          isConflict(ServerBlocks newInstance,ServerBlocks oldInstance);
 std::string   searchTarget(std::string const &content);
 bool          isWhiteSpace(char target);
 bool          is_digit(std::string values);
-void          validateHostNumber(std::string value);
+void          validateHostIP(std::string value);
 unsigned long hostIPToNetworkByteOrder(std::string const &hostIP);
 std::string   ft_split(std::string &needToSplit, std::string const &delimeter);
 
