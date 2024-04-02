@@ -99,7 +99,7 @@ void    validateHostIP(std::string value) {
         if (pos == std::string::npos){
             if (value == "" || isDigit(value) == false)
                 throw std::string ("Error: invalid host number \"" + value + "\" in host directive.");
-            validateRange = ft_convert<int>(value);
+            validateRange = convertString<int>(value);
             if (validateRange < 0 || validateRange > 255)
                 throw std::string ("Error: host number \"" + value + "\" is out of bound.");
             break;
@@ -108,13 +108,13 @@ void    validateHostIP(std::string value) {
         if (target == "" || isDigit(target) == false)
             throw std::string ("Error: invalid host number \"" + value + "\" in host directive.");
         value = value.substr(pos + 1, (value.length()) - (pos + 1));
-        validateRange = ft_convert<int>(target);
+        validateRange = convertString<int>(target);
         if (validateRange < 0 || validateRange > 255)
             throw std::string ("Error: host number \"" + value + "\" is out of bound.");
     }
 }
 
-std::string   ft_split(std::string &needToSplit, std::string const &delimeter) {
+std::string   splitString(std::string &needToSplit, std::string const &delimeter) {
 
     std::size_t pos = needToSplit.find(delimeter);
     std::string result;
@@ -133,16 +133,16 @@ unsigned long hostIPToNetworkByteOrder(std::string const &hostIP) {
     unsigned long   result;
 
     for (int index = 0; index < 3; index++)
-        ipStorage[index] = ft_convert<unsigned long>(ft_split(needToConvert, "."));
+        ipStorage[index] = convertString<unsigned long>(splitString(needToConvert, "."));
     
-    result = ft_convert<unsigned long>(needToConvert); //for the last bit in IP address.
+    result = convertString<unsigned long>(needToConvert); //for the last bit in IP address.
     for (int index = 2; index >= 0; index --)
         result = (result * 256) + ipStorage[index];
     return result;
 }
 
 template <typename T>
-T   ft_convert(std::string const &needToConvert) {
+T   convertString(std::string const &needToConvert) {
 
     std::stringstream   stream(needToConvert);
     T                   result;
@@ -154,4 +154,5 @@ T   ft_convert(std::string const &needToConvert) {
     return (result);
 }
 
-template int ft_convert<int>(std::string const &needToConvert);
+// template int ftConvert<int>(std::string const &needToConvert);
+// template unsigned long ftConvert<unsigned long>(std::string const &needToConvert);

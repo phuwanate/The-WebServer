@@ -17,9 +17,9 @@ bool          isWhiteSpace(char target);
 bool          isDigit(std::string values);
 void          validateHostIP(std::string value);
 unsigned long hostIPToNetworkByteOrder(std::string const &hostIP);
-std::string   ft_split(std::string &needToSplit, std::string const &delimeter);
+std::string   splitString(std::string &needToSplit, std::string const &delimeter);
 
 template <typename T>
-T           ft_convert(std::string const &needToConvert);
+T             convertString(std::string const &needToConvert);
 
 #endif

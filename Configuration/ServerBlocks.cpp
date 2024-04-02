@@ -116,7 +116,7 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
 
         if (isDigit(values[0]) == false)
             throw std::string("Error: invalid parameter \"" + values[0] + "\" in listen directive.");    
-        setPortNumb(ft_convert<int>(values[0]));
+        setPortNumb(convertString<int>(values[0]));
         std::cout << "Port: " << getPortNumb() << std::endl;
     }
     else if (directive == "host") {
