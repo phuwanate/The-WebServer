@@ -123,9 +123,7 @@ void    ServerBlocks::setErrorPage(int key, std::string val) {
 void ServerBlocks::__initAllAttributes(std::string const &serverBlock) {
 
     std::string                 currentDirective = "";
-    std::string                 content;
-    std::string                 locationBlock;
-    std::string                 target;
+    std::string                 content, locationBlock, target;
     std::vector<std::string>    values;
 
     for(size_t index = 0; index < serverBlock.length();) {
@@ -236,10 +234,8 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
 
         if (values.size() != 2 || isDigit(values[0]) == false)
             throw std::string("Error: invalid  parameters in error_page directive.");
-        // pathToErrorPage(values[1])
-        if (checkFileExists(pathToErrorPage(values[1])) == true) {
+        if (checkFileExists(pathToErrorPage(values[1])) == true)
             setErrorPage(convertString<int>(values[0]), values[1]);
-        }
         //Debug
         std::map<int, std::string> errpage =  getErrorPage();
         std::cout << errpage[convertString<int>(values[0])] << std::endl; 
