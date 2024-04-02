@@ -7,6 +7,9 @@
 #include "ServerBlocks.hpp"
 #include "utils.hpp"
 
+#define DEFAULT "\033[0m"
+#define RED     "\033[31m"
+
 class ServerBlocks;
 
 class Config {

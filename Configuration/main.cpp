@@ -17,8 +17,12 @@ int main (int ac, char **av) {
 
     try{
      Config config(pathToConfigFile);
-    } catch (std::string e) {
-        std::cout << e << std::endl;
+    } catch (std::string errorMassage) {
+        std::cout << RED << errorMassage << DEFAULT << std::endl;
+    } catch (std::out_of_range &e) {
+        std::cout << RED << "Error: out of bound." << DEFAULT << std::endl;
+    } catch (std::exception &e) {
+        std::cout << RED << "Error: caught an exception." << DEFAULT << std::endl;
     }
     return EXIT_SUCCESS;
 }

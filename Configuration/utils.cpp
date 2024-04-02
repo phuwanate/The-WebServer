@@ -3,7 +3,7 @@
 
 std::string getBlock(std::string const &content, std::string const &needle, bool skipKeyword) {
 
-    int         bracesCount = 0;
+    int         bracesCount = -1;
     size_t      index, start;
     std::string targetBlock;
 
@@ -15,7 +15,7 @@ std::string getBlock(std::string const &content, std::string const &needle, bool
     for (; index < content.length(); index++) {
         if (content[index] == '{') {
             skipKeyword == true ? start = index : start = 0;
-            bracesCount++;
+            bracesCount = 1;
             index++;
             break;
         }
@@ -35,13 +35,13 @@ std::string getBlock(std::string const &content, std::string const &needle, bool
 
 size_t      findFirstBrace(std::string const &content, std::string const &needle) {
     
-    size_t index = content.find(needle);
-
-    if (index == std::string::npos)
+    // size_t index = content.find(needle);
+    if (content.find(needle) == std::string::npos)
         return 0;
-    index += needle.length();
-    for (; index < content.length() && content[index] != '{'; index++) { }
-    return index;
+    // index += needle.length();
+    // for (; index < content.length() && content[index] != '{'; index++) { }
+    
+    return content.find("{");
 }
 
 void        isConflict(ServerBlocks newInstance, ServerBlocks oldInstance) {
@@ -91,11 +91,64 @@ bool  is_digit(std::string values) {
     return true;
 }
 
+void    validateHostNumber(std::string value) {
+    int validateRange;
+    while (true) {
+        // std::cout << "here" << std::endl;
+        size_t pos = value.find(".");
+        if (pos == std::string::npos){
+            if (value == "" || is_digit(value) == false)
+                throw std::string ("Error: invalid host number \"" + value + "\" in host directive.");
+            validateRange = ft_convert<int>(value);
+            if (validateRange < 0 || validateRange > 255)
+                throw std::string ("Error: host number \"" + value + "\" is out of bound.");
+            break;
+        }
+        std::string target = value.substr(0, pos);
+        if (target == "" || is_digit(target) == false)
+            throw std::string ("Error: invalid host number \"" + value + "\" in host directive.");
+        value = value.substr(pos + 1, (value.length()) - (pos + 1));
+        validateRange = ft_convert<int>(target);
+        if (validateRange < 0 || validateRange > 255)
+            throw std::string ("Error: host number \"" + value + "\" is out of bound.");
+    }
+}
+
+std::string   ft_split(std::string &needToSplit, std::string const &delimeter) {
+
+    std::size_t pos = needToSplit.find(delimeter);
+    std::string result;
+
+    if (pos == std::string::npos)
+        return "";
+    result = needToSplit.substr(0, pos);
+    needToSplit = needToSplit.substr(pos + delimeter.length(), needToSplit.length());
+    return result;
+}
+
+unsigned long hostIPToNetworkByteOrder(std::string const &hostIP) {
+
+    std::string     needToConvert = hostIP;
+    int             ipStorage[3];//IPV4
+    unsigned long   result;
+
+    for (int index = 0; index < 3; index++)
+        ipStorage[index] = ft_convert<unsigned long>(ft_split(needToConvert, "."));
+    
+    result = ft_convert<unsigned long>(needToConvert); //for the last bit in IP address.
+    for (int index = 2; index >= 0; index --)
+        result = (result * 256) + ipStorage[index];
+    return result;
+}
+
 template <typename T>
 T   ft_convert(std::string const &needToConvert) {
 
     std::stringstream   stream(needToConvert);
     T                   result;
+
+    if (is_digit(needToConvert) == false)
+        return false;
 
     stream >> result;
     return (result);

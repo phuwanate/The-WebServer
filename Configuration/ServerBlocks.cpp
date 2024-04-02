@@ -54,7 +54,13 @@ std::string ServerBlocks::getserverNames() {
 }
 
 void    ServerBlocks::setPortNumb(int val) {
+    
     this->_portNumb = val;
+}
+
+void    ServerBlocks::setHostIP(unsigned long val) {
+
+    this->_hostIP = val;
 }
 
 void ServerBlocks::__initAllAttributes(std::string const &serverBlock) {
@@ -84,10 +90,10 @@ void ServerBlocks::__initAllAttributes(std::string const &serverBlock) {
         }
         else if (target == ";") {
             if (currentDirective == "") {
-                throw (std::string ("Error: unexpected \";\" in configuration file."));          
+                throw std::string ("Error: unexpected \";\" in configuration file.");          
             }
             //get directive's value to server instance;
-            __initServerAttribute(currentDirective, values);
+            __initServerParameters(currentDirective, values);
             currentDirective = "";
             values.clear();
             index += target.length();//index++
@@ -104,12 +110,24 @@ void ServerBlocks::__initAllAttributes(std::string const &serverBlock) {
         throw std::string ("Error: location blocks does not exists in configuration file.");
 }
 
-void ServerBlocks::__initServerAttribute(std::string const &directive, std::vector<std::string> values) {
+void ServerBlocks::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
 
     if (directive == "listen") {
+
         if (is_digit(values[0]) == false)
             throw std::string("Error: invalid parameter \"" + values[0] + "\" in listen directive.");    
         setPortNumb(ft_convert<int>(values[0]));
-        // std::cout << getPortNumb() << std::endl;
+        std::cout << "Port: " << getPortNumb() << std::endl;
+    }
+    else if (directive == "host") {
+
+        if (values.size() != 1)
+            throw std::string("Error: invalid numbers of parameter in host directive.");
+        
+        if (values[0] == "localhost")
+            values[0] = "127.0.0.1";
+        validateHostNumber(values[0]);
+        setHostIP(hostIPToNetworkByteOrder(values[0]));
+        std::cout << "Host: " << getHostIP() << std::endl;
     }
 }

@@ -23,10 +23,11 @@ class ServerBlocks {
         std::string                 getserverNames();
 
         void                        setPortNumb(int val);
+        void                        setHostIP(unsigned long val);
     
     private:
         void                        __initAllAttributes(std::string const &serverBlock);
-        void                        __initServerAttribute(std::string const &directive, std::vector<std::string> values);
+        void                        __initServerParameters(std::string const &directive, std::vector<std::string> values);
         
 
         size_t                      _portNumb; //setup port

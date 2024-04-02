@@ -9,10 +9,8 @@ Config::Config(std::string const &pathToConfigFile) {
     
     //get every directives to all variable in Config class
     setPathToConfigFile(pathToConfigFile);
-    if (__cleanContent() == false) {
-
+    if (__cleanContent() == false)
         throw std::string("Error: Can not open config file.");
-    }
     __generateConfig();
 
     return;
@@ -88,17 +86,15 @@ bool    Config::__generateConfig() {
         content = this->_fileContents.substr(index, this->_fileContents.length());
         serverBlock = getBlock(content, "server", true);
         if (serverBlock.length() == 0)
-            return false;
+            throw std::string ("Error: invalid server block.");
         index += findFirstBrace(content, "server");
         ServerBlocks serverBlockInstance(serverBlock);
         if (this->_serverBlocks.size() > 1) {
-            std::cout << "here" << std::endl;
             for (size_t index = 0; index < this->_serverBlocks.size(); index++){    
                 isConflict(serverBlockInstance, this->_serverBlocks[index]);
             }
         }
         this->_serverBlocks.push_back(serverBlockInstance);
-        // std::cout << this->_serverBlocks.size() << std::endl;
     }
     return true;
 }
