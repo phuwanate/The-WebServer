@@ -14,7 +14,7 @@ size_t        findFirstBrace(std::string const &content, std::string const &need
 void          isConflict(ServerBlocks newInstance,ServerBlocks oldInstance);
 std::string   searchTarget(std::string const &content);
 bool          isWhiteSpace(char target);
-bool          is_digit(std::string values);
+bool          isDigit(std::string values);
 void          validateHostIP(std::string value);
 unsigned long hostIPToNetworkByteOrder(std::string const &hostIP);
 std::string   ft_split(std::string &needToSplit, std::string const &delimeter);

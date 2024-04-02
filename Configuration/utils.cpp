@@ -82,7 +82,7 @@ bool isWhiteSpace(char target) {
     return false;
 }
 
-bool  is_digit(std::string values) {
+bool  isDigit(std::string values) {
 
     for (std::string::iterator it = values.begin(); it != values.end(); it++) {
         if (std::isdigit(*it) == false)
@@ -97,7 +97,7 @@ void    validateHostIP(std::string value) {
         // std::cout << "here" << std::endl;
         size_t pos = value.find(".");
         if (pos == std::string::npos){
-            if (value == "" || is_digit(value) == false)
+            if (value == "" || isDigit(value) == false)
                 throw std::string ("Error: invalid host number \"" + value + "\" in host directive.");
             validateRange = ft_convert<int>(value);
             if (validateRange < 0 || validateRange > 255)
@@ -105,7 +105,7 @@ void    validateHostIP(std::string value) {
             break;
         }
         std::string target = value.substr(0, pos);
-        if (target == "" || is_digit(target) == false)
+        if (target == "" || isDigit(target) == false)
             throw std::string ("Error: invalid host number \"" + value + "\" in host directive.");
         value = value.substr(pos + 1, (value.length()) - (pos + 1));
         validateRange = ft_convert<int>(target);
@@ -147,7 +147,7 @@ T   ft_convert(std::string const &needToConvert) {
     std::stringstream   stream(needToConvert);
     T                   result;
 
-    if (is_digit(needToConvert) == false)
+    if (isDigit(needToConvert) == false)
         return false;
 
     stream >> result;
