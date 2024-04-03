@@ -5,10 +5,10 @@ LocationBlocks::LocationBlocks() {
 	return;
 }
 
-LocationBlocks::LocationBlocks(std::string const &locationBlock) {
+LocationBlocks::LocationBlocks(std::string const &locationBlock, ServerBlocks &serverBlock) {
 
-    //get every directives to all variable in LocationBlocks class
-	(void)locationBlock;
+	__copyAttributes(serverBlock);
+	__initLocation(locationBlock);
 	return;
 }
 
@@ -21,13 +21,13 @@ LocationBlocks &LocationBlocks::operator= (LocationBlocks const &locationBlockIn
 
 	if (this != &locationBlockInstance) {
 
-		this->_path = locationBlockInstance._path;
 		this->_root = locationBlockInstance._root;
 		this->_index = locationBlockInstance._index;
 		this->_alias = locationBlockInstance._alias;
 		this->_return = locationBlockInstance._return;
 		this->_autoIndex = locationBlockInstance._autoIndex;
 		this->_allowMethods = locationBlockInstance._allowMethods;
+		this->_directoryPath = locationBlockInstance._directoryPath;
 		this->_cgiCompilerPath = locationBlockInstance._cgiCompilerPath;
 		this->_cgiFileExtention = locationBlockInstance._cgiFileExtention;
 		this->_clientMaxBodySize = locationBlockInstance._clientMaxBodySize;
@@ -37,5 +37,243 @@ LocationBlocks &LocationBlocks::operator= (LocationBlocks const &locationBlockIn
 
 LocationBlocks::~LocationBlocks() {
 
+	return;
+}
+
+std::string LocationBlocks::getDirectoryPath() {
+
+	return this->_directoryPath;
+}
+
+std::string LocationBlocks::getAlias() {
+
+	return this->_alias;
+}
+
+std::string                 LocationBlocks::getRoot() {
+
+	return this->_root;
+}
+
+std::string                 LocationBlocks::getReturn() {
+
+	return this->_return;
+}
+
+std::vector<std::string>    LocationBlocks::getIndex() {
+
+	return this->_index;
+}
+
+std::vector<std::string>    LocationBlocks::getCgiFileExtention() {
+
+	return this->_cgiFileExtention;
+}
+
+std::vector<std::string>    LocationBlocks::getCigCompilerPath() {
+
+	return this->_cgiCompilerPath;
+}
+
+std::map<std::string, bool>	LocationBlocks::getAllowMethods() {
+
+	return this->_allowMethods;
+}
+
+bool                        LocationBlocks::getAutoIndex() {
+
+	return this->_autoIndex;
+}
+size_t                      LocationBlocks::getClientMaxBodySize() {
+
+	return this->_clientMaxBodySize;
+}
+
+
+void        LocationBlocks::setDirectoryPath(std::string const &val) {
+
+	this->_directoryPath = val;
+}
+
+void		LocationBlocks::setAlias(std::string const &val) {
+
+	this->_alias = val;
+}
+
+void        LocationBlocks::setRoot(std::string const &val) {
+
+	this->_root = val;
+}
+
+void        LocationBlocks::setReturn(std::string const &val) {
+
+	this->_return = val;
+}
+
+void        LocationBlocks::setIndex(std::vector<std::string> const &val) {
+	this->_index = val;
+}
+
+void        LocationBlocks::setCgiFileExtention(std::vector<std::string>  const &val) {
+
+	this->_cgiFileExtention = val;
+}
+
+void        LocationBlocks::setCigCompilerPath(std::vector<std::string>  const &val) {
+
+	this->_cgiCompilerPath = val;
+}
+
+void        LocationBlocks::setAllowMethod(std::string const &key, bool val) {
+
+	this->_allowMethods[key] = val;
+}
+
+void        LocationBlocks::setAutoindex(bool val) {
+
+	this->_autoIndex = val;
+}
+
+void        LocationBlocks::setClientMaxBodySize(size_t val) {
+
+	this->_clientMaxBodySize = val;
+}
+
+void		LocationBlocks::__copyAttributes(ServerBlocks &serverBlock) {
+
+	setRoot(serverBlock.getRoot());
+	setIndex(serverBlock.getIndex());
+	setAutoindex(serverBlock.getAutoindex());
+	setClientMaxBodySize(serverBlock.getClientMaxBodySize());
+}
+
+void		LocationBlocks::__setAllMethods(bool val) {
+
+	setAllowMethod("GET", val);
+	setAllowMethod("POST", val);
+	setAllowMethod("PUT", val);
+	setAllowMethod("DELETE", val);
+
+}
+
+void 	LocationBlocks::__initLocation(std::string const &locationBlock){
+
+	std::string                 currentDirective = "";
+    std::string                 content, target;
+    std::vector<std::string>    values;
+
+	for (size_t index = 0; index < locationBlock.length();) {
+
+		for (; isWhiteSpace(locationBlock[index]) == true; index++) { }
+
+		content = locationBlock.substr(index, locationBlock.length());
+		target = searchTarget(content);
+		if (currentDirective == "location") {
+			if (target.find("/") != std::string::npos) {
+				setDirectoryPath(target);
+			}
+			else if (target == "{" || target == "}")
+				currentDirective = "";
+			if (getDirectoryPath() == "")
+				throw std::string ("Error: invalid path in location directive.");
+			index += target.length();
+		}
+		else if (target == "{" || target == "}") {
+
+			if (currentDirective != "")
+				throw std::string ("Error: unexpected \"" + target + "\" in configuration file.");
+			index += target.length();
+		}
+		else if (target == ";") {
+
+			if (currentDirective == "")
+				throw std::string ("Error: unexpected \"" + target + "\" in configuration file.");
+			__initLocationParameters(currentDirective, values);
+			values.clear();
+			currentDirective = "";
+			index += target.length();
+		}
+		else {
+
+			if (currentDirective == "")
+				currentDirective = target;
+			else
+				values.push_back(target);
+			index += target.length();
+		}
+	}
+	std::cout << "Location path: " << getDirectoryPath() << std::endl;
+	std::cout << "Location root: " << getRoot() << std::endl;
+	std::cout << "Location index: " << getIndex()[0] << std::endl;
+	std::cout << "Location alias: " << getAlias() << std::endl;
+	std::cout << "Location allow_http_methods [GET]: " << std::boolalpha << getAllowMethods()["GET"] << std::endl;
+	std::cout << "Location allow_http_methods [POST]: " << std::boolalpha << getAllowMethods()["POST"] << std::endl;
+	std::cout << "Location allow_http_methods [PUT]: " << std::boolalpha << getAllowMethods()["PUT"] << std::endl;
+	std::cout << "Location allow_http_methods [DELETE]: " << std::boolalpha << getAllowMethods()["DELETE"] << std::endl;
+
+}
+
+void	LocationBlocks::__initLocationParameters(std::string const &directive, std::vector<std::string> values) {
+
+	if (directive == "alias") {
+		if (values.size() != 1)
+			throw errNumberOfParameters(directive, "location");
+		setAlias(values[0]);
+	}
+	else if (directive == "allow_http_methods") {
+		if (values.size() < 1)
+			throw errNumberOfParameters(directive, "location");
+		__setAllMethods(false);
+
+		std::vector<std::string>::iterator it;
+		for (it = values.begin(); it != values.end(); it++) {
+
+			std::string method = ftToupper(*it);
+			std::map<std::string, bool> allowMethods = getAllowMethods();
+			if (allowMethods.find(method) == allowMethods.end())
+				throw std::string ("Error: [location] invalid parameter \"" + *it + "\" in allow_http_methods directive.");
+			setAllowMethod(method, true);
+		}
+	}
+	else if (directive == "index") {
+		if (values.size() < 1)
+			throw errNumberOfParameters(directive, "location");
+		setIndex(values);
+	}
+	else if (directive == "autoindex") {
+		if (values.size() != 1)
+			throw errNumberOfParameters(directive, "location");
+		if (values[0] == "on")
+        	setAutoindex(true);
+        else if (values[0] == "off")
+            setAutoindex(false);
+        else
+            throw std::string("Error: [location] invalid  parameter " + values[0] + " in autoindex directive.");
+	}
+	else if (directive == "return") {
+		if (values.size() != 1)
+			throw errNumberOfParameters(directive, "location");
+		setReturn(values[0]);
+	}
+	else if (directive == "cgi_extensions") {
+		if (values.size() < 1)
+			throw errNumberOfParameters(directive, "location");
+		setCgiFileExtention(values);
+	}
+	else if (directive == "cgi_compiler_path") {
+		if (values.size() < 1)
+			throw errNumberOfParameters(directive, "location");
+		setCigCompilerPath(values);
+	}
+	else if (directive == "client_max_body_size") {
+		if (values.size() != 1 || isDigit(values[0]) == false)
+			throw errNumberOfParameters(directive, "location");
+		setClientMaxBodySize(convertString<size_t>(values[0]));
+	}
+	else if (directive == "root") {
+		if (values.size() != 1)
+			throw errNumberOfParameters(directive, "location");
+		setRoot(values[0]);
+	}
 	return;
 }

@@ -91,7 +91,7 @@ bool    Config::__generateConfig() {
         ServerBlocks serverBlockInstance(serverBlock);
         if (this->_serverBlocks.size() > 1) {
             for (size_t index = 0; index < this->_serverBlocks.size(); index++){    
-                isConflict(serverBlockInstance, this->_serverBlocks[index]);
+                isServerConflict(serverBlockInstance, this->_serverBlocks[index]);
             }
         }
         this->_serverBlocks.push_back(serverBlockInstance);

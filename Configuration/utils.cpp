@@ -44,12 +44,18 @@ size_t      findFirstBrace(std::string const &content, std::string const &needle
     return content.find("{");
 }
 
-void        isConflict(ServerBlocks newInstance, ServerBlocks oldInstance) {
+void        isServerConflict(ServerBlocks newInstance, ServerBlocks oldInstance) {
 
     if ( (newInstance.getHostIP() == oldInstance.getHostIP()) && \
     (newInstance.getPortNumb() == oldInstance.getPortNumb()) && \
     (newInstance.getServerName() == oldInstance.getServerName()))
         throw std::string("Error: found duplicating servers block.");
+}
+
+void          isLocationDuplicate(LocationBlocks newInstance, LocationBlocks oldInstance) {
+
+    if (newInstance.getDirectoryPath() == oldInstance.getDirectoryPath())
+        throw std::string ("Error: duplicate location \"" + newInstance.getDirectoryPath() + "\" in location block.");
 }
 
 std::string searchTarget(std::string const &content) {
@@ -61,7 +67,7 @@ std::string searchTarget(std::string const &content) {
     for (; index < content.length(); index++) {
 
         if (isWhiteSpace(content[index]) == true)
-            return content.substr(0, index); //for collect directive keywords (listen, index, etc.)
+            return content.substr(0, index); //for retrive directive keywords (listen, index, etc.)
         switch (content[index]){
 
             case '{':
@@ -146,6 +152,21 @@ bool checkFileExists(std::string File) {
     std::ifstream inputStream(File.c_str());
 
     return  inputStream.good();
+}
+
+std::string   errNumberOfParameters(std::string const &directive, std::string const &block) {
+
+    return "Error: [" + block + "] invalid numbers of parameters \"" + directive + "\" directive";
+}
+
+std::string   ftToupper(std::string src) {
+    
+    std::string result;
+    
+    for (size_t index = 0; index < src.length(); index++) {
+        result += toupper(src[index]);
+    }
+    return result;
 }
 
 template <typename T>

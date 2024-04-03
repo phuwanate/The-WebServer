@@ -7,12 +7,15 @@
 #include <sstream>
 #include <fstream>
 #include "ServerBlocks.hpp"
+#include "LocationBlocks.hpp"
 
+class LocationBlocks;
 class ServerBlocks;
 
 std::string   getBlock(std::string const &content, std::string const &needle, bool skipKeyword);
 size_t        findFirstBrace(std::string const &content, std::string const &needle);
-void          isConflict(ServerBlocks newInstance,ServerBlocks oldInstance);
+void          isServerConflict(ServerBlocks newInstance,ServerBlocks oldInstance);
+void          isLocationDuplicate(LocationBlocks newInstance, LocationBlocks oldInstance);
 std::string   searchTarget(std::string const &content);
 bool          isWhiteSpace(char target);
 bool          isDigit(std::string values);
@@ -20,6 +23,8 @@ void          validateHostIP(std::string value);
 unsigned long hostIPToNetworkByteOrder(std::string const &hostIP);
 std::string   splitString(std::string &needToSplit, std::string const &delimeter);
 bool          checkFileExists(std::string File);
+std::string   errNumberOfParameters(std::string const &directive, std::string const &block);
+std::string   ftToupper(std::string src);
 
 template <typename T>
 T             convertString(std::string const &needToConvert);

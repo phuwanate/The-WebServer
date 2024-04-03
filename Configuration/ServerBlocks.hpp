@@ -41,7 +41,7 @@ class ServerBlocks {
 
 
     private:
-        void                        __initAllAttributes(std::string const &serverBlock);
+        void                        __initServer(std::string const &serverBlock);
         void                        __initServerParameters(std::string const &directive, std::vector<std::string> values);
         
 

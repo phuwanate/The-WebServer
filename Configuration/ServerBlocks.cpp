@@ -7,7 +7,7 @@ ServerBlocks::ServerBlocks() {
 
 ServerBlocks::ServerBlocks(std::string const &serverBlock) {
 
-    __initAllAttributes(serverBlock);
+    __initServer(serverBlock);
     return;
 }
 
@@ -120,23 +120,31 @@ void    ServerBlocks::setErrorPage(int key, std::string val) {
 }
 
 
-void ServerBlocks::__initAllAttributes(std::string const &serverBlock) {
+void ServerBlocks::__initServer(std::string const &serverBlock) {
 
     std::string                 currentDirective = "";
     std::string                 content, locationBlock, target;
     std::vector<std::string>    values;
 
-    for(size_t index = 0; index < serverBlock.length();) {
+    for (size_t index = 0; index < serverBlock.length();) {
         
         for (; isWhiteSpace(serverBlock[index]) == true; index++) { }
 
         content = serverBlock.substr(index, serverBlock.length());
         target = searchTarget(content);
         if (target == "location") {
-            //create location instance
             locationBlock = getBlock(content, "location", false);
             if (locationBlock.length() == 0)
                 throw std::string("Error: invalid location block.");
+
+            LocationBlocks locationBlockInstance(locationBlock, *this);
+            if (this->_locationBlocks.size() > 1) {
+                for (size_t index = 0; index < this->_locationBlocks.size(); index++) {
+                    isLocationDuplicate(locationBlockInstance, this->_locationBlocks[index]);
+                }
+            }
+            this->_locationBlocks.push_back(locationBlockInstance);
+            index += locationBlock.length();
         }
         else if (target == "{") {
             if (currentDirective != "")
@@ -177,7 +185,7 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
     else if (directive == "host") {
 
         if (values.size() != 1)
-            throw std::string("Error: invalid numbers of parameter in host directive.");
+            throw std::string("Error: invalid number of parameters in host directive.");
         
         if (values[0] == "localhost")
             values[0] = "127.0.0.1";
@@ -193,7 +201,7 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
     }
     else if (directive == "root") {
         if (values.size() != 1)
-            throw std::string ("Error: invalid numbers of parameter in root directive.");
+            throw std::string ("Error: invalid number of parameters in root directive.");
         setRoot(values[0]);
         //Debug
         std::cout << "Root: " << getRoot() << std::endl;
@@ -207,7 +215,7 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
     }
     else if (directive == "index") {
         if (values.size() < 1)
-            throw std::string ("Error: invalid numbers of parameter in index directive.");
+            throw std::string ("Error: invalid number of parameters in index directive.");
         setIndex(values);
         //Debug
         std::cout << "index: ";
@@ -220,7 +228,7 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
     else if (directive == "autoindex") {
 
         if (values.size() != 1)
-            throw std::string("Error: invalid numbers of parameter in autoindex directive.");
+            throw std::string("Error: invalid number of parameters in autoindex directive.");
         if (values[0] == "on")
             setAutoindex(true);
         else if (values[0] == "off")
@@ -231,12 +239,15 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
         std::cout << std::boolalpha <<"Autoindex: " << getAutoindex() << std::endl;
     }
     else if (directive == "error_page") {
-
         if (values.size() != 2 || isDigit(values[0]) == false)
             throw std::string("Error: invalid  parameters in error_page directive.");
-        if (checkFileExists(pathToErrorPage(values[1])) == true)
+        
+        std::string errorPage = pathToErrorPage(values[1]);
+        if (checkFileExists(errorPage) == true) {
             setErrorPage(convertString<int>(values[0]), values[1]);
-        //Debug
+        }else{
+            throw std::string("Error: Error page file does not exists: " + errorPage);
+        }
         std::map<int, std::string> errpage =  getErrorPage();
         std::cout << errpage[convertString<int>(values[0])] << std::endl; 
     }
@@ -252,4 +263,3 @@ std::string ServerBlocks::pathToErrorPage(std::string errorFilePath) {
         return (rootPath + "/" + errorFilePath);
     return (rootPath + errorFilePath);
 }
-
