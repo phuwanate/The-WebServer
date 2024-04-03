@@ -26,6 +26,7 @@ class ServerBlocks {
         std::vector<std::string>    getIndex();
         bool                        getAutoindex();
         std::map<int, std::string>  getErrorPage();
+        std::vector<LocationBlocks> getLocationBlocks();
         
 
         void                        setPortNumb(int val);

@@ -22,7 +22,9 @@ class Config {
             ~Config();
 
             void        setPathToConfigFile(std::string const &pathToConfigFile);
-            std::string getPathToConfigFile();
+            
+            std::string                 getPathToConfigFile();
+            std::vector<ServerBlocks>   getServerBlocks();
 
     private:
             std::string                 _pathToCofigFile;

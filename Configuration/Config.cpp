@@ -47,6 +47,11 @@ std::string Config::getPathToConfigFile() {
     return this->_pathToCofigFile;
 }
 
+std::vector<ServerBlocks>   Config::getServerBlocks() {
+
+    return this->_serverBlocks;
+}
+
 bool    Config::__cleanContent() {
 
     std::string     content;

@@ -78,6 +78,10 @@ std::map<int, std::string>  ServerBlocks::getErrorPage() {
     return this->_errorPage;
 }
 
+std::vector<LocationBlocks> ServerBlocks::getLocationBlocks() {
+
+    return this->_locationBlocks;
+}
 
 void    ServerBlocks::setPortNumb(int val) {
     
