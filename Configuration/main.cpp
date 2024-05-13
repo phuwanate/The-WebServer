@@ -18,7 +18,9 @@ int main (int ac, char **av) {
 
     try{
      Config config(pathToConfigFile);
-    //  std::vector<ServerBlocks> serv = config.getServerBlocks();
+     std::vector<ServerBlocks> serv = config.getServerBlocks();
+     config.DebugEverythinginConfig(serv);
+    //  server part;
     } catch (std::string errorMassage) {
         std::cout << RED << errorMassage << DEFAULT << std::endl;
     } catch (std::out_of_range &e) {

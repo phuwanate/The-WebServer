@@ -137,12 +137,11 @@ void ServerBlocks::__initServer(std::string const &serverBlock) {
         content = serverBlock.substr(index, serverBlock.length());
         target = searchTarget(content);
         if (target == "location") {
-            locationBlock = getBlock(content, "location", false);
+            locationBlock = getBlock(content, "location ", false);
             if (locationBlock.length() == 0)
                 throw std::string("Error: invalid location block.");
-
             LocationBlocks locationBlockInstance(locationBlock, *this);
-            if (this->_locationBlocks.size() > 1) {
+            if (this->_locationBlocks.size() != 0) {
                 for (size_t index = 0; index < this->_locationBlocks.size(); index++) {
                     isLocationDuplicate(locationBlockInstance, this->_locationBlocks[index]);
                 }
@@ -183,8 +182,6 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
         if (isDigit(values[0]) == false)
             throw std::string("Error: invalid parameter \"" + values[0] + "\" in listen directive.");    
         setPortNumb(convertString<int>(values[0]));
-        //Debug
-        std::cout << "Port: " << getPortNumb() << std::endl;
     }
     else if (directive == "host") {
 
@@ -195,39 +192,24 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
             values[0] = "127.0.0.1";
         validateHostIP(values[0]);
         setHostIP(hostIPToNetworkByteOrder(values[0]));
-        //Debug
-        std::cout << "Host: " << getHostIP() << std::endl;
     }
     else if (directive == "server_name") {
         setServerName(values[0]);
-        //Debug
-        std::cout << "Server Name: " << getServerName() << std::endl;
     }
     else if (directive == "root") {
         if (values.size() != 1)
             throw std::string ("Error: invalid number of parameters in root directive.");
         setRoot(values[0]);
-        //Debug
-        std::cout << "Root: " << getRoot() << std::endl;
     }
     else if (directive == "client_max_body_size") {
         if (values.size() != 1 || isDigit(values[0]) == false)
             throw std::string ("Error: invalid parameters in client_max_body_size directive.");
         setClientMaxBodySize(convertString<size_t>(values[0]));
-        //Debug
-        std::cout << "client_max_body_size: " << getClientMaxBodySize() << std::endl;
     }
     else if (directive == "index") {
         if (values.size() < 1)
             throw std::string ("Error: invalid number of parameters in index directive.");
         setIndex(values);
-        //Debug
-        std::cout << "index: ";
-        std::vector<std::string> tmp = getIndex();
-        std::vector<std::string>::iterator it = tmp.begin();
-        for (; it != tmp.end(); it++)
-            std::cout << *it << " ";
-        std::cout << std::endl;
     }
     else if (directive == "autoindex") {
 
@@ -239,8 +221,6 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
             setAutoindex(false);
         else
             throw std::string("Error: invalid  parameter" + values[0] + "in autoindex directive.");
-        //Debug
-        std::cout << std::boolalpha <<"Autoindex: " << getAutoindex() << std::endl;
     }
     else if (directive == "error_page") {
         if (values.size() != 2 || isDigit(values[0]) == false)
@@ -252,8 +232,6 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
         }else{
             throw std::string("Error: Error page file does not exists: " + errorPage);
         }
-        std::map<int, std::string> errpage =  getErrorPage();
-        std::cout << errpage[convertString<int>(values[0])] << std::endl; 
     }
 }
 
@@ -266,4 +244,29 @@ std::string ServerBlocks::pathToErrorPage(std::string errorFilePath) {
     if (rootPath[rootPath.length() - 1] != '/' && errorFilePath[0] != '/')
         return (rootPath + "/" + errorFilePath);
     return (rootPath + errorFilePath);
+}
+
+void ServerBlocks::DebugServerBlock(void) {
+        std::cout << "          Port: " << getPortNumb() << std::endl;
+        std::cout << "          Server Name: " << getServerName() << std::endl;
+        std::cout << "          Host: " << getHostIP() << std::endl;
+        
+        std::cout << "          Root: " << getRoot() << std::endl;
+        
+        std::cout << "          client_max_body_size: " << getClientMaxBodySize() << std::endl;
+        
+        std::cout << "          index: ";
+        std::vector<std::string> tmp = getIndex();
+        std::vector<std::string>::iterator it = tmp.begin();
+        for (; it != tmp.end(); it++)
+            std::cout << "      " << *it << " ";
+        std::cout << std::endl;
+
+        std::cout << "          error_page: ";
+        std::map<int, std::string> errpage =  getErrorPage();
+        std::cout << "      " << errpage[convertString<int>("404")] << std::endl; 
+        
+        
+        std::cout << std::boolalpha << "          Autoindex: " << getAutoindex() << std::endl;
+            
 }

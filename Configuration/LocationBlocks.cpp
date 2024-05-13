@@ -202,15 +202,6 @@ void 	LocationBlocks::__initLocation(std::string const &locationBlock){
 			index += target.length();
 		}
 	}
-	std::cout << "Location path: " << getDirectoryPath() << std::endl;
-	std::cout << "Location root: " << getRoot() << std::endl;
-	std::cout << "Location index: " << getIndex()[0] << std::endl;
-	std::cout << "Location alias: " << getAlias() << std::endl;
-	std::cout << "Location allow_http_methods [GET]: " << std::boolalpha << getAllowMethods()["GET"] << std::endl;
-	std::cout << "Location allow_http_methods [POST]: " << std::boolalpha << getAllowMethods()["POST"] << std::endl;
-	std::cout << "Location allow_http_methods [PUT]: " << std::boolalpha << getAllowMethods()["PUT"] << std::endl;
-	std::cout << "Location allow_http_methods [DELETE]: " << std::boolalpha << getAllowMethods()["DELETE"] << std::endl;
-
 }
 
 void	LocationBlocks::__initLocationParameters(std::string const &directive, std::vector<std::string> values) {
@@ -276,4 +267,18 @@ void	LocationBlocks::__initLocationParameters(std::string const &directive, std:
 		setRoot(values[0]);
 	}
 	return;
+}
+
+void LocationBlocks::DebugLocationBlock()
+{
+	std::cout << "	location { " << std::endl;
+	std::cout << "		path: " << getDirectoryPath() << std::endl;
+	std::cout << "		root: " << getRoot() << std::endl;
+	std::cout << "		index: " << getIndex()[0] << std::endl;
+	std::cout << "		alias: " << getAlias() << std::endl;
+	std::cout << "		allow_http_methods [GET]: " << std::boolalpha << getAllowMethods()["GET"] << std::endl;
+	std::cout << "		allow_http_methods [POST]: " << std::boolalpha << getAllowMethods()["POST"] << std::endl;
+	std::cout << "		allow_http_methods [PUT]: " << std::boolalpha << getAllowMethods()["PUT"] << std::endl;
+	std::cout << "		allow_http_methods [DELETE]: " << std::boolalpha << getAllowMethods()["DELETE"] << std::endl;
+	std::cout << "	} " << std::endl;
 }

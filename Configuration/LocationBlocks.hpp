@@ -38,6 +38,8 @@ class LocationBlocks {
         void        setAllowMethod(std::string const &key, bool val);
         void        setAutoindex(bool val);
         void        setClientMaxBodySize(size_t val);
+        
+        void        DebugLocationBlock();
 
     private:
 

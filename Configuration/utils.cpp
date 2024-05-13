@@ -27,7 +27,6 @@ std::string getBlock(std::string const &content, std::string const &needle, bool
         else if (content[index] == '}')
             bracesCount--;
     }
-
     if (bracesCount == 0)
         targetBlock = content.substr(start, index - start);
     return targetBlock;
@@ -35,13 +34,14 @@ std::string getBlock(std::string const &content, std::string const &needle, bool
 
 size_t      findFirstBrace(std::string const &content, std::string const &needle) {
     
-    // size_t index = content.find(needle);
-    if (content.find(needle) == std::string::npos)
+    size_t index = content.find(needle);
+
+    index += needle.length();
+    if (index == std::string::npos)
         return 0;
-    // index += needle.length();
-    // for (; index < content.length() && content[index] != '{'; index++) { }
-    
-    return content.find("{");
+    for (; index < content.length() && content[index] != '{'; index++) {}
+
+    return index;
 }
 
 void        isServerConflict(ServerBlocks newInstance, ServerBlocks oldInstance) {

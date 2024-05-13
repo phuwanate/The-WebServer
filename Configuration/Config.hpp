@@ -25,6 +25,7 @@ class Config {
             
             std::string                 getPathToConfigFile();
             std::vector<ServerBlocks>   getServerBlocks();
+            void                        DebugEverythinginConfig(std::vector<ServerBlocks> serverBlocks);
 
     private:
             std::string                 _pathToCofigFile;

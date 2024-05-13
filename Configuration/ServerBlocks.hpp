@@ -39,12 +39,12 @@ class ServerBlocks {
         void                        setErrorPage(int key, std::string val);
 
         std::string                 pathToErrorPage(std::string values);
+        void                        DebugServerBlock();        
 
 
     private:
         void                        __initServer(std::string const &serverBlock);
         void                        __initServerParameters(std::string const &directive, std::vector<std::string> values);
-        
 
         size_t                      _portNumb; //setup port
         unsigned long               _hostIP; //setup host IP address
