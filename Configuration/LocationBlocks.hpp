@@ -23,7 +23,7 @@ class LocationBlocks {
         std::string                 getReturn();
         std::vector<std::string>    getIndex();
         std::vector<std::string>    getCgiFileExtention();
-        std::vector<std::string>    getCigCompilerPath();
+        std::vector<std::string>    getCgiCompilerPath();
         std::map<std::string, bool> getAllowMethods();
         bool                        getAutoIndex();
         size_t                      getClientMaxBodySize();
@@ -34,7 +34,7 @@ class LocationBlocks {
         void        setReturn(std::string const &val);
         void        setIndex(std::vector<std::string> const &val);
         void        setCgiFileExtention(std::vector<std::string>  const &val);
-        void        setCigCompilerPath(std::vector<std::string>  const &val);
+        void        setCgiCompilerPath(std::vector<std::string>  const &val);
         void        setAllowMethod(std::string const &key, bool val);
         void        setAutoindex(bool val);
         void        setClientMaxBodySize(size_t val);

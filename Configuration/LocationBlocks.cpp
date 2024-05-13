@@ -70,7 +70,7 @@ std::vector<std::string>    LocationBlocks::getCgiFileExtention() {
 	return this->_cgiFileExtention;
 }
 
-std::vector<std::string>    LocationBlocks::getCigCompilerPath() {
+std::vector<std::string>    LocationBlocks::getCgiCompilerPath() {
 
 	return this->_cgiCompilerPath;
 }
@@ -119,7 +119,7 @@ void        LocationBlocks::setCgiFileExtention(std::vector<std::string>  const 
 	this->_cgiFileExtention = val;
 }
 
-void        LocationBlocks::setCigCompilerPath(std::vector<std::string>  const &val) {
+void        LocationBlocks::setCgiCompilerPath(std::vector<std::string>  const &val) {
 
 	this->_cgiCompilerPath = val;
 }
@@ -254,7 +254,7 @@ void	LocationBlocks::__initLocationParameters(std::string const &directive, std:
 	else if (directive == "cgi_compiler_path") {
 		if (values.size() < 1)
 			throw errNumberOfParameters(directive, "location");
-		setCigCompilerPath(values);
+		setCgiCompilerPath(values);
 	}
 	else if (directive == "client_max_body_size") {
 		if (values.size() != 1 || isDigit(values[0]) == false)
@@ -273,9 +273,25 @@ void LocationBlocks::DebugLocationBlock()
 {
 	std::cout << "	location { " << std::endl;
 	std::cout << "		path: " << getDirectoryPath() << std::endl;
+	std::cout << "		alias: " << getAlias() << std::endl;
 	std::cout << "		root: " << getRoot() << std::endl;
 	std::cout << "		index: " << getIndex()[0] << std::endl;
-	std::cout << "		alias: " << getAlias() << std::endl;
+	std::cout << "		autoindex: " << getAutoIndex() << std::endl;
+
+	std::cout << "		cgi_compiler_path: ";
+	std::vector<std::string> cgiPath = getCgiCompilerPath();
+	std::vector<std::string>::iterator it_p = cgiPath.begin();
+	for (; it_p != cgiPath.end(); it_p++)
+		std::cout <<  *it_p << " ";
+	std::cout << std::endl;
+
+	std::cout << "		cgi_file_extension: ";
+	std::vector<std::string> cgiExt = getCgiFileExtention();
+	std::vector<std::string>::iterator it_x = cgiExt.begin();
+	for (; it_x!= cgiExt.end(); it_x++)
+		std::cout <<  *it_x << " ";
+	std::cout << std::endl;
+	
 	std::cout << "		allow_http_methods [GET]: " << std::boolalpha << getAllowMethods()["GET"] << std::endl;
 	std::cout << "		allow_http_methods [POST]: " << std::boolalpha << getAllowMethods()["POST"] << std::endl;
 	std::cout << "		allow_http_methods [PUT]: " << std::boolalpha << getAllowMethods()["PUT"] << std::endl;
