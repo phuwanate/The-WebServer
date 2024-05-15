@@ -1,22 +1,22 @@
-#include "ServerBlocks.hpp"
+#include "ServerBlock.hpp"
 
-ServerBlocks::ServerBlocks() {
+ServerBlock::ServerBlock() {
 
 	return;
 }
 
-ServerBlocks::ServerBlocks(std::string const &serverBlock) {
+ServerBlock::ServerBlock(std::string const &serverBlock) {
 
 	__initServer(serverBlock);
 	return;
 }
 
-ServerBlocks::ServerBlocks(ServerBlocks const &serverBlockInstance) {
+ServerBlock::ServerBlock(ServerBlock const &serverBlockInstance) {
 
 	*this = serverBlockInstance;
 }
 
-ServerBlocks &ServerBlocks::operator= (ServerBlocks const &serverBlockInstance) {
+ServerBlock &ServerBlock::operator= (ServerBlock const &serverBlockInstance) {
 
 	if (this != &serverBlockInstance) {
 
@@ -33,98 +33,108 @@ ServerBlocks &ServerBlocks::operator= (ServerBlocks const &serverBlockInstance) 
 	return *this;
 }
 
-ServerBlocks::~ServerBlocks() {
+ServerBlock::~ServerBlock() {
 
 	return;
 }
 
-int ServerBlocks::getPortNumb() {
+int ServerBlock::getPortNumb() {
 
 	return this->_portNumb;
 }
 
-unsigned long ServerBlocks::getHostIP() {
+unsigned long ServerBlock::getHostIP() {
 
 	return this->_hostIP;
 }
 
-std::string ServerBlocks::getServerName() {
+std::string ServerBlock::getServerName() {
 
 	return this->_serverNames;
 }
 
-std::string ServerBlocks::getRoot() {
+std::string ServerBlock::getRoot() {
 
 	return this->_root;
 }
 
-size_t  ServerBlocks::getClientMaxBodySize() {
+size_t  ServerBlock::getClientMaxBodySize() {
 
 	return this->_clientMaxBodySize;
 }
 
-std::vector<std::string> ServerBlocks::getIndex() {
+std::vector<std::string> ServerBlock::getIndex() {
 
 	return this->_index;
 }
 
-bool    ServerBlocks::getAutoindex() {
+bool    ServerBlock::getAutoindex() {
 
 	return this->_autoIndex;
 }
 
-std::map<int, std::string>  ServerBlocks::getErrorPage() {
+std::map<int, std::string>  ServerBlock::getErrorPage() {
 
 	return this->_errorPage;
 }
 
-std::vector<LocationBlocks> ServerBlocks::getLocationBlocks() {
+std::vector<LocationBlock>& ServerBlock::getLocationBlocks() {
 
 	return this->_locationBlocks;
 }
 
-void    ServerBlocks::setPortNumb(int val) {
+int	ServerBlock::getSocket() {
+
+	return this->_socket_fd;
+}
+
+void    ServerBlock::setPortNumb(int val) {
 	
 	this->_portNumb = val;
 }
 
-void    ServerBlocks::setHostIP(unsigned long val) {
+void    ServerBlock::setHostIP(unsigned long val) {
 
 	this->_hostIP = val;
 }
 
-void    ServerBlocks::setServerName(std::string val) {
+void    ServerBlock::setServerName(std::string val) {
 
 	this->_serverNames = val;
 }
 
-void    ServerBlocks::setRoot(std::string val) {
+void    ServerBlock::setRoot(std::string val) {
 
 	this->_root = val;
 }
 
-void    ServerBlocks::setClientMaxBodySize(size_t val) {
+void    ServerBlock::setClientMaxBodySize(size_t val) {
 
 	this->_clientMaxBodySize = val;
 }
 
-void    ServerBlocks::setIndex(std::vector<std::string> val) {
+void    ServerBlock::setIndex(std::vector<std::string> val) {
 
 	this->_index = val;
 }
 
-void    ServerBlocks::setAutoindex(bool val) {
+void    ServerBlock::setAutoindex(bool val) {
 
 	this->_autoIndex = val;
 }
 
-void    ServerBlocks::setErrorPage(int key, std::string val) {
+void    ServerBlock::setErrorPage(int key, std::string val) {
 
 	this->_errorPage[key] = val;
 }
 
+void    ServerBlock::setLocationMap(std::string directoryPath, LocationBlock const &locationBlock) {
 
-void ServerBlocks::__initServer(std::string const &serverBlock) {
+	this->_locationMap[directoryPath] = locationBlock;
+}
+
+
+void ServerBlock::__initServer(std::string const &serverBlock) {
 
 	std::string                 currentDirective = "";
 	std::string                 content, locationBlock, target;
@@ -140,12 +150,14 @@ void ServerBlocks::__initServer(std::string const &serverBlock) {
 			locationBlock = getBlock(content, "location ", false);
 			if (locationBlock.length() == 0)
 				throw std::string("Error: invalid location block.");
-			LocationBlocks locationBlockInstance(locationBlock, *this);
+			LocationBlock locationBlockInstance(locationBlock, *this);
 			if (this->_locationBlocks.size() != 0) {
 				for (size_t index = 0; index < this->_locationBlocks.size(); index++) {
 					isLocationDuplicate(locationBlockInstance, this->_locationBlocks[index]);
 				}
 			}
+			//Add
+			setLocationMap(locationBlockInstance.getDirectoryPath(), locationBlockInstance);
 			this->_locationBlocks.push_back(locationBlockInstance);
 			index += locationBlock.length();
 		}
@@ -175,7 +187,7 @@ void ServerBlocks::__initServer(std::string const &serverBlock) {
 		throw std::string ("Error: location blocks does not exists in configuration file.");
 }
 
-void ServerBlocks::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
+void ServerBlock::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
 
 	if (directive == "listen") {
 
@@ -235,7 +247,7 @@ void ServerBlocks::__initServerParameters(std::string const &directive, std::vec
 	}
 }
 
-std::string ServerBlocks::pathToErrorPage(std::string errorFilePath) {
+std::string ServerBlock::pathToErrorPage(std::string errorFilePath) {
 
 	std::string rootPath = getRoot();
 
@@ -246,7 +258,7 @@ std::string ServerBlocks::pathToErrorPage(std::string errorFilePath) {
 	return (rootPath + errorFilePath);
 }
 
-void ServerBlocks::DebugServerBlock(void) {
+void ServerBlock::DebugServerBlock(void) {
 		std::cout << "          Port:           " << getPortNumb() << std::endl;
 		std::cout << "          Server Name:    " << getServerName() << std::endl;
 		std::cout << "          Host:           " << getHostIP() << std::endl; 
@@ -265,4 +277,39 @@ void ServerBlocks::DebugServerBlock(void) {
 		std::cout << " " << errpage[convertString<int>("404")] << std::endl; 
 		
 		std::cout << std::boolalpha << "          Autoindex:	  " << getAutoindex() << std::endl;      
+}
+
+bool	ServerBlock::manageSocket() {
+
+	struct sockaddr_in s_addr;
+	int				   flag = 1;
+
+	if ((_socket_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		throw std::string("Error: cannot init socket...");
+	}
+
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&flag, sizeof(flag))< 0) {
+
+		std::cerr << RED << "Error: cannot set socket [" << _socket_fd << "]" << "to be reuseable..." << DEFAULT << std::endl;
+		return false;
+	}
+
+	if (fcntl(_socket_fd ,F_SETFL, O_NONBLOCK) < 0) {
+
+		std::cerr << RED << "Error: cannot set socket [" << _socket_fd << "]" << "to be non-blocking..." << DEFAULT << std::endl;
+		return false;
+	}
+
+	ft_memset(&s_addr, 0, sizeof(s_addr));
+	s_addr.sin_family = AF_INET; //IPV4
+	s_addr.sin_addr.s_addr = getHostIP(); //IP address as Network Byte order.
+	s_addr.sin_port = htons(getPortNumb());
+
+	if (bind(_socket_fd, (struct sockaddr*) &s_addr, sizeof(s_addr)) < 0) {
+
+		std::cerr << RED << "Error: cannot bind socket [" << _socket_fd << "]" << DEFAULT << std::endl;
+		return false;
+	}
+
+	return true;
 }

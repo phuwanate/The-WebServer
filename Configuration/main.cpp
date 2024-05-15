@@ -1,6 +1,6 @@
 #include "Config.hpp"
-#include "LocationBlocks.hpp"
-#include "ServerBlocks.hpp"
+#include "LocationBlock.hpp"
+#include "ServerBlock.hpp"
 
 #include <iostream>
 #include <cstdlib>
@@ -17,9 +17,14 @@ int main (int ac, char **av) {
     ac == 2 ? pathToConfigFile = av[1] : pathToConfigFile = "./config_files/default.conf";
 
     try{
-     Config config(pathToConfigFile);
-     std::vector<ServerBlocks> serv = config.getServerBlocks();
-     config.DebugEverythinginConfig(serv);
+        Config config(pathToConfigFile);
+        std::vector<ServerBlock> s_vec = config.getServerBlocks();
+        ServerHandler Handler(s_vec);
+        Handler.initHandler();
+        Handler.startServerHandler();
+        // config.DebugEverythinginConfig(serv);
+        // start_server(s_vec);
+
     //  server part;
     } catch (std::string errorMassage) {
         std::cout << RED << errorMassage << DEFAULT << std::endl;

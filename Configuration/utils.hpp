@@ -6,16 +6,18 @@
 #include <cctype>
 #include <sstream>
 #include <fstream>
-#include "ServerBlocks.hpp"
-#include "LocationBlocks.hpp"
+#include "ServerBlock.hpp"
+#include "LocationBlock.hpp"
+#include "Config.hpp"
 
-class LocationBlocks;
-class ServerBlocks;
+class LocationBlock;
+class ServerBlock;
+class Config;
 
 std::string   getBlock(std::string const &content, std::string const &needle, bool skipKeyword);
 size_t        findFirstBrace(std::string const &content, std::string const &needle);
-void          isServerConflict(ServerBlocks newInstance,ServerBlocks oldInstance);
-void          isLocationDuplicate(LocationBlocks newInstance, LocationBlocks oldInstance);
+void          isServerConflict(ServerBlock newInstance,ServerBlock oldInstance);
+void          isLocationDuplicate(LocationBlock newInstance, LocationBlock oldInstance);
 std::string   searchTarget(std::string const &content);
 bool          isWhiteSpace(char target);
 bool          isDigit(std::string values);
@@ -25,8 +27,13 @@ std::string   splitString(std::string &needToSplit, std::string const &delimeter
 bool          checkFileExists(std::string File);
 std::string   errNumberOfParameters(std::string const &directive, std::string const &block);
 std::string   ftToupper(std::string src);
+LocationBlock   searchLocation(std::string serverName, std::string directoryPath, std::vector<ServerBlock> s_vec);
+ServerBlock     searchServer(std::string serverName, std::vector<ServerBlock> s_vec);
+void	        *ft_memset(void *s, int src, size_t n);
+void            *ft_memcpy(void *dst, const void *src, size_t n);
 
 template <typename T>
 T             convertString(std::string const &needToConvert);
+
 
 #endif

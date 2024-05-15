@@ -1,22 +1,23 @@
-#ifndef SERVERBLOCKS_HPP
-# define SERVERBLOCKS_HPP
+#ifndef SERVERBLOCK_HPP
+# define SERVERBLOCK_HPP
 
 #include <map>
 #include <vector>
 #include <iostream>
-#include "LocationBlocks.hpp"
+#include "LocationBlock.hpp"
 #include "utils.hpp"
+#include <arpa/inet.h>
 
-class LocationBlocks;
+class LocationBlock;
 
-class ServerBlocks {
+class ServerBlock {
     
     public:
-        ServerBlocks();
-        ServerBlocks(std::string const &serverBlock);
-        ServerBlocks(ServerBlocks const &serverBlockInstance);
-        ServerBlocks &operator= (ServerBlocks const &serverBlockInstance);
-        ~ServerBlocks();
+        ServerBlock();
+        ServerBlock(std::string const &serverBlock);
+        ServerBlock(ServerBlock const &serverBlockInstance);
+        ServerBlock &operator= (ServerBlock const &serverBlockInstance);
+        ~ServerBlock();
 
         int                         getPortNumb();
         unsigned long               getHostIP();
@@ -26,7 +27,9 @@ class ServerBlocks {
         std::vector<std::string>    getIndex();
         bool                        getAutoindex();
         std::map<int, std::string>  getErrorPage();
-        std::vector<LocationBlocks> getLocationBlocks();
+        std::vector<LocationBlock>& getLocationBlocks();
+        int                         getSocket();
+        // std::map<std::string , LocationBlocks> getLocationMap();
         
 
         void                        setPortNumb(int val);
@@ -37,7 +40,9 @@ class ServerBlocks {
         void                        setIndex(std::vector<std::string> val);
         void                        setAutoindex(bool val);
         void                        setErrorPage(int key, std::string val);
+        void                        setLocationMap(std::string directoryPath, LocationBlock const &locationBlock);
 
+        bool                        manageSocket();
         std::string                 pathToErrorPage(std::string values);
         void                        DebugServerBlock();        
 
@@ -46,16 +51,18 @@ class ServerBlocks {
         void                        __initServer(std::string const &serverBlock);
         void                        __initServerParameters(std::string const &directive, std::vector<std::string> values);
 
+        int                         _socket_fd;
         size_t                      _portNumb; //setup port
         unsigned long               _hostIP; //setup host IP address
         size_t                      _clientMaxBodySize;
         std::string                 _serverNames;
         std::string                 _root;
         std::vector<std::string>    _index;
-        std::vector<LocationBlocks> _locationBlocks;
+        std::vector<LocationBlock> _locationBlocks;
         std::map<int, std::string>  _errorPage;
         bool                        _autoIndex;
 
+        std::map<std::string, LocationBlock>  _locationMap;
 };
 
 #endif

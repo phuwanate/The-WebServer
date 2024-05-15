@@ -1,21 +1,21 @@
-#ifndef LOCATIONBLOCKS_HPP
-# define LOCATIONBLOCKS_HPP
+#ifndef LOCATIONBLOCK_HPP
+# define LOCATIONBLOCK_HPP
 
 #include <map>
 #include <vector>
 #include <cctype>
-#include "ServerBlocks.hpp"
+#include "ServerBlock.hpp"
 
-class ServerBlocks;
+class ServerBlock;
 
-class LocationBlocks {
+class LocationBlock {
 
     public:
-        LocationBlocks();
-        LocationBlocks(std::string const &locationBlock, ServerBlocks &serverBlock);
-        LocationBlocks(LocationBlocks const &locationBlockInstance);
-        LocationBlocks &operator= (LocationBlocks const &locationBlockInstance);
-        ~LocationBlocks();
+        LocationBlock();
+        LocationBlock(std::string const &locationBlock, ServerBlock &serverBlock);
+        LocationBlock(LocationBlock const &locationBlockInstance);
+        LocationBlock &operator= (LocationBlock const &locationBlockInstance);
+        ~LocationBlock();
 
         std::string                 getDirectoryPath();
         std::string                 getAlias();
@@ -45,7 +45,7 @@ class LocationBlocks {
 
         void                            __initLocation(std::string const &locationBlock);
         void                            __initLocationParameters(std::string const &directive, std::vector<std::string> values);
-        void                            __copyAttributes(ServerBlocks &serverBlock);
+        void                            __copyAttributes(ServerBlock &serverBlock);
         void                            __setAllMethods(bool val);
 
         std::string                     _directoryPath;

@@ -44,7 +44,7 @@ size_t      findFirstBrace(std::string const &content, std::string const &needle
     return index;
 }
 
-void        isServerConflict(ServerBlocks newInstance, ServerBlocks oldInstance) {
+void        isServerConflict(ServerBlock newInstance, ServerBlock oldInstance) {
 
     if ( (newInstance.getHostIP() == oldInstance.getHostIP()) && \
     (newInstance.getPortNumb() == oldInstance.getPortNumb()) && \
@@ -52,7 +52,7 @@ void        isServerConflict(ServerBlocks newInstance, ServerBlocks oldInstance)
         throw std::string("Error: found duplicating servers block.");
 }
 
-void          isLocationDuplicate(LocationBlocks newInstance, LocationBlocks oldInstance) {
+void          isLocationDuplicate(LocationBlock newInstance, LocationBlock oldInstance) {
 
     if (newInstance.getDirectoryPath() == oldInstance.getDirectoryPath())
         throw std::string ("Error: duplicate location \"" + newInstance.getDirectoryPath() + "\" in location block.");
@@ -180,6 +180,72 @@ T   convertString(std::string const &needToConvert) {
 
     stream >> result;
     return (result);
+}
+
+ServerBlock     searchServer(std::string serverName, std::vector<ServerBlock> s_vec) {
+
+    std::vector<ServerBlock>::iterator s_it;
+    ServerBlock s_block;
+
+    for (s_it = s_vec.begin(); s_it != s_vec.end(); s_it++) {
+        if (s_it->getServerName() == serverName)
+            return *s_it;
+    }
+    if (s_it == s_vec.end())
+        throw std::string ("Error: Invalid server name: " + serverName + "\n");
+    return s_block;
+}
+
+LocationBlock   searchLocation(std::string serverName, std::string directoryPath, std::vector<ServerBlock> s_vec) {
+
+    std::vector<LocationBlock> l_vec;
+    std::vector<LocationBlock>::iterator l_it;
+    std::vector<ServerBlock>::iterator s_it;
+    LocationBlock  l_block;
+
+    for (s_it = s_vec.begin(); s_it != s_vec.end(); s_it++) {
+        if (s_it->getServerName() == serverName) {
+            l_vec = s_it->getLocationBlocks();
+            
+            for (l_it = l_vec.begin(); l_it != l_vec.end(); l_it++) {
+                if (l_it->getDirectoryPath() == directoryPath) {
+                    return *l_it;
+                }
+            }
+            if (l_it == l_vec.end())
+                throw std::string ("Error: Invalid location path: " + directoryPath + "\n");
+        }
+    }
+    if (s_it == s_vec.end())
+        throw std::string ("Error: Invalid server name: " + serverName + "\n");
+    return l_block;
+}
+
+void	*ft_memset(void *s, int src, size_t n)
+{
+	unsigned char	*dest;
+
+	dest = (unsigned char *)s;
+	while (n--)
+		*dest++ = (unsigned char)src;
+	return (s);
+}
+
+void	*ft_memcpy(void *dst, const void *src, size_t n)
+{
+	char	*s;
+	char	*d;
+
+	s = (char *)src;
+	d = (char *)dst;
+	if (src != NULL || dst != NULL)
+	{	
+		while (n--)
+		{
+			*d++ = *s++;
+		}
+	}
+	return (dst);
 }
 
 // template int ftConvert<int>(std::string const &needToConvert);

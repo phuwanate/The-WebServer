@@ -1,16 +1,25 @@
-#ifndef CONF_HPP
-# define CONF_HPP
+#ifndef CONFIG_HPP
+# define CONFIG_HPP
 
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include "ServerBlocks.hpp"
+#include <string>
+#include <map>
+#include "ServerBlock.hpp"
 #include "utils.hpp"
+#include "ServerHandler.hpp"
+#include "RequestResponse.hpp"
 
 #define DEFAULT "\033[0m"
 #define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
 
-class ServerBlocks;
+#define MAX_CON 10
+#define READ_BUFF 100000
+
+class ServerBlock;
 
 class Config {
 
@@ -22,15 +31,19 @@ class Config {
             ~Config();
 
             void        setPathToConfigFile(std::string const &pathToConfigFile);
+            void        setServerMap(std::string serverName, ServerBlock const &serverBlock);
             
-            std::string                 getPathToConfigFile();
-            std::vector<ServerBlocks>   getServerBlocks();
-            void                        DebugEverythinginConfig(std::vector<ServerBlocks> serverBlocks);
+            std::string                          getPathToConfigFile();
+            std::vector<ServerBlock>            getServerBlocks();
+            std::map<std::string, ServerBlock>  getServerMap();
+
+            void                                 DebugEverythinginConfig(std::vector<ServerBlock> serverBlocks);
 
     private:
-            std::string                 _pathToCofigFile;
-            std::string                 _fileContents;
-            std::vector<ServerBlocks>   _serverBlocks;
+            std::string                           _pathToCofigFile;
+            std::string                           _fileContents;
+            std::vector<ServerBlock>             _serverBlocks;
+        //     std::map<std::string, ServerBlock>   _serverMap;
 
             bool    __cleanContent();
             bool    __generateConfig();

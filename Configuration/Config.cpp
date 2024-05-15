@@ -49,7 +49,7 @@ std::string Config::getPathToConfigFile() {
     return this->_pathToCofigFile;
 }
 
-std::vector<ServerBlocks>   Config::getServerBlocks() {
+std::vector<ServerBlock>   Config::getServerBlocks() {
 
     return this->_serverBlocks;
 }
@@ -100,7 +100,7 @@ bool    Config::__generateConfig() {
             break;//handle case: newline at the last line.
         serverFound = true;
         index += findFirstBrace(content, "server");
-        ServerBlocks serverBlockInstance(serverBlock);
+        ServerBlock serverBlockInstance(serverBlock);
         if (this->_serverBlocks.size() != 0) {
             for (size_t index = 0; index < this->_serverBlocks.size(); index++){    
                 isServerConflict(serverBlockInstance, this->_serverBlocks[index]);
@@ -111,18 +111,18 @@ bool    Config::__generateConfig() {
     return true;
 }
 
-void  Config::DebugEverythinginConfig(std::vector<ServerBlocks> serverBlocks) {
+void  Config::DebugEverythinginConfig(std::vector<ServerBlock> serverBlocks) {
 
-    std::vector<ServerBlocks>::iterator it_s = serverBlocks.begin();
-    for (; it_s != serverBlocks.end(); it_s++) {
-        ServerBlocks curr_s = *it_s;
+    std::vector<ServerBlock>::iterator s_it = serverBlocks.begin();
+    for (; s_it != serverBlocks.end(); s_it++) {
+        ServerBlock curr_s = *s_it;
         std::cout << "Server {" << std::endl;
         curr_s.DebugServerBlock();
-        std::vector<LocationBlocks> vec_l = curr_s.getLocationBlocks();
-        std::vector<LocationBlocks>::iterator it_l = vec_l.begin();
-        for (; it_l != vec_l.end(); it_l++) {
-            LocationBlocks curr_l = *it_l;
-            curr_l.DebugLocationBlock();
+        std::vector<LocationBlock> l_vec = curr_s.getLocationBlocks();
+        std::vector<LocationBlock>::iterator l_it = l_vec.begin();
+        for (; l_it != l_vec.end(); l_it++) {
+            LocationBlock l_curr = *l_it;
+            l_curr.DebugLocationBlock();
         }
         std::cout << "}" << std::endl;
     }
