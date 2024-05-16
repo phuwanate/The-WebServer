@@ -46,9 +46,10 @@ class ServerHandler {
         void    writeResponse(int read_sd);
         void    clearMasterSet(int socket, fd_set *master_set);
         void    closeConn(int socket);
+        void    shutdown();
 
     private:
-        std::vector<ServerBlock>     _serverBlocks;
+        std::vector<ServerBlock>      _serverBlocks;
         int                           _max_sd;
         fd_set                        _listen_set;
         fd_set                        _read_set;

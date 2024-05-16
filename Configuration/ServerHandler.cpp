@@ -46,16 +46,6 @@ void    ServerHandler::initHandler() {
    }
 }
 
-void    ServerHandler::clearSocket() {
-
-   std::vector<ServerBlock>::iterator s_it = this->_serverBlocks.begin();
-   for (; s_it != this->_serverBlocks.end(); s_it++) {
-      close (s_it->getSocket());
-   }
-   std::cout << "Shut down...\n" << std::endl;
-   exit(-1);
-}
-
 void    ServerHandler::startServerHandler() {
 
       fd_set   working_read, working_write;
@@ -66,12 +56,12 @@ void    ServerHandler::startServerHandler() {
       timeout.tv_usec = 0;
 
       listenNewConnection();
-
+      
       do {
          ft_memcpy(&working_read, &_read_set, sizeof(_read_set));
          ft_memcpy(&working_write, &_write_set, sizeof(_write_set));
 
-         std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
+         // std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
          s_ready = select(_max_sd + 1, &working_read, &working_write, NULL, &timeout);
          if (s_ready < 0)
          {
@@ -81,12 +71,14 @@ void    ServerHandler::startServerHandler() {
          if (s_ready == 0)
          {
             std::cerr << GREEN << "select timeout: server is shuting down..." << DEFAULT << std::endl;
-            break;
+            shutdown();
+            exit(0);
          }
 
          checkStates(&s_ready, working_read, working_write);
 
       }while (true);
+
 }
 
 void    ServerHandler::checkStates(int *s_ready, fd_set &working_read, fd_set &working_write) {
@@ -135,16 +127,17 @@ void ServerHandler::readRequest(int read_sd) {
 
    char buffer[READ_BUFF];
 
+   std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
    int rc = recv(read_sd, buffer, sizeof(buffer), 0);
    if (rc > 0) {
-      std::cout << YELLOW << "Request: " << buffer << DEFAULT << std::endl;
+      std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
       clearMasterSet(read_sd, &_read_set);
+      ft_memset(&buffer, 0, sizeof(buffer));//Clear buffer
       addMasterSet(read_sd, &_write_set);
    }
 
    if (rc == 0) {
-        std::cout << GREEN << "Socket : [" << read_sd << "] Closed connection!" << DEFAULT << std::endl;
-        ft_memset(&buffer, 0, sizeof(buffer));
+        ft_memset(&buffer, 0, sizeof(buffer));//Clear buffer
         closeConn(read_sd);
     }
    return ;
@@ -186,11 +179,17 @@ void    ServerHandler::listenNewConnection() {
         }
         addMasterSet(s_it->getSocket(), &_listen_set);
         addMasterSet(s_it->getSocket(), &_read_set);
-        std::cout << GREEN << "Listening on socket: [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
+      //   std::cout << GREEN << "Listening on socket: [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
+       std::cout << GREEN << "Starting server on : port[" << s_it->getPortNumb() << "] "; 
+       std::cout << "fd [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
    }
    _max_sd = _serverBlocks.back().getSocket();
-   std::cout << "max_sd: " << _max_sd << std::endl;
+   // std::cout << "max_sd: " << _max_sd << std::endl;
 }
+
+//************************************************
+//Manage Socket, Fd, Connections
+//************************************************
 
 void ServerHandler::addMasterSet(int new_sock, fd_set *masterset) {
 
@@ -217,17 +216,65 @@ void  ServerHandler::clearMasterSet(int socket, fd_set *master_set) {
     }
 }
 
+void    ServerHandler::clearSocket() {
+
+   std::vector<ServerBlock>::iterator s_it = this->_serverBlocks.begin();
+   for (; s_it != this->_serverBlocks.end(); s_it++) {
+      close (s_it->getSocket());
+   }
+   std::cout << "Shut down...\n" << std::endl;
+   exit(-1);
+}
+
+
 void    ServerHandler::closeConn(int socket)
 {
-    if (FD_ISSET(socket, &_listen_set))
+   bool  on = false;
+    if (FD_ISSET(socket, &_listen_set)){
         clearMasterSet(socket, &_listen_set);
-
-    if (FD_ISSET(socket, &_read_set))
+        on = true;
+    }
+    if (FD_ISSET(socket, &_read_set)){
         clearMasterSet(socket, &_read_set);
-
-    if (FD_ISSET(socket, &_write_set))
+        on = true;
+    }
+    if (FD_ISSET(socket, &_write_set)){
         clearMasterSet(socket, &_write_set);
-
-    close(socket);
+        on = true;
+    }
+    if (on == true){
+      close(socket);
+      std::cout << GREEN << "Close client connection on socket : [" << socket << "] !" << DEFAULT << std::endl;
+    }
    //  _clients_map.erase(fd);
 }
+
+void    ServerHandler::shutdown(){
+
+   std::vector<ServerBlock>::iterator s_it = _serverBlocks.begin();
+   int client_sd;
+   for (; s_it != _serverBlocks.end(); s_it++) {
+      close (s_it->getSocket());
+      std::cout << GREEN << "Close listening connection on socket : [" << s_it->getSocket() << "] !" << DEFAULT << std::endl;
+      client_sd = s_it->getSocket();
+   }
+
+   client_sd += 1;
+   for (; client_sd <= _max_sd; client_sd++) {
+      closeConn(client_sd);
+   }
+   std::cout << YELLOW << "Shutdown server good bye...\n" << std::endl;
+}
+
+// void    ServerHandler::isConnectionTimeout()
+// {
+//     for (std::map<int, Client>::iterator cit = _clients_map.begin(); cit != _clients_map.end(); cit++)
+//     {
+//         if (time(NULL) - cit->second.getTime() > CONNECTION_TIMEOUT)
+//         {
+//             std::cout << YELLOW << "Client " << cit->first << " Timeout, closing connection" << RESET << std::endl;
+//             closeConnection(cit->first);
+//             return ;
+//         }   
+//     }
+// }

@@ -31,13 +31,12 @@ class Config {
             ~Config();
 
             void        setPathToConfigFile(std::string const &pathToConfigFile);
-            void        setServerMap(std::string serverName, ServerBlock const &serverBlock);
             
-            std::string                          getPathToConfigFile();
-            std::vector<ServerBlock>            getServerBlocks();
-            std::map<std::string, ServerBlock>  getServerMap();
+            std::string                 getPathToConfigFile();
+            std::vector<ServerBlock>    getServerBlocks();
 
-            void                                 DebugEverythinginConfig(std::vector<ServerBlock> serverBlocks);
+            void                        DebugEverythinginConfig(std::vector<ServerBlock> serverBlocks);
+            void                        shutdown();       
 
     private:
             std::string                           _pathToCofigFile;
