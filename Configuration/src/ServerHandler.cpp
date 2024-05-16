@@ -180,7 +180,7 @@ void    ServerHandler::listenNewConnection() {
         addMasterSet(s_it->getSocket(), &_read_set);
       //   std::cout << GREEN << "Listening on socket: [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
        std::cout << GREEN << "Starting server on : port[" << s_it->getPortNumb() << "] "; 
-       std::cout << "fd [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
+       std::cout << "socket [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
    }
    _max_sd = _serverBlocks.back().getSocket();
    // std::cout << "max_sd: " << _max_sd << std::endl;
@@ -243,7 +243,7 @@ void    ServerHandler::closeConn(int socket)
     }
     if (on == true){
       close(socket);
-      std::cout << GREEN << "Close client connection on socket : [" << socket << "] !" << DEFAULT << std::endl;
+      std::cout << GREEN << "Close client connection on : socket [" << socket << "] !" << DEFAULT << std::endl;
     }
    //  _clients_map.erase(fd);
 }
@@ -254,7 +254,7 @@ void    ServerHandler::gracefulShutdown(){
    int client_sd;
    for (; s_it != _serverBlocks.end(); s_it++) {
       close (s_it->getSocket());
-      std::cout << GREEN << "Close listening connection on socket : [" << s_it->getSocket() << "] !" << DEFAULT << std::endl;
+      std::cout << GREEN << "Close listening connection on : socket [" << s_it->getSocket() << "] !" << DEFAULT << std::endl;
       client_sd = s_it->getSocket();
    }
 
