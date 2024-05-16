@@ -11,7 +11,7 @@ ServerHandler *s_handler;
 void signalHandler(int signal) {
 
     (void)signal;
-    s_handler->shutdown();
+    s_handler->gracefulShutdown();
     exit(0);
 }
 

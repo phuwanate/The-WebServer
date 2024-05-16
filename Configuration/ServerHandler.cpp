@@ -71,7 +71,7 @@ void    ServerHandler::startServerHandler() {
          if (s_ready == 0)
          {
             std::cerr << GREEN << "select timeout: server is shuting down..." << DEFAULT << std::endl;
-            shutdown();
+            gracefulShutdown();
             exit(0);
          }
 
@@ -249,7 +249,7 @@ void    ServerHandler::closeConn(int socket)
    //  _clients_map.erase(fd);
 }
 
-void    ServerHandler::shutdown(){
+void    ServerHandler::gracefulShutdown(){
 
    std::vector<ServerBlock>::iterator s_it = _serverBlocks.begin();
    int client_sd;
