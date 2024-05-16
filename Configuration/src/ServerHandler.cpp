@@ -63,13 +63,11 @@ void    ServerHandler::startServerHandler() {
 
          // std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
          s_ready = select(_max_sd + 1, &working_read, &working_write, NULL, &timeout);
-         if (s_ready < 0)
-         {
+         if (s_ready < 0) {
             std::cerr << RED << "Error: select failed..." << DEFAULT << std::endl;
             break;
          }
-         if (s_ready == 0)
-         {
+         if (s_ready == 0) {
             std::cerr << GREEN << "select timeout: server is shuting down..." << DEFAULT << std::endl;
             gracefulShutdown();
             exit(0);
@@ -84,8 +82,7 @@ void    ServerHandler::checkStates(int *s_ready, fd_set &working_read, fd_set &w
 
    for (int i = 0; (i <= _max_sd); ++i)
    {            
-      if (FD_ISSET(i, &_listen_set))
-      {
+      if (FD_ISSET(i, &_listen_set)) {
           readytoAccept(i);
       } else if (FD_ISSET(i, &working_read)) {
           readRequest(i);
@@ -202,10 +199,9 @@ void  ServerHandler::clearMasterSet(int socket, fd_set *master_set) {
    FD_CLR(socket, master_set);
    int new_max;
 
-    if (socket == _max_sd)
-    {
-        for (int i = 0; i < _max_sd; i++)
-        {
+    if (socket == _max_sd) {
+        for (int i = 0; i < _max_sd; i++) {
+
             if (FD_ISSET(i, &_write_set))
                 new_max = i;
             if (FD_ISSET(i, &_read_set))
@@ -229,19 +225,19 @@ void    ServerHandler::clearSocket() {
 void    ServerHandler::closeConn(int socket)
 {
    bool  on = false;
-    if (FD_ISSET(socket, &_listen_set)){
+    if (FD_ISSET(socket, &_listen_set)) {
         clearMasterSet(socket, &_listen_set);
         on = true;
     }
-    if (FD_ISSET(socket, &_read_set)){
+    if (FD_ISSET(socket, &_read_set)) {
         clearMasterSet(socket, &_read_set);
         on = true;
     }
-    if (FD_ISSET(socket, &_write_set)){
+    if (FD_ISSET(socket, &_write_set)) {
         clearMasterSet(socket, &_write_set);
         on = true;
     }
-    if (on == true){
+    if (on == true) {
       close(socket);
       std::cout << GREEN << "Close client connection on : socket [" << socket << "] !" << DEFAULT << std::endl;
     }
