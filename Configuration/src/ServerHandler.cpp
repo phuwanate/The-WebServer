@@ -161,12 +161,14 @@ void    ServerHandler::listenNewConnection() {
    std::vector<ServerBlock>::iterator s_it = this->_serverBlocks.begin();
    for (; s_it != this->_serverBlocks.end(); s_it++) {
         if (listen(s_it->getSocket(), MAX_CON) < 0) {
-		      std::cerr << RED << "Error: listening on socket [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
+		      std::cerr << RED << "Error: listening on socket [";
+            std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
             clearSocket();
         }
 
         if (fcntl(s_it->getSocket(), F_SETFL, O_NONBLOCK) < 0) {
-            std::cerr << RED << "Error: listening on socket [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
+            std::cerr << RED << "Error: listening on socket [";
+            std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
             clearSocket();
         }
 
@@ -225,22 +227,23 @@ void    ServerHandler::clearSocket() {
 void    ServerHandler::closeConn(int socket)
 {
    bool  on = false;
-    if (FD_ISSET(socket, &_listen_set)) {
-        clearMasterSet(socket, &_listen_set);
-        on = true;
-    }
-    if (FD_ISSET(socket, &_read_set)) {
-        clearMasterSet(socket, &_read_set);
-        on = true;
-    }
-    if (FD_ISSET(socket, &_write_set)) {
-        clearMasterSet(socket, &_write_set);
-        on = true;
-    }
-    if (on == true) {
+   if (FD_ISSET(socket, &_listen_set)) {
+      clearMasterSet(socket, &_listen_set);
+      on = true;
+   }
+   if (FD_ISSET(socket, &_read_set)) {
+      clearMasterSet(socket, &_read_set);
+      on = true;
+   }
+   if (FD_ISSET(socket, &_write_set)) {
+      clearMasterSet(socket, &_write_set);
+      on = true;
+   }
+   if (on == true) {
       close(socket);
-      std::cout << GREEN << "Close client connection on : socket [" << socket << "] !" << DEFAULT << std::endl;
-    }
+      std::cout << GREEN << "Close client connection on : socket [" << socket << "] !";
+      std::cout << DEFAULT << std::endl;
+   }
    //  _clients_map.erase(fd);
 }
 
@@ -250,7 +253,8 @@ void    ServerHandler::gracefulShutdown(){
    int client_sd;
    for (; s_it != _serverBlocks.end(); s_it++) {
       close (s_it->getSocket());
-      std::cout << GREEN << "Close listening connection on : socket [" << s_it->getSocket() << "] !" << DEFAULT << std::endl;
+      std::cout << GREEN << "Close listening connection on : socket [";
+      std::cout << s_it->getSocket() << "] !" << DEFAULT << std::endl;
       client_sd = s_it->getSocket();
    }
 
