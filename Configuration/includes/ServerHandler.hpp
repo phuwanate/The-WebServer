@@ -47,6 +47,7 @@ class ServerHandler {
         void    clearMasterSet(int socket, fd_set *master_set);
         void    closeConn(int socket);
         void    gracefulShutdown();
+        void    clientTimeout();
 
     private:
         std::vector<ServerBlock>      _serverBlocks;

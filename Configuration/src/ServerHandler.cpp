@@ -74,9 +74,8 @@ void    ServerHandler::startServerHandler() {
             gracefulShutdown();
             exit(0);
          }
-
          checkStates(&s_ready, working_read, working_write);
-
+         clientTimeout();
       }while (true);
 
 }
@@ -266,15 +265,16 @@ void    ServerHandler::gracefulShutdown(){
    std::cout << YELLOW << "Shutdown server good bye...\n" << std::endl;
 }
 
-// void    ServerHandler::isConnectionTimeout()
-// {
-//     for (std::map<int, Client>::iterator cit = _clients_map.begin(); cit != _clients_map.end(); cit++)
-//     {
-//         if (time(NULL) - cit->second.getTime() > CONNECTION_TIMEOUT)
-//         {
-//             std::cout << YELLOW << "Client " << cit->first << " Timeout, closing connection" << RESET << std::endl;
-//             closeConnection(cit->first);
-//             return ;
-//         }   
-//     }
-// }
+void    ServerHandler::clientTimeout()
+{
+   //  for (std::map<int, Client>::iterator cit = _clients_map.begin(); cit != _clients_map.end(); cit++)
+   //  {
+   //      if (time(NULL) - cit->second.getTime() > CONNECTION_TIMEOUT)
+   //      {
+   //          std::cout << YELLOW << "Client " << cit->first << " Timeout, closing connection" << RESET << std::endl;
+   //          closeConnection(cit->first);
+   //          return ;
+   //      }   
+   //  }
+   return ;
+}
