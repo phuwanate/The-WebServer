@@ -288,7 +288,7 @@ bool	ServerBlock::manageSocket() {
 		throw std::string("Error: cannot init socket...");
 	}
 
-	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&flag, sizeof(flag))< 0) {
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&flag, sizeof(flag)) < 0) {
 
 		std::cerr << RED << "Error: cannot set socket [" << _socket_fd << "]" << "to be reuseable..." << DEFAULT << std::endl;
 		return false;

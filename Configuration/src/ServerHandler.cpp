@@ -37,7 +37,7 @@ ServerHandler::~ServerHandler() {
 
 void    ServerHandler::initHandler() {
 
-   std::cout << "initiate servers" << std::endl;
+   // std::cout << "initiate servers" << std::endl;
    std::vector<ServerBlock>::iterator s_it = this->_serverBlocks.begin();
    for (; s_it != this->_serverBlocks.end(); s_it++) {
       if (s_it->manageSocket() == false) {
@@ -61,7 +61,14 @@ void    ServerHandler::startServerHandler() {
          ft_memcpy(&working_read, &_read_set, sizeof(_read_set));
          ft_memcpy(&working_write, &_write_set, sizeof(_write_set));
 
-         // std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
+         std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
+         for (int i = 5; i <= _max_sd ;i++){
+            if (FD_ISSET(i, &_read_set)){
+               std::cout << "fd: " << i << " is ready to read." << std::endl;
+            }
+            if (FD_ISSET(i, &_write_set))
+               std::cout << "fd: " << i << " is ready to write." << std::endl;
+         }
          s_ready = select(_max_sd + 1, &working_read, &working_write, NULL, &timeout);
          if (s_ready < 0) {
             std::cerr << RED << "Error: select failed..." << DEFAULT << std::endl;
@@ -83,13 +90,13 @@ void    ServerHandler::checkStates(int *s_ready, fd_set &working_read, fd_set &w
    for (int i = 0; (i <= _max_sd); ++i)
    {            
       if (FD_ISSET(i, &_listen_set)) {
-          readytoAccept(i);
+         readytoAccept(i);
       } else if (FD_ISSET(i, &working_read)) {
-          readRequest(i);
-            s_ready--;
+         readRequest(i);
+         (*s_ready)--;
       } else if (FD_ISSET(i, &working_write)) {
-          writeResponse(i);
-            s_ready--;
+         writeResponse(i);
+         (*s_ready)--;
       }
    }
    (void)s_ready;
@@ -116,37 +123,47 @@ void ServerHandler::readytoAccept(int listen_sd) {
 
    addMasterSet(new_sd, &_read_set);
    std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
-   return ;
+   usleep(200);//for recv
 }
 
 void ServerHandler::readRequest(int read_sd) {
 
-   char buffer[READ_BUFF];
+      char buffer[READ_BUFF];
 
-   std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
-   int rc = recv(read_sd, buffer, sizeof(buffer), 0);
-   if (rc > 0) {
+      std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
+      int rc = recv(read_sd, buffer, sizeof(buffer), 0);
       std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
-      clearMasterSet(read_sd, &_read_set);
-      ft_memset(&buffer, 0, sizeof(buffer));//Clear buffer
-      addMasterSet(read_sd, &_write_set);
-   }
+      if (rc > 0) {
+         //if finished
+         //parse --> ;
+         //build_body()
+         //if (build_response() == false)
+            //close_asd();
+         clearMasterSet(read_sd, &_read_set);
+         addMasterSet(read_sd, &_write_set);
+         ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
+         return ;
+      }
 
-   if (rc == 0) {
-        ft_memset(&buffer, 0, sizeof(buffer));//Clear buffer
-        closeConn(read_sd);
-    }
-   return ;
+      if (rc == 0) {
+         std::cout << "Close conn at read request" << std::endl;
+         ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
+         closeConn(read_sd);
+      }
 }
 
 void ServerHandler::writeResponse(int write_sd) {
 
    t_res resp;
 
+   std::cout << YELLOW << "Write Response on : socket [" << write_sd << "]" << DEFAULT << std::endl;
    build_response(resp);
-
+   
    send(write_sd, resp.httpResponse, strlen(resp.httpResponse), 0);
    send(write_sd, resp.htmlContent.c_str(), resp.htmlContent.length(), 0);
+
+   clearMasterSet(write_sd, &_write_set);
+   addMasterSet(write_sd, &_read_set);
 
    closeConn(write_sd);
    return ;
@@ -160,26 +177,25 @@ void    ServerHandler::listenNewConnection() {
 
    std::vector<ServerBlock>::iterator s_it = this->_serverBlocks.begin();
    for (; s_it != this->_serverBlocks.end(); s_it++) {
-        if (listen(s_it->getSocket(), MAX_CON) < 0) {
-		      std::cerr << RED << "Error: listening on socket [";
-            std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
-            clearSocket();
-        }
+      if (listen(s_it->getSocket(), MAX_CON) < 0) {
+         std::cerr << RED << "Error: listening on socket [";
+         std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
+         clearSocket();
+      }
 
-        if (fcntl(s_it->getSocket(), F_SETFL, O_NONBLOCK) < 0) {
-            std::cerr << RED << "Error: listening on socket [";
-            std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
-            clearSocket();
-        }
+      if (fcntl(s_it->getSocket(), F_SETFL, O_NONBLOCK) < 0) {
+         std::cerr << RED << "Error: listening on socket [";
+         std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
+         clearSocket();
+      }
 
-        if (this->_servers_map.count(s_it->getSocket()) == 0) {
-            this->_servers_map.insert(std::pair<int, ServerBlock>(s_it->getSocket(), *s_it));
-        }
-        addMasterSet(s_it->getSocket(), &_listen_set);
-        addMasterSet(s_it->getSocket(), &_read_set);
-      //   std::cout << GREEN << "Listening on socket: [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
-       std::cout << GREEN << "Starting server on : port[" << s_it->getPortNumb() << "] "; 
-       std::cout << "socket [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
+      if (this->_servers_map.count(s_it->getSocket()) == 0) {
+         this->_servers_map.insert(std::pair<int, ServerBlock>(s_it->getSocket(), *s_it));
+      }
+      addMasterSet(s_it->getSocket(), &_listen_set);
+      addMasterSet(s_it->getSocket(), &_read_set);
+      std::cout << GREEN << "Starting server on : port[" << s_it->getPortNumb() << "] "; 
+      std::cout << "socket [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
    }
    _max_sd = _serverBlocks.back().getSocket();
    // std::cout << "max_sd: " << _max_sd << std::endl;

@@ -1,4 +1,5 @@
 #include "RequestResponse.hpp"
+#include <iostream>
 
 void build_request(t_req &req) {
 
@@ -20,5 +21,5 @@ void build_response(t_res &res) {
                       "</body>\n"
                       "</html>";
                       
-   res.httpResponse = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n";
+   res.httpResponse = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n";   
 }
