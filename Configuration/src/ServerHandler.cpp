@@ -58,16 +58,17 @@ void    ServerHandler::startServerHandler() {
       listenNewConnection();
       
       do {
-         ft_memcpy(&working_read, &_read_set, sizeof(_read_set));
-         ft_memcpy(&working_write, &_write_set, sizeof(_write_set));
+         std::memcpy(&working_read, &_read_set, sizeof(_read_set));
+         std::memcpy(&working_write, &_write_set, sizeof(_write_set));
 
          std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
          for (int i = 5; i <= _max_sd ;i++){
             if (FD_ISSET(i, &_read_set)){
                std::cout << "fd: " << i << " is ready to read." << std::endl;
             }
-            if (FD_ISSET(i, &_write_set))
+            if (FD_ISSET(i, &_write_set)) {
                std::cout << "fd: " << i << " is ready to write." << std::endl;
+            }
          }
          s_ready = select(_max_sd + 1, &working_read, &working_write, NULL, &timeout);
          if (s_ready < 0) {
@@ -87,7 +88,7 @@ void    ServerHandler::startServerHandler() {
 
 void    ServerHandler::checkStates(int *s_ready, fd_set &working_read, fd_set &working_write) {
 
-   for (int i = 0; (i <= _max_sd); ++i)
+   for (int i = 0; i <= _max_sd; i++)
    {            
       if (FD_ISSET(i, &_listen_set)) {
          readytoAccept(i);
@@ -111,15 +112,14 @@ void ServerHandler::readytoAccept(int listen_sd) {
 
    new_sd = accept(listen_sd, (struct sockaddr *)&c_addr, &c_addr_len);
    if (new_sd < 0)
-        return ;
+      return ;
       
    if (fcntl(new_sd ,F_SETFL, O_NONBLOCK) < 0) {
-
-		std::cerr << RED << "Error: cannot set socket [" << new_sd << "]" << "to be non-blocking..." << DEFAULT << std::endl;
+      std::cerr << RED << "Error: cannot set socket [" << new_sd << "]" << "to be non-blocking..." << DEFAULT << std::endl;
       clearMasterSet(new_sd, &_read_set);
       close(new_sd);
-		return ;
-	}
+      return ;
+   }
 
    addMasterSet(new_sd, &_read_set);
    std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
@@ -133,6 +133,11 @@ void ServerHandler::readRequest(int read_sd) {
       std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
       int rc = recv(read_sd, buffer, sizeof(buffer), 0);
       std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
+      if (rc < 0) {
+         std::cerr << RED << "Error: recv failed." << DEFAULT << std::endl;
+         closeConn(read_sd);
+         return ;
+      }
       if (rc > 0) {
          //if finished
          //parse --> ;
@@ -144,7 +149,6 @@ void ServerHandler::readRequest(int read_sd) {
          ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
          return ;
       }
-
       if (rc == 0) {
          std::cout << "Close conn at read request" << std::endl;
          ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
@@ -166,7 +170,6 @@ void ServerHandler::writeResponse(int write_sd) {
    addMasterSet(write_sd, &_read_set);
 
    closeConn(write_sd);
-   return ;
 }
 
 void    ServerHandler::listenNewConnection() {
@@ -215,7 +218,7 @@ void ServerHandler::addMasterSet(int new_sock, fd_set *masterset) {
 void  ServerHandler::clearMasterSet(int socket, fd_set *master_set) {
 
    FD_CLR(socket, master_set);
-   int new_max;
+   int new_max = 0;
 
     if (socket == _max_sd) {
         for (int i = 0; i < _max_sd; i++) {
