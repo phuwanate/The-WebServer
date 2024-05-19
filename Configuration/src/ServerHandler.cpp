@@ -62,14 +62,14 @@ void    ServerHandler::startServerHandler() {
          std::memcpy(&working_write, &_write_set, sizeof(_write_set));
 
          std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
-         for (int i = 5; i <= _max_sd ;i++){
-            if (FD_ISSET(i, &_read_set)){
-               std::cout << "fd: " << i << " is ready to read." << std::endl;
-            }
-            if (FD_ISSET(i, &_write_set)) {
-               std::cout << "fd: " << i << " is ready to write." << std::endl;
-            }
-         }
+         // for (int i = 5; i <= _max_sd ;i++){
+         //    if (FD_ISSET(i, &_read_set)){
+         //       std::cout << "fd: " << i << " is ready to read." << std::endl;
+         //    }
+         //    if (FD_ISSET(i, &_write_set)){
+         //       std::cout << "fd: " << i << " is ready to write." << std::endl;
+         //    }
+         // }
          s_ready = select(_max_sd + 1, &working_read, &working_write, NULL, &timeout);
          if (s_ready < 0) {
             std::cerr << RED << "Error: select failed..." << DEFAULT << std::endl;
@@ -123,7 +123,7 @@ void ServerHandler::readytoAccept(int listen_sd) {
 
    addMasterSet(new_sd, &_read_set);
    std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
-   usleep(200);//for recv
+   usleep(200);
 }
 
 void ServerHandler::readRequest(int read_sd) {
@@ -142,7 +142,7 @@ void ServerHandler::readRequest(int read_sd) {
          //if finished
          //parse --> ;
          //build_body()
-         //if (build_response() == false)
+         //if (build_request() == false)
             //close_asd();
          clearMasterSet(read_sd, &_read_set);
          addMasterSet(read_sd, &_write_set);
@@ -166,10 +166,12 @@ void ServerHandler::writeResponse(int write_sd) {
    send(write_sd, resp.httpResponse, strlen(resp.httpResponse), 0);
    send(write_sd, resp.htmlContent.c_str(), resp.htmlContent.length(), 0);
 
+   // if (_connections == "keepalive")
    clearMasterSet(write_sd, &_write_set);
    addMasterSet(write_sd, &_read_set);
-
+   // else{
    closeConn(write_sd);
+   // }
 }
 
 void    ServerHandler::listenNewConnection() {

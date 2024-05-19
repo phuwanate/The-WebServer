@@ -23,7 +23,7 @@ class ServerBlock {
         unsigned long               getHostIP();
         std::string                 getServerName();
         std::string                 getRoot();
-        size_t                      getClientMaxBodySize();
+        size_t                      getClientMaxBodySize(); //P'karn
         std::vector<std::string>    getIndex();
         bool                        getAutoindex();
         std::map<int, std::string>  getErrorPage();
@@ -58,7 +58,7 @@ class ServerBlock {
         std::string                 _serverNames;
         std::string                 _root;
         std::vector<std::string>    _index;
-        std::vector<LocationBlock> _locationBlocks;
+        std::vector<LocationBlock>  _locationBlocks;
         std::map<int, std::string>  _errorPage;
         bool                        _autoIndex;
 

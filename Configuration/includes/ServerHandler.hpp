@@ -48,14 +48,15 @@ class ServerHandler {
         void    closeConn(int socket);
         void    gracefulShutdown();
         void    clientTimeout();
+        
+        std::map<int, ServerBlock>   _servers_map;
 
     private:
-        std::vector<ServerBlock>      _serverBlocks;
+        std::vector<ServerBlock>     _serverBlocks;
         int                           _max_sd;
         fd_set                        _listen_set;
         fd_set                        _read_set;
         fd_set                        _write_set;
-        std::map<int, ServerBlock>   _servers_map;
         // std::map<int, Client>   _clients_map;
 
 
