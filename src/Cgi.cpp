@@ -102,9 +102,9 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
     std::string filepath = "./" + root + endpoint;
 
     if (isFileExists(filepath) != false) {
-        std::cout << "This filepath:" << filepath << "is exists." << std::endl;
+        // std::cout << "This filepath:" << filepath << "is exists." << std::endl;
         if (isDir(filepath)) {
-            std::cout << "This filepath:" << filepath << "is directory." << std::endl;
+            // std::cout << "This filepath:" << filepath << "is directory." << std::endl;
         //if dirpath == directory
         // get index to concat with path
             if (location.getIndex().size() != 0)
