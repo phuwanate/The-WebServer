@@ -14,14 +14,22 @@ SRCS = $(SRCS_DIR)main.cpp \
        $(SRCS_DIR)ServerBlock.cpp \
        $(SRCS_DIR)utils.cpp \
        $(SRCS_DIR)ServerHandler.cpp \
-       $(SRCS_DIR)RequestResponse.cpp
+       $(SRCS_DIR)Client.cpp \
+       $(SRCS_DIR)mock.cpp \
+       $(SRCS_DIR)Request.cpp \
+       $(SRCS_DIR)Response.cpp \
+       $(SRCS_DIR)HttpStatus.cpp 
 
 HEADERS = $(INCLUDES_DIR)Config.hpp \
           $(INCLUDES_DIR)LocationBlock.hpp \
           $(INCLUDES_DIR)ServerBlock.hpp \
           $(INCLUDES_DIR)utils.hpp \
           $(INCLUDES_DIR)ServerHandler.hpp \
-          $(INCLUDES_DIR)RequestResponse.hpp
+          $(INCLUDES_DIR)Client.hpp \
+          $(INCLUDES_DIR)mock.hpp \
+          $(INCLUDES_DIR)Request.hpp \
+          $(INCLUDES_DIR)Response.hpp \
+          $(INCLUDES_DIR)HttpStatus.hpp 
 
 OBJS = $(OBJS_DIR)main.o \
        $(OBJS_DIR)Config.o \
@@ -29,7 +37,11 @@ OBJS = $(OBJS_DIR)main.o \
        $(OBJS_DIR)ServerBlock.o \
        $(OBJS_DIR)utils.o \
        $(OBJS_DIR)ServerHandler.o \
-       $(OBJS_DIR)RequestResponse.o
+       $(OBJS_DIR)Client.o \
+       $(OBJS_DIR)mock.o \
+       $(OBJS_DIR)Request.o \
+       $(OBJS_DIR)Response.o \
+       $(OBJS_DIR)HttpStatus.o
 
 $(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp $(HEADERS)
 	mkdir -p $(OBJS_DIR)

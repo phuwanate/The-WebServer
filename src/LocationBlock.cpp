@@ -1,12 +1,10 @@
 #include "LocationBlock.hpp"
 
 LocationBlock::LocationBlock() {
-
 	return;
 }
 
 LocationBlock::LocationBlock(std::string const &locationBlock, ServerBlock &serverBlock) {
-
 	__copyAttributes(serverBlock);
 	__initLocation(locationBlock);
 	return;
@@ -17,8 +15,7 @@ LocationBlock::LocationBlock(LocationBlock const &locationBlockInstance) {
 	*this = locationBlockInstance;
 }
 
-LocationBlock &LocationBlock::operator= (LocationBlock const &locationBlockInstance) {
-
+LocationBlock	&LocationBlock::operator= (LocationBlock const &locationBlockInstance) {
 	if (this != &locationBlockInstance) {
 
 		this->_root = locationBlockInstance._root;
@@ -36,119 +33,97 @@ LocationBlock &LocationBlock::operator= (LocationBlock const &locationBlockInsta
 }
 
 LocationBlock::~LocationBlock() {
-
 	return;
 }
 
-std::string LocationBlock::getDirectoryPath() {
-
+std::string	LocationBlock::getDirectoryPath() {
 	return this->_directoryPath;
 }
 
-std::string LocationBlock::getAlias() {
-
+std::string	LocationBlock::getAlias() {
 	return this->_alias;
 }
 
-std::string                 LocationBlock::getRoot() {
-
+std::string	LocationBlock::getRoot() {
 	return this->_root;
 }
 
-std::string                 LocationBlock::getReturn() {
-
+std::string	LocationBlock::getReturn() {
 	return this->_return;
 }
 
-std::vector<std::string>    LocationBlock::getIndex() {
-
+std::vector<std::string>	LocationBlock::getIndex() {
 	return this->_index;
 }
 
-std::vector<std::string>    LocationBlock::getCgiFileExtention() {
-
+std::vector<std::string>	LocationBlock::getCgiFileExtention() {
 	return this->_cgiFileExtention;
 }
 
-std::vector<std::string>    LocationBlock::getCgiCompilerPath() {
-
+std::vector<std::string>	LocationBlock::getCgiCompilerPath() {
 	return this->_cgiCompilerPath;
 }
 
 std::map<std::string, bool>	LocationBlock::getAllowMethods() {
-
 	return this->_allowMethods;
 }
 
-bool                        LocationBlock::getAutoIndex() {
-
+bool	LocationBlock::getAutoIndex() {
 	return this->_autoIndex;
 }
-size_t                      LocationBlock::getClientMaxBodySize() {
 
+size_t	LocationBlock::getClientMaxBodySize() {
 	return this->_clientMaxBodySize;
 }
 
-
-void        LocationBlock::setDirectoryPath(std::string const &val) {
-
+void	LocationBlock::setDirectoryPath(std::string const &val) {
 	this->_directoryPath = val;
 }
 
-void		LocationBlock::setAlias(std::string const &val) {
-
+void	LocationBlock::setAlias(std::string const &val) {
 	this->_alias = val;
 }
 
-void        LocationBlock::setRoot(std::string const &val) {
-
+void	LocationBlock::setRoot(std::string const &val) {
 	this->_root = val;
 }
 
-void        LocationBlock::setReturn(std::string const &val) {
-
+void	LocationBlock::setReturn(std::string const &val) {
 	this->_return = val;
 }
 
-void        LocationBlock::setIndex(std::vector<std::string> const &val) {
+void	LocationBlock::setIndex(std::vector<std::string> const &val) {
 	this->_index = val;
 }
 
-void        LocationBlock::setCgiFileExtention(std::vector<std::string>  const &val) {
-
+void	LocationBlock::setCgiFileExtention(std::vector<std::string>  const &val) {
 	this->_cgiFileExtention = val;
 }
 
-void        LocationBlock::setCgiCompilerPath(std::vector<std::string>  const &val) {
-
+void	LocationBlock::setCgiCompilerPath(std::vector<std::string>  const &val) {
 	this->_cgiCompilerPath = val;
 }
 
-void        LocationBlock::setAllowMethod(std::string const &key, bool val) {
-
+void	LocationBlock::setAllowMethod(std::string const &key, bool val) {
 	this->_allowMethods[key] = val;
 }
 
-void        LocationBlock::setAutoindex(bool val) {
-
+void	LocationBlock::setAutoindex(bool val) {
 	this->_autoIndex = val;
 }
 
-void        LocationBlock::setClientMaxBodySize(size_t val) {
-
+void	LocationBlock::setClientMaxBodySize(size_t val) {
 	this->_clientMaxBodySize = val;
 }
 
-void		LocationBlock::__copyAttributes(ServerBlock &serverBlock) {
-
+void	LocationBlock::__copyAttributes(ServerBlock &serverBlock) {
 	setRoot(serverBlock.getRoot());
 	setIndex(serverBlock.getIndex());
 	setAutoindex(serverBlock.getAutoindex());
 	setClientMaxBodySize(serverBlock.getClientMaxBodySize());
 }
 
-void		LocationBlock::__setAllMethods(bool val) {
-
+void	LocationBlock::__setAllMethods(bool val) {
 	setAllowMethod("GET", val);
 	setAllowMethod("POST", val);
 	setAllowMethod("PUT", val);
@@ -156,11 +131,10 @@ void		LocationBlock::__setAllMethods(bool val) {
 
 }
 
-void 	LocationBlock::__initLocation(std::string const &locationBlock){
-
-	std::string                 currentDirective = "";
-    std::string                 content, target;
-    std::vector<std::string>    values;
+void	LocationBlock::__initLocation(std::string const &locationBlock){
+	std::string currentDirective = "";
+    std::string content, target;
+    std::vector<std::string> values;
 
 	for (size_t index = 0; index < locationBlock.length();) {
 
@@ -205,7 +179,6 @@ void 	LocationBlock::__initLocation(std::string const &locationBlock){
 }
 
 void	LocationBlock::__initLocationParameters(std::string const &directive, std::vector<std::string> values) {
-
 	if (directive == "alias") {
 		if (values.size() != 1)
 			throw errNumberOfParameters(directive, "location");
@@ -269,8 +242,7 @@ void	LocationBlock::__initLocationParameters(std::string const &directive, std::
 	return;
 }
 
-void LocationBlock::DebugLocationBlock()
-{
+void LocationBlock::DebugLocationBlock(){
 	std::cout << "	location { " << std::endl;
 	std::cout << "		path: " << getDirectoryPath() << std::endl;
 	std::cout << "		alias: " << getAlias() << std::endl;

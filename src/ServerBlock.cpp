@@ -1,25 +1,24 @@
 #include "ServerBlock.hpp"
 
 ServerBlock::ServerBlock() {
-
 	return;
 }
 
 ServerBlock::ServerBlock(std::string const &serverBlock) {
-
 	__initServer(serverBlock);
 	return;
 }
 
 ServerBlock::ServerBlock(ServerBlock const &serverBlockInstance) {
-
 	*this = serverBlockInstance;
 }
 
-ServerBlock &ServerBlock::operator= (ServerBlock const &serverBlockInstance) {
-
+ServerBlock	&ServerBlock::operator= (ServerBlock const &serverBlockInstance) {
 	if (this != &serverBlockInstance) {
 
+		this->_socket_fd = serverBlockInstance._socket_fd;
+		this->_rawPort   = serverBlockInstance._rawPort;
+		this->_bindingPort = serverBlockInstance._bindingPort;
 		this->_root = serverBlockInstance._root;
 		this->_index = serverBlockInstance._index;
 		this->_hostIP = serverBlockInstance._hostIP;
@@ -34,108 +33,103 @@ ServerBlock &ServerBlock::operator= (ServerBlock const &serverBlockInstance) {
 }
 
 ServerBlock::~ServerBlock() {
-
 	return;
 }
 
-int ServerBlock::getPortNumb() {
-
+size_t	ServerBlock::getPortNumb() {
 	return this->_portNumb;
 }
 
-unsigned long ServerBlock::getHostIP() {
-
+unsigned long	ServerBlock::getHostIP() {
 	return this->_hostIP;
 }
 
-std::string ServerBlock::getServerName() {
-
+std::string	ServerBlock::getServerName() {
 	return this->_serverNames;
 }
 
-std::string ServerBlock::getRoot() {
+std::string	ServerBlock::getFullName() {
+	return this->_bindingPort;
+}
 
+std::string	ServerBlock::getRoot() {
 	return this->_root;
 }
 
-size_t  ServerBlock::getClientMaxBodySize() {
-
+size_t	ServerBlock::getClientMaxBodySize() {
 	return this->_clientMaxBodySize;
 }
 
-std::vector<std::string> ServerBlock::getIndex() {
-
+std::vector<std::string>	ServerBlock::getIndex() {
 	return this->_index;
 }
 
-bool    ServerBlock::getAutoindex() {
-
+bool	ServerBlock::getAutoindex() {
 	return this->_autoIndex;
 }
 
-std::map<int, std::string>  ServerBlock::getErrorPage() {
-
+std::map<int, std::string>	ServerBlock::getErrorPage() {
 	return this->_errorPage;
 }
 
-std::vector<LocationBlock>& ServerBlock::getLocationBlocks() {
-
+std::vector<LocationBlock>&	ServerBlock::getLocationBlocks() {
 	return this->_locationBlocks;
 }
 
 int	ServerBlock::getSocket() {
-
 	return this->_socket_fd;
 }
 
-void    ServerBlock::setPortNumb(int val) {
-	
+std::string	ServerBlock::getRawPort() {
+	return this->_rawPort;
+}
+
+void	ServerBlock::setPortNumb(int val) {
 	this->_portNumb = val;
 }
 
-void    ServerBlock::setHostIP(unsigned long val) {
+void	ServerBlock::setRawPort(std::string val) {
+	this->_rawPort = val;
+}
 
+void	ServerBlock::setHostIP(unsigned long val) {
 	this->_hostIP = val;
 }
 
-void    ServerBlock::setServerName(std::string val) {
-
+void	ServerBlock::setServerName(std::string val) {
 	this->_serverNames = val;
 }
 
-void    ServerBlock::setRoot(std::string val) {
+void	ServerBlock::setBindingPort(std::string val1, std::string val2){
+	std::string colon = ":";
+	this->_bindingPort = val1 + colon + val2;
+}
 
+void	ServerBlock::setRoot(std::string val) {
 	this->_root = val;
 }
 
-void    ServerBlock::setClientMaxBodySize(size_t val) {
-
+void	ServerBlock::setClientMaxBodySize(size_t val) {
 	this->_clientMaxBodySize = val;
 }
 
-void    ServerBlock::setIndex(std::vector<std::string> val) {
-
+void	ServerBlock::setIndex(std::vector<std::string> val) {
 	this->_index = val;
 }
 
-void    ServerBlock::setAutoindex(bool val) {
-
+void	ServerBlock::setAutoindex(bool val) {
 	this->_autoIndex = val;
 }
 
-void    ServerBlock::setErrorPage(int key, std::string val) {
-
+void	ServerBlock::setErrorPage(int key, std::string val) {
 	this->_errorPage[key] = val;
 }
 
-void    ServerBlock::setLocationMap(std::string directoryPath, LocationBlock const &locationBlock) {
-
+void	ServerBlock::setLocationMap(std::string directoryPath, LocationBlock const &locationBlock) {
 	this->_locationMap[directoryPath] = locationBlock;
 }
 
-
-void ServerBlock::__initServer(std::string const &serverBlock) {
-
+void	ServerBlock::__initServer(std::string const &serverBlock) {
 	std::string                 currentDirective = "";
 	std::string                 content, locationBlock, target;
 	std::vector<std::string>    values;
@@ -187,16 +181,14 @@ void ServerBlock::__initServer(std::string const &serverBlock) {
 		throw std::string ("Error: location blocks does not exists in configuration file.");
 }
 
-void ServerBlock::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
-
+void	ServerBlock::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
 	if (directive == "listen") {
-
 		if (isDigit(values[0]) == false)
 			throw std::string("Error: invalid parameter \"" + values[0] + "\" in listen directive.");    
+		setRawPort(values[0]);
 		setPortNumb(convertString<int>(values[0]));
 	}
 	else if (directive == "host") {
-
 		if (values.size() != 1)
 			throw std::string("Error: invalid number of parameters in host directive.");
 		
@@ -207,6 +199,7 @@ void ServerBlock::__initServerParameters(std::string const &directive, std::vect
 	}
 	else if (directive == "server_name") {
 		setServerName(values[0]);
+		setBindingPort(_serverNames, _rawPort);
 	}
 	else if (directive == "root") {
 		if (values.size() != 1)
@@ -219,12 +212,12 @@ void ServerBlock::__initServerParameters(std::string const &directive, std::vect
 		setClientMaxBodySize(convertString<size_t>(values[0]));
 	}
 	else if (directive == "index") {
+		// std::cout << getFullName() << std::endl;
 		if (values.size() < 1)
 			throw std::string ("Error: invalid number of parameters in index directive.");
 		setIndex(values);
 	}
 	else if (directive == "autoindex") {
-
 		if (values.size() != 1)
 			throw std::string("Error: invalid number of parameters in autoindex directive.");
 		if (values[0] == "on")
@@ -247,8 +240,7 @@ void ServerBlock::__initServerParameters(std::string const &directive, std::vect
 	}
 }
 
-std::string ServerBlock::pathToErrorPage(std::string errorFilePath) {
-
+std::string	ServerBlock::pathToErrorPage(std::string errorFilePath) {
 	std::string rootPath = getRoot();
 
 	if (rootPath[rootPath.length() - 1] == '/' && errorFilePath[0] == '/')
@@ -258,9 +250,10 @@ std::string ServerBlock::pathToErrorPage(std::string errorFilePath) {
 	return (rootPath + errorFilePath);
 }
 
-void ServerBlock::DebugServerBlock(void) {
+void	ServerBlock::DebugServerBlock(void) {
 		std::cout << "          Port:           " << getPortNumb() << std::endl;
 		std::cout << "          Server Name:    " << getServerName() << std::endl;
+		std::cout << "	        FullName:       " << getFullName() << std::endl;
 		std::cout << "          Host:           " << getHostIP() << std::endl; 
 		std::cout << "          Root:           " << getRoot() << std::endl;
 		std::cout << "          client_max_body_size: " << getClientMaxBodySize() << std::endl;
@@ -280,7 +273,6 @@ void ServerBlock::DebugServerBlock(void) {
 }
 
 bool	ServerBlock::manageSocket() {
-
 	struct sockaddr_in s_addr;
 	int				   flag = 1;
 
@@ -289,13 +281,11 @@ bool	ServerBlock::manageSocket() {
 	}
 
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&flag, sizeof(flag)) < 0) {
-
 		std::cerr << RED << "Error: cannot set socket [" << _socket_fd << "]" << "to be reuseable..." << DEFAULT << std::endl;
 		return false;
 	}
 
 	if (fcntl(_socket_fd ,F_SETFL, O_NONBLOCK) < 0) {
-
 		std::cerr << RED << "Error: cannot set socket [" << _socket_fd << "]" << "to be non-blocking..." << DEFAULT << std::endl;
 		return false;
 	}
@@ -306,10 +296,8 @@ bool	ServerBlock::manageSocket() {
 	s_addr.sin_port = htons(getPortNumb());
 
 	if (bind(_socket_fd, (struct sockaddr*) &s_addr, sizeof(s_addr)) < 0) {
-
 		std::cerr << RED << "Error: cannot bind socket [" << _socket_fd << "]" << DEFAULT << std::endl;
 		return false;
 	}
-
 	return true;
 }
