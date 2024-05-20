@@ -4,6 +4,8 @@
 #include "HttpStatus.hpp"
 #include <iostream>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "Request.hpp"
 #include "Response.hpp"
@@ -11,6 +13,7 @@
 class Request;
 class Response;
 class ServerBlock;
+class LocationBlock;
 
 class Cgi {
 
@@ -25,7 +28,9 @@ class Cgi {
         void    initCgi(int errnum, int socket, std::vector<ServerBlock>* server_blocks, Request &reqinst);
 
         HttpStage                       apiRouter();
-        void                            serveFile();
+        bool                            serveFile(ServerBlock &server, LocationBlock &location);
+        bool                            isFileExists(const std::string& file);
+        bool                            isDir(const std::string& filepath);
         std::vector<ServerBlock>*       server_blocks;
 
     private:
