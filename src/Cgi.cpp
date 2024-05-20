@@ -44,10 +44,9 @@ void    Cgi::initCgi(int errnum, int socket, std::vector<ServerBlock>* instptr, 
 }
 
 HttpStage Cgi::apiRouter() {
-    //get server & localtion;
     LocationBlock location = searchLocation(_req.header["Host"], _req.path, *server_blocks);
     ServerBlock server = searchServer(_req.header["Host"], *server_blocks);
-	
+    
     if (server.getServerName().length() == 0) {
         _resp.byStatus(_socket, 400);
         return RESPONSED;
@@ -60,14 +59,27 @@ HttpStage Cgi::apiRouter() {
         bool method_allow = location.getAllowMethods()[_req.method];
         if (method_allow == false) {
             _resp.byStatus(_socket, 405);
-            return RESPONSED;
         }
-
+        else if (location.getDirectoryPath() == "/cgi") {
+            //Generate page with cgi
+        }
+        else if (location.getDirectoryPath() == "/upload") {
+            //Upload file
+        }
+        else if (location.getDirectoryPath() == "/delete") {
+            //Delete file
+        }
+        else if (location.getAlias().length() != 0) {
+            //Redirect
+        }
+        else
+            serveFile();
+        return RESPONSED;
     }
     serveFile();
+    return RESPONSED;
     // serveFile();
     // _resp.byFile(_socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
-    return RESPONSED;
 }
 
 void    Cgi::serveFile(){
