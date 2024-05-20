@@ -11,6 +11,9 @@
 class Response {
 	public:
 		Response();
+		Response(Response const &other);
+		Response& operator=(Response const &other);
+		~Response();
 		void byStatus(int socket, int status);
 		void byStringstream(int socket, int status, std::stringstream &file, const std::string &content_type);
 		void byFile(int socket, int status, std::string const &location,  std::string const &content_type);

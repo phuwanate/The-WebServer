@@ -26,7 +26,7 @@ bool			checkFileExists(std::string File);
 std::string		errNumberOfParameters(std::string const &directive, std::string const &block);
 std::string		ftToupper(std::string src);
 LocationBlock	searchLocation(std::string serverName, std::string directoryPath, std::vector<ServerBlock> s_vec);
-ServerBlock		searchServer(std::string serverName, std::vector<ServerBlock> s_vec);
+ServerBlock	    searchServer(std::string serverName, std::vector<ServerBlock> s_vec);
 ServerBlock		searchServerByPort(size_t serverPort, std::vector<ServerBlock> s_vec);
 void			*ft_memset(void *s, int src, size_t n);
 void			*ft_memcpy(void *dst, const void *src, size_t n);

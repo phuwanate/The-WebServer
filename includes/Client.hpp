@@ -8,10 +8,12 @@
 #include "ServerHandler.hpp"
 #include "HttpStatus.hpp"
 #include "Response.hpp"
+#include "Cgi.hpp"
 
 class Request;
 class Response;
 class ServerBlock;
+class Cgi;
 
 class Client {
 	public:
@@ -30,6 +32,7 @@ class Client {
 		Response					_response;
 		int							_socket;
 		HttpStage					_stage;
+		Cgi							_cgi;
 
 		bool						httpStage();
 };

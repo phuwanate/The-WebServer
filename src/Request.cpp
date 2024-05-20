@@ -1,11 +1,46 @@
 #include "Request.hpp"
 #include "ServerBlock.hpp"
 
-Request::Request():_stage(FIRST_LINE) {
+Request::Request():errNum(0), _stage(FIRST_LINE) {
 }
 
-Request::Request(std::vector<ServerBlock>*	server_blocks):_stage(FIRST_LINE) {
+Request::Request(std::vector<ServerBlock>*	server_blocks):errNum(0), _stage(FIRST_LINE) {
 	this->server_blocks = server_blocks;
+}
+
+Request::Request(const Request& other) {
+	this->method = other.method;
+	this->path = other.path;
+	this->header = other.header;
+	this->body.str(other.body.str());
+	this->sever_socket = other.sever_socket;
+	this->server_blocks = other.server_blocks;
+	this->data.str(other.data.str());
+	this->socket = other.socket;
+	this->location404 = other.location404;
+	this->errNum = other.errNum;
+	this->_stage = other._stage;
+	this->_boundary = other._boundary;
+	this->_response = other._response;
+}
+
+Request& Request::operator=(const Request& other) {
+	if (this != &other) {
+		this->method = other.method;
+		this->path = other.path;
+		this->header = other.header;
+		this->body.str(other.body.str());
+		this->sever_socket = other.sever_socket;
+		this->server_blocks = other.server_blocks;
+		this->data.str(other.data.str());
+		this->socket = other.socket;
+		this->location404 = other.location404;
+		this->errNum = other.errNum;
+		this->_stage = other._stage;
+		this->_boundary = other._boundary;
+		this->_response = other._response;
+	}
+	return *this;
 }
 
 Request::~Request() {
@@ -19,21 +54,17 @@ HttpStage Request::parseFirstLine(HttpStage stage) {
 	std::istringstream line(buffer);
 
 	line >> buffer;
-	
-	_stage = RESPONSED;
-	_response.byStatus(socket, 400);
-	return (_stage);
-	// if (line.fail()) {
-	// 	_stage = RESPONSED;
-	// 	_response.byStatus(socket, 400);
-	// 	return (_stage);
-	// }
+	if (line.fail()) {
+		_stage = ROUTER;
+		errNum = 400;
+		return (_stage);
+	}
 	method = buffer;
 
 	line >> buffer;
 	if (line.fail()) {
-		_stage = RESPONSED;
-		_response.byStatus(socket, 400);
+		_stage = ROUTER;
+		errNum = 400;
 		return (_stage);
 	}
 	path = buffer;
@@ -50,8 +81,8 @@ bool Request::isMultipart() {
 		return (false);
 	}
 	if(value.substr(0, 19) != "multipart/form-data"){
-		_stage = RESPONSED;
-		_response.byStatus(socket, 422);
+		_stage = ROUTER;
+		errNum = 422;
 		return (false);
 	}
 	std::size_t has_boundary = value.find("boundary=");
@@ -62,13 +93,18 @@ bool Request::isMultipart() {
 
 bool Request::validBodyLength(){
 	ServerBlock server = searchServer(header["Host"], *server_blocks);
+	if (server.getServerName().length() == 0) {
+		_stage = ROUTER;
+		errNum = 400;
+		return (false);
+	}
 	size_t max = server.getClientMaxBodySize();
 
 	if (header["content-length"].length()) {
 		size_t length = std::atoi(header["content-length"].c_str());
 		if (length > max) {
-			_stage = RESPONSED;
-			_response.byStatus(socket, 413);
+			_stage = ROUTER;
+			errNum = 413;
 			return (false);
 		}
 	}
@@ -84,15 +120,15 @@ HttpStage Request::parseHeader(HttpStage stage) {
 	{
 		std::size_t colon = buffer.find_first_of(": ");
 		if (colon == std::string::npos) {
-			_stage = RESPONSED;
-			_response.byStatus(socket, 400);
+			_stage = ROUTER;
+			errNum = 400;
 			return (_stage);
 		}
 		std::string key = buffer.substr(0, colon);
 		std::string value = buffer.substr(colon + 2, buffer.size() - (colon + 2) -1);//skip ": " and trim "\r"
 		if (!key.length() || !value.length()) {
-			_stage = RESPONSED;
-			_response.byStatus(socket, 400);
+			_stage = ROUTER;
+			errNum = 400;
 			return (_stage);
 		}
 		header[key] = value;
@@ -100,23 +136,14 @@ HttpStage Request::parseHeader(HttpStage stage) {
 	}
 	if (isMultipart() && validBodyLength())
 		_stage = BODY;
-
-
 	location404 = setDefaultErrorPage();
-	std::cout << "location404-->\n" << location404 << "\n";
-	// _response.byFile(socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
-
-	// _response.byFile(socket, 200, location404, "HTML"); //debug
-	// _stage = RESPONSED; //debug
-
-
 	return (_stage);
 }
 
 std::string	Request::setDefaultErrorPage() {
 	ServerBlock server = searchServer(header["Host"], *server_blocks);
-	std::map<int, std::string> errorPageMap = server.getErrorPage();
-	std::string location404 = "./docs/curl/" + errorPageMap[404];
+	// std::map<int, std::string> errorPageMap = server.getErrorPage();
+	std::string location404 = "./" + server.getRoot() + "/" + server.getErrorPage()[404];
 
 	if (location404.empty())
 		return (location404);
@@ -152,5 +179,6 @@ void	Request::clear() {
 	data.str(std::string());
 	data.clear();
 	_boundary = std::string();
+	errNum = 0;
 }
 

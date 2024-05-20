@@ -178,8 +178,9 @@ ServerBlock	searchServer(std::string serverName, std::vector<ServerBlock> s_vec)
 		if (s_it->getFullName() == serverName)
 			return *s_it;
 	}
-	if (s_it == s_vec.end())
-		throw std::string ("Error: Invalid server name: " + serverName + "\n");
+	// if (s_it == s_vec.end())
+	// 	std::cerr << "Error: Invalid server name: " << serverName << std::endl;
+	// std::cout << "Client use invalid servername." << std::endl;
 	return s_block;
 }
 
@@ -192,7 +193,7 @@ ServerBlock	searchServerByPort(size_t serverPort, std::vector<ServerBlock> s_vec
 			return *s_it;
 	}
 	if (s_it == s_vec.end())
-		throw std::string ("Error: Invalid server port\n");
+		std::cerr << "Error: Invalid server port" << std::endl;
 	return s_block;
 }
 
@@ -211,12 +212,10 @@ LocationBlock	searchLocation(std::string serverName, std::string directoryPath, 
 					return *l_it;
 				}
 			}
-			if (l_it == l_vec.end())
-				throw std::string ("Error: Invalid location path: " + directoryPath + "\n");
 		}
 	}
-	if (s_it == s_vec.end())
-		throw std::string ("Error: Invalid server name: " + serverName + "\n");
+	// if (s_it == s_vec.end())
+	// 	std::cerr << "Error: Invalid server name: " << serverName << std::endl;
 	return l_block;
 }
 

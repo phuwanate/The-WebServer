@@ -4,6 +4,20 @@ Response::Response(){
 	_status = initStatusrMsg();
 }
 
+Response::Response(Response const &other) {
+	this->_status = other._status;
+}
+
+Response& Response::operator=(Response const &other) {
+	if (this != &other) {
+		this->_status = other._status;
+	}
+	return *this;
+}
+
+Response::~Response() {
+}
+
 void Response::error404(int socket, std::string location404) {
 	if (location404.empty()){
 		byStatus(socket, 404);
@@ -32,7 +46,6 @@ void Response::byFile(int socket, int status, std::string const &location,  std:
 	Response res;
 
 	std::string body;
-	std:: cout << "location in by file-->\n" << location << "\n";
 	if (!readFile(location, body)) {
 		res.byStatus(socket, 404);
 	}

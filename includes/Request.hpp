@@ -25,6 +25,8 @@ class Request {
 	public:
 		Request();
 		Request(std::vector<ServerBlock>*	server_blocks);
+		Request(const Request& other);
+		Request& operator=(const Request& other);
 		~Request();
 
 		std::string							method;
@@ -36,6 +38,7 @@ class Request {
 		std::stringstream					data; //set by client
 		int									socket; //set by client
 		std::string							location404; //use by cgi
+		int									errNum;
 
 		HttpStage							parseFirstLine(HttpStage stage); //use by client
 		HttpStage							parseHeader(HttpStage stage); //use by client

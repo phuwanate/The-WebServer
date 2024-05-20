@@ -54,14 +54,6 @@ void	ServerHandler::startServerHandler() {
 			std::memcpy(&working_read, &_read_set, sizeof(_read_set));
 
 			std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
-			// for (int i = 5; i <= _max_sd ;i++){
-			//    if (FD_ISSET(i, &_read_set)){
-			//       std::cout << "fd: " << i << " is ready to read." << std::endl;
-			//    }
-			//    if (FD_ISSET(i, &_write_set)){
-			//       std::cout << "fd: " << i << " is ready to write." << std::endl;
-			//    }
-			// }
 			s_ready = select(_max_sd + 1, &working_read, NULL, NULL, &timeout);
 			if (s_ready < 0) {
 				std::cerr << RED << "Error: select failed..." << DEFAULT << std::endl;

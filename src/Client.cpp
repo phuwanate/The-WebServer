@@ -3,10 +3,6 @@
 
 Client::Client(){}
 
-Client::Client(Client const &inst) {
-	*this = inst;
-}
-
 Client::Client(int new_sd, int listen_sd, std::vector<ServerBlock>  serverBlocks){
 	this->_socket = new_sd;
 	this->sever_socket = listen_sd;
@@ -14,12 +10,20 @@ Client::Client(int new_sd, int listen_sd, std::vector<ServerBlock>  serverBlocks
 	this->request.sever_socket = listen_sd;
 }
 
-Client &Client::operator=(Client const &client){
-	if (this != &client)
-	{
-		this->_socket = client._socket;
+Client::Client(Client const &inst) {
+	this->request = inst.request;
+	this->sever_socket = inst.sever_socket;
+	this->server_blocks = inst.server_blocks;
+	this->_response = inst._response;
+	this->_socket = inst._socket;
+	this->_stage = inst._stage;
+}
+
+Client& Client::operator=(Client const &cli) {
+	if (this != &cli) {
+		this->_socket = cli._socket;
 	}
-	return (*this);
+	return *this;
 }
 
 Client::~Client(){}
@@ -49,17 +53,15 @@ bool Client::httpStage() {
 			_stage = request.parseBody(_stage);
 		}
 		case ROUTER: {
-			//print
 			// _stage = cgi.router(_stage);
-			// std::string errLocation = "./docs/curl/" + request.setDefaultErrorPage(); // test response
-			std::string errLocation = request.setDefaultErrorPage(); // test response
-			_response.error404(_socket, errLocation);
+			// _response.error404(_socket, errLocation);
 			// _response.byFile(_socket, 404, errLocation, "text/html; charset=UTF-8"); // test response
 			// _response.byFile(_socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
 			// _response.byStatus(_socket, 307); // test response
 			// std::stringstream mockStringstream = createMockData();// test response
 			// _response.byStringstream(_socket, 200, mockStringstream,"text/html");// test response
-			_stage = RESPONSED;
+			_cgi.initCgi(request.errNum, _socket, request.server_blocks, request);
+			_stage = _cgi.apiRouter();
 		}
 		case RESPONSED: {
 			request.clear();
