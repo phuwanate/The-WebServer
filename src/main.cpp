@@ -26,7 +26,7 @@ int main (int ac, char **av) {
 	try{
 		signal(SIGINT, signalHandler);
 		Config config(pathToConfigFile);
-		config.DebugEverythinginConfig(config.getServerBlocks());
+		// config.DebugEverythinginConfig(config.getServerBlocks());
 		std::vector<ServerBlock> s_vec = config.getServerBlocks();
 		ServerHandler Handler(s_vec);
 		s_handler = &Handler;

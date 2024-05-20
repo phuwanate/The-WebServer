@@ -33,14 +33,15 @@ class Request {
 		std::stringstream					body; //use by first
 		int									sever_socket; //set by client
 		std::vector<ServerBlock>*			server_blocks; // set by serverhandler
+		std::stringstream					data; //set by client
+		int									socket; //set by client
+		std::string							location404; //use by cgi
 
 		HttpStage							parseFirstLine(HttpStage stage); //use by client
 		HttpStage							parseHeader(HttpStage stage); //use by client
 		HttpStage							parseBody(HttpStage stage); //use by client
 		void								clear();
-		std::stringstream					data; //set by client
-		int									socket; //set by client
-
+		std::string							setDefaultErrorPage(); 
 	private:
 		HttpStage							_stage;
 		std::string							_boundary;

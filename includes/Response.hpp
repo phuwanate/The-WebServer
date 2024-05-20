@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <map>
 #include <fstream>
-
+#include <iostream>
 #include "HttpStatus.hpp"
 
 class Response {
@@ -15,6 +15,7 @@ class Response {
 		void byStringstream(int socket, int status, std::stringstream &file, const std::string &content_type);
 		void byFile(int socket, int status, std::string const &location,  std::string const &content_type);
 		void byRedirect(int socket, int status, std::string const &location);
+		void error404(int socket, std::string location404);
 	private:
 		std::map<int, std::string>		_status;
 

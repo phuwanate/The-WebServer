@@ -49,8 +49,13 @@ bool Client::httpStage() {
 			_stage = request.parseBody(_stage);
 		}
 		case ROUTER: {
+			//print
 			// _stage = cgi.router(_stage);
-			_response.byFile(_socket, 200, "./src/page.html", "text/html; charset=UTF-8"); // test response
+			// std::string errLocation = "./docs/curl/" + request.setDefaultErrorPage(); // test response
+			std::string errLocation = request.setDefaultErrorPage(); // test response
+			_response.error404(_socket, errLocation);
+			// _response.byFile(_socket, 404, errLocation, "text/html; charset=UTF-8"); // test response
+			// _response.byFile(_socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
 			// _response.byStatus(_socket, 307); // test response
 			// std::stringstream mockStringstream = createMockData();// test response
 			// _response.byStringstream(_socket, 200, mockStringstream,"text/html");// test response
@@ -58,7 +63,7 @@ bool Client::httpStage() {
 		}
 		case RESPONSED: {
 			request.clear();
-			_stage = FIRST_LINE; 
+			_stage = FIRST_LINE;
 			return (true); // already response // if not comment now will infinite loop
 		}
 		default:

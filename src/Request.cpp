@@ -11,6 +11,7 @@ Request::Request(std::vector<ServerBlock>*	server_blocks):_stage(FIRST_LINE) {
 Request::~Request() {
 }
 
+
 HttpStage Request::parseFirstLine(HttpStage stage) {
 	_stage = stage;
 	std::string buffer;
@@ -18,13 +19,16 @@ HttpStage Request::parseFirstLine(HttpStage stage) {
 	std::istringstream line(buffer);
 
 	line >> buffer;
-	if (line.fail()) {
-		_stage = RESPONSED;
-		_response.byStatus(socket, 400);
-		return (_stage);
-	}
+	
+	_stage = RESPONSED;
+	_response.byStatus(socket, 400);
+	return (_stage);
+	// if (line.fail()) {
+	// 	_stage = RESPONSED;
+	// 	_response.byStatus(socket, 400);
+	// 	return (_stage);
+	// }
 	method = buffer;
-	//TO DO: validate_buffer with allowed buffer //
 
 	line >> buffer;
 	if (line.fail()) {
@@ -96,7 +100,32 @@ HttpStage Request::parseHeader(HttpStage stage) {
 	}
 	if (isMultipart() && validBodyLength())
 		_stage = BODY;
+
+
+	location404 = setDefaultErrorPage();
+	std::cout << "location404-->\n" << location404 << "\n";
+	// _response.byFile(socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
+
+	// _response.byFile(socket, 200, location404, "HTML"); //debug
+	// _stage = RESPONSED; //debug
+
+
 	return (_stage);
+}
+
+std::string	Request::setDefaultErrorPage() {
+	ServerBlock server = searchServer(header["Host"], *server_blocks);
+	std::map<int, std::string> errorPageMap = server.getErrorPage();
+	std::string location404 = "./docs/curl/" + errorPageMap[404];
+
+	if (location404.empty())
+		return (location404);
+	
+	std::ifstream file(location404.c_str());
+	if (!file.is_open())
+		return(std::string());
+
+	return (location404);
 }
 
 HttpStage Request::parseBody(HttpStage stage) {
@@ -115,13 +144,13 @@ HttpStage Request::parseBody(HttpStage stage) {
 }
 
 void	Request::clear() {
-	method = "";
-	path = "";
+	method = std::string();
+	path = std::string();
 	header.clear();
 	body.str(std::string());
 	body.clear();
 	data.str(std::string());
 	data.clear();
-	_boundary = "";
+	_boundary = std::string();
 }
 

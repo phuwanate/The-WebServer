@@ -4,15 +4,15 @@ Response::Response(){
 	_status = initStatusrMsg();
 }
 
-// "default_err_page" file must pass access function and can be read
-void Response::byStatus(int socket, int status)
-{
-	// std::cout << _default_err_page << std::endl;
-	// if (status == 404 && _default_err_page.length())
-	// {
-	// 	return response.byFile(socket, 404, _default_err_page, "text/html");
-	// }
-	
+void Response::error404(int socket, std::string location404) {
+	if (location404.empty()){
+		byStatus(socket, 404);
+		return ;
+	}
+	byFile(socket, 404, location404, "text/html");
+}
+
+void Response::byStatus(int socket, int status){
 	std::string firstLine = createFirstLine(status);
 	std::string body = createBodyByStatus(status);
 	std::string response = createResponse(firstLine, body, "text/html");
@@ -32,6 +32,7 @@ void Response::byFile(int socket, int status, std::string const &location,  std:
 	Response res;
 
 	std::string body;
+	std:: cout << "location in by file-->\n" << location << "\n";
 	if (!readFile(location, body)) {
 		res.byStatus(socket, 404);
 	}
