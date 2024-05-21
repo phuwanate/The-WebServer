@@ -1,10 +1,10 @@
 #include "LocationBlock.hpp"
 
-LocationBlock::LocationBlock() {
+LocationBlock::LocationBlock():_autoIndex(0) {
 	return;
 }
 
-LocationBlock::LocationBlock(std::string const &locationBlock, ServerBlock &serverBlock) {
+LocationBlock::LocationBlock(std::string const &locationBlock, ServerBlock &serverBlock):_autoIndex(0) {
 	__copyAttributes(serverBlock);
 	__initLocation(locationBlock);
 	return;
@@ -117,8 +117,8 @@ void	LocationBlock::setClientMaxBodySize(size_t val) {
 }
 
 void	LocationBlock::__copyAttributes(ServerBlock &serverBlock) {
-	setRoot(serverBlock.getRoot());
-	setIndex(serverBlock.getIndex());
+	// setRoot(serverBlock.getRoot());
+	// setIndex(serverBlock.getIndex());
 	setAutoindex(serverBlock.getAutoindex());
 	setClientMaxBodySize(serverBlock.getClientMaxBodySize());
 }
@@ -247,7 +247,11 @@ void LocationBlock::DebugLocationBlock(){
 	std::cout << "		path: " << getDirectoryPath() << std::endl;
 	std::cout << "		alias: " << getAlias() << std::endl;
 	std::cout << "		root: " << getRoot() << std::endl;
-	std::cout << "		index: " << getIndex()[0] << std::endl;
+	if (getIndex().size() != 0){
+		std::vector<std::string> index = getIndex();
+		for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++)
+			std::cout << "		index: " << *it << std::endl;
+	}
 	std::cout << "		autoindex: " << getAutoIndex() << std::endl;
 
 	std::cout << "		cgi_compiler_path: ";

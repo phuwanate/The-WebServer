@@ -34,12 +34,29 @@ void     Cgi::setSocket(int val) {
     this->_socket = val;
 }
 
+void    Cgi::setContentTypes() {
+
+    this->_contentTypes["html"] = "text/html; charset=UTF-8";
+    this->_contentTypes["htm"] = "text/html; charset=UTF-8";
+    this->_contentTypes["css"] = "text/css";
+    this->_contentTypes["jpg"] = "image/jpeg";
+    this->_contentTypes["jpeg"] = "image/jpeg";
+    this->_contentTypes["webp"] = "image/webp";
+    this->_contentTypes["js"] = "application/x-javascript";
+}
+
+std::string Cgi::getType(std::string key) {
+
+    return this->_contentTypes[key];
+}
+
 void    Cgi::initCgi(int errnum, int socket, std::vector<ServerBlock>* instptr, Request &reqinst) {
  
     this->_errnum = errnum;
     this->_socket = socket;
     this->server_blocks = instptr;
     this->_req = reqinst;
+    setContentTypes();
 }
 
 HttpStage Cgi::apiRouter() {
@@ -90,68 +107,71 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
     std::string root;
     std::string endpoint;
     std::vector<std::string> index;
+    std::string filepath;
 
-    if (location.getRoot().length() != 0) {
-        root = location.getRoot();
-    } else {
-        root = server.getRoot();
+//need to know is it full path or directory
+
+    if (checkContentType(_req.path) == "unkown") {
+        if (location.getRoot().length() != 0) {
+            root = location.getRoot();
+        } else {
+            root = server.getRoot();
+        }
+        if (root[root.size() - 1] != '/') {
+            root += "/";
+        }
+        if (location.getDirectoryPath().length() != 0) {
+            endpoint = location.getDirectoryPath();
+            if (endpoint[endpoint.size() - 1] != '/') {
+                endpoint += "/";
+            }
+        }
+        
+        if (endpoint[0] == '/')
+            filepath = "./" + root.substr(0, root.find_last_of("/")) + endpoint;
+        else
+            filepath = "./" + root + endpoint;
+        // std::string filepath = "./" + root + endpoint;
     }
-    if (location.getDirectoryPath().length() != 0)
-        endpoint = location.getDirectoryPath();
-    
-    std::string filepath = "./" + root + endpoint;
+    else
+        filepath = "." + _req.path;
+    std::cout << filepath << std::endl;
 
-    if (isFileExists(filepath) != false) {
-        // std::cout << "This filepath:" << filepath << "is exists." << std::endl;
+    if (isFileExists(filepath) == true) {
+        std::cout << "This filepath:" << filepath << " does exists." << std::endl;
         if (isDir(filepath)) {
-            // std::cout << "This filepath:" << filepath << "is directory." << std::endl;
+            std::cout << "This filepath:" << filepath << "is directory." << std::endl;
         //if dirpath == directory
         // get index to concat with path
-            if (location.getIndex().size() != 0)
+            if (location.getIndex().size() != 0) {
+                std::cout << YELLOW << "Use location parameters." << DEFAULT << std::endl;
                 index = location.getIndex();
-            else {
-                //Check autoindex in location block before use server's index
+            }
+            if (isIndexExsists(filepath, index) == false) {
                 if (location.getAutoIndex() == true) {
                     //resp.byAutoindex();
                     return true;
                 }
-                index = server.getIndex();
-                //No need to fill index line in config file.
-                if (index.size() == 0) {
-                    return false;
+                else {
+                    if (useServerparameter(server) == true)
+                        return true;
+                    else
+                        return false;
                 }
-
+            } else {
+                //found index in location block and can be use;
+                std::cout << YELLOW << "Healthy request by location block." << DEFAULT << std::endl; 
+                std::string contentTypes = checkContentType(filepath);
+                _resp.byFile(_socket, 200, filepath, contentTypes);
+                return true;
             }
-            std::vector<std::string>::iterator it = index.begin();
-            for (; it != index.end(); it++){
-                // std::cout << "file test:" << filepath + *it << std::endl;
-                if (isFileExists(filepath + *it))
-                {
-                    filepath += *it;
-                    break;
-                }
-            }//end of for loop
-            if (it == index.end())
-            {
-                // std::cout << "index file doesn't exists." << std::endl;
-                return false;
-            }
-        }//end of if (isFileExists(filepath))
-        if (isFileExists(filepath) == false) {
-			if (server.getAutoindex() == true) {
-                //resp.byAutoindex();
-            }
-            else {
-                return false; //autoindex is off reponse 404 default page.
-            }
-		}
-        // std::cout << "This filepath:" << filepath << " is a file." << std::endl;
-    }
-    //if dirpath == file
-    // get content-type from file
-    // response by file
-    _resp.byFile(_socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
-    return true;
+        }
+        std::cout << "This filepath:" << filepath << " is a file." << std::endl;
+        std::string contentTypes = checkContentType(filepath);
+        _resp.byFile(_socket, 200, filepath, contentTypes);
+        return true;
+    }//end of if (isFileExists(filepath))
+    return false;
 }
 
 bool Cgi::isFileExists(const std::string& filepath) {
@@ -165,4 +185,64 @@ bool Cgi::isDir(const std::string& filepath) {
         return S_ISDIR(buffer.st_mode);
     }
     return false;
+}
+
+bool Cgi::isIndexExsists(std::string &filepath, std::vector<std::string> index) {
+
+    std::vector<std::string>::iterator it = index.begin();
+    for (; it != index.end(); it++) {
+        if (isFileExists(filepath + *it))
+        {
+            filepath += *it;
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string Cgi::checkContentType(std::string file) {
+
+    std::string type = "unkown";
+    size_t      found = file.find_last_of('.');
+    std::string file_ext;
+    
+    if (found == std::string::npos)
+        return type;
+    
+    file_ext = file.substr(found + 1);
+    type = getType(file_ext);
+    return type;
+}
+
+
+
+bool Cgi::useServerparameter(ServerBlock &server){
+
+    //in location path cannot found index, go back to use server_index.
+    std::string serv_root = server.getRoot();
+    std::vector<std::string> index;
+    std::string filepath;
+    
+    std::cout << YELLOW << "Going back to outter block for server paramters." << DEFAULT << std::endl;
+    if (serv_root[serv_root.size() - 1] != '/')
+        serv_root += "/";
+    index = server.getIndex();
+    filepath = "./" + serv_root;
+    std::cout << "filepath server : " << filepath << std::endl;
+    if (isIndexExsists(filepath, index) == false) {
+        //there is no index exists in server_root check if autoindex = on
+        std::cout << "filepath server : " << filepath + index[0] << "does not exists." << std::endl;
+    
+        if (server.getAutoindex() == true) {
+            //resp.byAutoindex();
+            return true;
+        }
+        else {
+            //autoindex = off go to response error default
+            return false;
+        }
+    }
+    std::string contentTypes = checkContentType(filepath);
+    _resp.byFile(_socket, 200, filepath, contentTypes);
+    return true;
 }
