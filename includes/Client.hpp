@@ -23,6 +23,7 @@ class Client {
 		Client &operator=(Client const &cli);
 		~Client();
 		bool						receiveData(const char *buffer, int rc);
+		bool						httpStage();
 
 		Request						request;
 		int							sever_socket;
@@ -34,7 +35,6 @@ class Client {
 		HttpStage					_stage;
 		Cgi							_cgi;
 
-		bool						httpStage();
 };
 
 #endif

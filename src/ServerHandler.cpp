@@ -122,8 +122,9 @@ void	ServerHandler::httpManage(int read_sd) {
 		}
 		if (rc > 0) {
 			buffer[rc] = 0;
+			_clients_map[read_sd].request.data.write(buffer, rc);
 			_clients_map[read_sd].request.server_blocks = &_serverBlocks;
-			_clients_map[read_sd].receiveData(buffer, rc);
+			_clients_map[read_sd].httpStage();
 			ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
 			return ;
 		}

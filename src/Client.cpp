@@ -28,26 +28,15 @@ Client& Client::operator=(Client const &cli) {
 
 Client::~Client(){}
 
-bool Client::receiveData(const char *buffer, int rc){
-	// (void) buffer;
-	// (void) rc;
-	// _data = createMockData();
-
-	request.data.write(buffer, rc);
-	if (httpStage()) //true = already response , false = not response yet --> request incomplete
-		return (true);
-	return (false);
-}
-
 bool Client::httpStage() {
-	// Cgi cgi(request.method, request.path, request.header, request.body); --> set request data when init
+	// Cgi cgi(request.method, request.path, request.header, request.body); 
 
 	switch (_stage) {
 		case FIRST_LINE: {
 			_stage = request.parseFirstLine(_stage);
 		}
 		case HEADER: {
-			_stage = request.parseHeader(_stage); //method not allowed, client_max_body_size
+			_stage = request.parseHeader(_stage); 
 		}
 		case BODY: {
 			_stage = request.parseBody(_stage);
@@ -66,10 +55,10 @@ bool Client::httpStage() {
 		case RESPONSED: {
 			request.clear();
 			_stage = FIRST_LINE;
-			return (true); // already response // if not comment now will infinite loop
+			return (true); 
 		}
 		default:
 			break;
 	}
-	return (false); // not response yet --> request incomplete
+	return (false); 
 }
