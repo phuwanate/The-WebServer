@@ -109,8 +109,7 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
     std::vector<std::string> index;
     std::string filepath;
 
-//need to know is it full path or directory
-
+    //need to know is it a full path with file_name or it just a directory.
     if (checkContentType(_req.path) == "unkown") {
         if (location.getRoot().length() != 0) {
             root = location.getRoot();
