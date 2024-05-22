@@ -44,7 +44,7 @@ class ServerHandler {
 		void						clearSocket();
 		void						checkStates(int *s_ready, fd_set &working_read);
 		void						readytoAccept(int read_sd);
-		void						httpManage(int read_sd);
+		bool						httpManage(int read_sd);
 		void						clearMasterSet(int socket, fd_set *master_set);
 		void						closeConn(int socket);
 		void						gracefulShutdown();

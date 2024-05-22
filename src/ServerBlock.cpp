@@ -1,10 +1,10 @@
 #include "ServerBlock.hpp"
 
-ServerBlock::ServerBlock() {
+ServerBlock::ServerBlock():_portNumb(8080), _hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false) {
 	return;
 }
 
-ServerBlock::ServerBlock(std::string const &serverBlock) {
+ServerBlock::ServerBlock(std::string const &serverBlock):_portNumb(8080), _hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false) {
 	__initServer(serverBlock);
 	return;
 }
@@ -177,8 +177,18 @@ void	ServerBlock::__initServer(std::string const &serverBlock) {
 			index += target.length();
 		}
 	}
+	checkAllparametersAfterParsing();
+}
+
+void	ServerBlock::checkAllparametersAfterParsing() {
+
 	if (this->_locationBlocks.size() == 0)
 		throw std::string ("Error: location blocks does not exists in configuration file.");
+	if (this->_serverNames.length() == 0)
+		throw std::string ("Error: Server must have server name in config file.");
+	if (this->_hostIP == 0)
+		throw std::string ("Error: Server must have ip-adress at \"host\" directive.");
+
 }
 
 void	ServerBlock::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
@@ -204,6 +214,7 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 	else if (directive == "root") {
 		if (values.size() != 1)
 			throw std::string ("Error: invalid number of parameters in root directive.");
+		validateRoot(values[0]);
 		setRoot(values[0]);
 	}
 	else if (directive == "client_max_body_size") {
@@ -230,7 +241,9 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 	else if (directive == "error_page") {
 		if (values.size() != 2 || isDigit(values[0]) == false)
 			throw std::string("Error: invalid  parameters in error_page directive.");
-		
+		if (this->_root.length() == 0)
+			throw std::string ("Error: Server must have \"root\" directive.");
+
 		std::string errorPage = pathToErrorPage(values[1]);
 		if (checkFileExists(errorPage) == true) {
 			setErrorPage(convertString<int>(values[0]), values[1]);
@@ -238,6 +251,12 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 			throw std::string("Error: Error page file does not exists: " + errorPage);
 		}
 	}
+}
+
+void ServerBlock::validateRoot(std::string root) {
+
+	if (!(std::isalpha(root[0])))
+		throw std::string ("Error: root must starting with alphabet.");
 }
 
 std::string	ServerBlock::pathToErrorPage(std::string errorFilePath) {

@@ -23,7 +23,7 @@ void Response::error404(int socket, std::string location404) {
 		byStatus(socket, 404);
 		return ;
 	}
-	byFile(socket, 404, location404, "text/html");
+	byFile(socket, 404, location404, "text/html; charset=UTF-8");
 }
 
 void Response::byStatus(int socket, int status){

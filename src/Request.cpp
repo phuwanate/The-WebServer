@@ -55,15 +55,17 @@ HttpStage Request::parseFirstLine(HttpStage stage) {
 
 	line >> buffer;
 	if (line.fail()) {
+		_stage = ROUTER;
 		errNum = 400;
-		return (ROUTER);
+		return (_stage);
 	}
 	method = buffer;
 
 	line >> buffer;
 	if (line.fail()) {
+		_stage = ROUTER;
 		errNum = 400;
-		return (ROUTER);
+		return (_stage);
 	}
 	path = buffer;
 
@@ -98,8 +100,8 @@ bool Request::validBodyLength(){
 	}
 	size_t max = server.getClientMaxBodySize();
 
-	if (header["content-length"].length()) {
-		size_t length = std::atoi(header["content-length"].c_str());
+	if (header["Content-Length"].length()) {
+		size_t length = std::atoi(header["Content-Length"].c_str());
 		if (length > max) {
 			_stage = ROUTER;
 			errNum = 413;
@@ -118,22 +120,22 @@ HttpStage Request::parseHeader(HttpStage stage) {
 	{
 		std::size_t colon = buffer.find_first_of(": ");
 		if (colon == std::string::npos) {
+			_stage = ROUTER;
 			errNum = 400;
-			return (ROUTER);
+			return (_stage);
 		}
 		std::string key = buffer.substr(0, colon);
 		std::string value = buffer.substr(colon + 2, buffer.size() - (colon + 2) -1);//skip ": " and trim "\r"
 		if (!key.length() || !value.length()) {
+			_stage = ROUTER;
 			errNum = 400;
-			return (ROUTER);
+			return (_stage);
 		}
 		header[key] = value;
 		std::getline(data, buffer);
 	}
 	if (isMultipart() && validBodyLength())
 		_stage = BODY;
-	else
-		_stage = ROUTER;
 	location404 = setDefaultErrorPage();
 	return (_stage);
 }
@@ -159,6 +161,7 @@ HttpStage Request::parseBody(HttpStage stage) {
 	std::stringstream remain_data;
 	remain_data << data.rdbuf();
 	body << remain_data.str();
+	
 	while (std::getline(remain_data, buffer))
 	{
 		if (buffer == _boundary) {

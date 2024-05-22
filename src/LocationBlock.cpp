@@ -18,6 +18,7 @@ LocationBlock::LocationBlock(LocationBlock const &locationBlockInstance) {
 LocationBlock	&LocationBlock::operator= (LocationBlock const &locationBlockInstance) {
 	if (this != &locationBlockInstance) {
 
+		this->_cgiMap = locationBlockInstance._cgiMap;
 		this->_root = locationBlockInstance._root;
 		this->_index = locationBlockInstance._index;
 		this->_alias = locationBlockInstance._alias;
@@ -66,6 +67,10 @@ std::vector<std::string>	LocationBlock::getCgiCompilerPath() {
 
 std::map<std::string, bool>	LocationBlock::getAllowMethods() {
 	return this->_allowMethods;
+}
+
+std::map<std::string, std::string> LocationBlock::getCgiMap() {
+	return this->_cgiMap;
 }
 
 bool	LocationBlock::getAutoIndex() {
@@ -131,6 +136,19 @@ void	LocationBlock::__setAllMethods(bool val) {
 
 }
 
+void	LocationBlock::__setCgiMap() {
+	std::vector<std::string>::iterator p_it = _cgiCompilerPath.begin();
+	std::vector<std::string>::iterator x_it = _cgiFileExtention.begin();
+
+	if (_cgiCompilerPath.size() == _cgiFileExtention.size())
+		for (;p_it != _cgiCompilerPath.end(); p_it++) {
+			_cgiMap[*x_it] = *p_it;
+			x_it++;
+		}
+	else
+		throw std::string ("Numbers of cgi compiler path and file extention doesn't match.");
+}
+
 void	LocationBlock::__initLocation(std::string const &locationBlock){
 	std::string currentDirective = "";
     std::string content, target;
@@ -176,6 +194,7 @@ void	LocationBlock::__initLocation(std::string const &locationBlock){
 			index += target.length();
 		}
 	}
+	__setCgiMap();
 }
 
 void	LocationBlock::__initLocationParameters(std::string const &directive, std::vector<std::string> values) {
@@ -202,6 +221,7 @@ void	LocationBlock::__initLocationParameters(std::string const &directive, std::
 	else if (directive == "index") {
 		if (values.size() < 1)
 			throw errNumberOfParameters(directive, "location");
+		validateIndex(values);
 		setIndex(values);
 	}
 	else if (directive == "autoindex") {
@@ -222,6 +242,7 @@ void	LocationBlock::__initLocationParameters(std::string const &directive, std::
 	else if (directive == "cgi_extensions") {
 		if (values.size() < 1)
 			throw errNumberOfParameters(directive, "location");
+		validateCgiExt(values);
 		setCgiFileExtention(values);
 	}
 	else if (directive == "cgi_compiler_path") {
@@ -240,6 +261,25 @@ void	LocationBlock::__initLocationParameters(std::string const &directive, std::
 		setRoot(values[0]);
 	}
 	return;
+}
+
+void LocationBlock::validateCgiExt(std::vector<std::string> extension) {
+
+	std::vector<std::string>::iterator it = extension.begin();
+	for (; it != extension.end(); it++) {
+		if ((*it)[0] != '.')
+			throw std::string ("Error: Invalid extension [" + *it + "] at \"cgi_extensions\" parameters.");
+	}
+}
+
+void LocationBlock::validateIndex(std::vector<std::string> index) {
+
+	std::vector<std::string>::iterator it = index.begin();
+
+	for (; it != index.end(); it++) {
+		if ((*it).find(".") == std::string::npos)
+			throw std::string ("Error: invalid index parameters " + *it);
+	}
 }
 
 void LocationBlock::DebugLocationBlock(){

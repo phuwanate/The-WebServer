@@ -76,8 +76,9 @@ void	ServerHandler::checkStates(int *s_ready, fd_set &working_read) {
 		if (FD_ISSET(i, &_listen_set)) {
 			readytoAccept(i);
 		} else if (FD_ISSET(i, &working_read)) {
-			httpManage(i);
-			closeConn(i);
+			if (httpManage(i) == true) {
+				closeConn(i);
+			}
 			(*s_ready)--;
 		} 
 	}
@@ -105,34 +106,36 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 	_clients_map[new_sd] = new_client;
 
 	addMasterSet(new_sd, &_read_set);
-	std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
 	usleep(200);
+	std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
 }
 
-void	ServerHandler::httpManage(int read_sd) {
-		char buffer[READ_BUFF];
+bool    ServerHandler::httpManage(int read_sd) {
+        char buffer[READ_BUFF];
 
-		std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
-		int rc = recv(read_sd, buffer, sizeof(buffer), 0);
-		std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
-		if (rc < 0) {
-			std::cerr << RED << "Error: recv failed." << DEFAULT << std::endl;
-			closeConn(read_sd);
-			return ;
-		}
-		if (rc > 0) {
-			buffer[rc] = 0;
-			_clients_map[read_sd].request.data.write(buffer, rc);
-			_clients_map[read_sd].request.server_blocks = &_serverBlocks;
-			_clients_map[read_sd].httpStage();
-			ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-			return ;
-		}
-		if (rc == 0) {
-			std::cout << "Close conn at read request" << std::endl;
-			ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-			closeConn(read_sd);
-		}
+        std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
+        int rc = recv(read_sd, buffer, sizeof(buffer) - 1, 0);
+        std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
+        if (rc < 0) {
+            std::cerr << RED << "Error: recv failed." << DEFAULT << std::endl;
+            closeConn(read_sd);
+            return (false);
+        }
+        if (rc > 0) {
+            buffer[rc] = 0;
+            _clients_map[read_sd].request.data.write(buffer, rc);
+            ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
+            _clients_map[read_sd].request.server_blocks = &_serverBlocks;
+            if(_clients_map[read_sd].httpStage() == false)
+                return (false);
+        }
+        if (rc == 0) {
+            std::cout << "Close conn at read request" << std::endl;
+            ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
+            closeConn(read_sd);
+            return (false);
+        }
+        return (true);
 }
 
 void	ServerHandler::listenNewConnection() {

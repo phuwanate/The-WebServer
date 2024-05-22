@@ -42,13 +42,6 @@ bool Client::httpStage() {
 			_stage = request.parseBody(_stage);
 		}
 		case ROUTER: {
-			// _stage = cgi.router(_stage);
-			// _response.error404(_socket, errLocation);
-			// _response.byFile(_socket, 404, errLocation, "text/html; charset=UTF-8"); // test response
-			// _response.byFile(_socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
-			// _response.byStatus(_socket, 307); // test response
-			// std::stringstream mockStringstream = createMockData();// test response
-			// _response.byStringstream(_socket, 200, mockStringstream,"text/html");// test response
 			_cgi.initCgi(request.errNum, _socket, request.server_blocks, request);
 			_stage = _cgi.apiRouter();
 		}

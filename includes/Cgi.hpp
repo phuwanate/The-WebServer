@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <signal.h>
 
 #include "Request.hpp"
 #include "Response.hpp"
@@ -29,14 +30,23 @@ class Cgi {
         void    initCgi(int errnum, int socket, std::vector<ServerBlock>* server_blocks, Request &reqinst);
 
         std::string                     getType(std::string key);
-
+        
         HttpStage                       apiRouter();
+        time_t                          startTime();
+        pid_t                           waitcoc(pid_t child, int *status);
+        void                            execute(std::string &file, std::string &compiler, std::string &root);
+        void                            cgiResponse(pid_t exitpid, int status, std::string cgi_route, std::stringstream &stream);
+        bool                            generatePage(LocationBlock &location, ServerBlock &server);
+        bool                            upload(LocationBlock &location, ServerBlock &server);
+        bool                            Delete(LocationBlock &location, ServerBlock &server);
+        long                            creatFileStream();
         bool                            serveFile(ServerBlock &server, LocationBlock &location);
         bool                            isFileExists(const std::string& file);
         bool                            isDir(const std::string& filepath);
         bool                            isIndexExsists(std::string &filepath, std::vector<std::string> index);
         std::string                     checkContentType(std::string file);
         bool                            useServerparameter(ServerBlock &server);
+        bool    prepareFilePath(ServerBlock &server, LocationBlock &location, std::string &root, std::string &endpoint, std::string &filepath);
         std::vector<ServerBlock>*       server_blocks;
 
     private:
@@ -44,8 +54,8 @@ class Cgi {
         Response                            _resp;
         int                                 _errnum;
         std::map<std::string, std::string>  _contentTypes;
-	int				_socket;
-
+	    int				                    _socket;
+        std::string                         _oldpath;
 
 };
 

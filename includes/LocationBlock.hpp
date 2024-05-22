@@ -27,6 +27,7 @@ class LocationBlock {
 		std::map<std::string, bool>	getAllowMethods();
 		bool						getAutoIndex();
 		size_t						getClientMaxBodySize();
+		std::map<std::string, std::string> getCgiMap();
 
 		void						setDirectoryPath(std::string const &val); 
 		void						setRoot(std::string const &val);
@@ -38,6 +39,8 @@ class LocationBlock {
 		void						setAllowMethod(std::string const &key, bool val);
 		void						setAutoindex(bool val);
 		void						setClientMaxBodySize(size_t val);
+		void						validateIndex(std::vector<std::string> index);
+		void						validateCgiExt(std::vector<std::string> extension);
 		void						DebugLocationBlock();
 
 	private:
@@ -46,6 +49,7 @@ class LocationBlock {
 		void						__initLocationParameters(std::string const &directive, std::vector<std::string> values);
 		void						__copyAttributes(ServerBlock &serverBlock);
 		void						__setAllMethods(bool val);
+		void						__setCgiMap();
 
 		std::string					_directoryPath;
 		std::string					_root;
@@ -54,6 +58,7 @@ class LocationBlock {
 		std::vector<std::string>	_index;
 		std::vector<std::string>	_cgiFileExtention; //for file extension
 		std::vector<std::string>	_cgiCompilerPath; //for cgi compiler path
+		std::map<std::string, std::string> _cgiMap;
 		std::map<std::string, bool>	_allowMethods;
 		bool						_autoIndex;
 		size_t						_clientMaxBodySize;
