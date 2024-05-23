@@ -339,12 +339,12 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
     if (prepareFilePath(server, location, root, endpoint, filepath) == false)
         return false;
-    std::cout << "This filepath:" << filepath << std::endl;
+    // std::cout << "This filepath:" << filepath << std::endl;
 
     if (isFileExists(filepath) == true) {
-        std::cout << "This filepath:" << filepath << " does exists." << std::endl;
+        // std::cout << "This filepath:" << filepath << " does exists." << std::endl;
         if (isDir(filepath)) {
-            std::cout << "This filepath:" << filepath << "is directory." << std::endl;
+            // std::cout << "This filepath:" << filepath << "is directory." << std::endl;
             if (location.getIndex().size() != 0) {
                 index = location.getIndex();
             }
@@ -367,7 +367,7 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
                 return true;
             }
         }
-        std::cout << RED << "This filepath:" << filepath << " is a file." << std::endl;
+        // std::cout << RED << "This filepath:" << filepath << " is a file." << std::endl;
         std::string contentTypes = checkContentType(filepath);
         _resp.byFile(_socket, 200, filepath, contentTypes);
         return true;
@@ -460,7 +460,7 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     if (checkContentType(_req.path) == "unkown") {
         //directory
         if (location.getDirectoryPath().length() != 0) {
-            std::cout << RED << "Request as directory." << DEFAULT << std::endl;
+            // std::cout << RED << "Request as directory." << DEFAULT << std::endl;
             endpoint = location.getDirectoryPath();
         }
         else {
@@ -474,17 +474,15 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
         //full path with root.
         if (_req.path.find(root) != std::string::npos) {
             filepath = "." + _req.path;
-            std::cout << "The path contains the substring." << std::endl;
+            // std::cout << "The path contains the substring." << std::endl;
         } else {
             filepath = "./" + server.getRoot() + currpath + _req.path;
-            // else
-            //     filepath = _oldpath.substr(0, _oldpath.find_last_of("/")) + _req.path;
-            std::cout << "The path does not contain the substring." << std::endl;
+            // std::cout << "The path does not contain the substring." << std::endl;
         }
     }
     std::cout << "Loc path: " << this->currpath << std::endl;
     // std::cout << "Old Path: " << _oldpath << std::endl;
-    std::cout << "Prepare: " << filepath << std::endl;
+    // std::cout << "Prepare: " << filepath << std::endl;
     // exit(0);
     return true;
 }
