@@ -45,8 +45,8 @@ class Request {
 		HttpStage							parseBody(HttpStage stage); //use by client
 		void								clear();
 		std::string							setDefaultErrorPage(); 
-	private:
 		HttpStage							_stage;
+	private:
 		std::string							_boundary;
 		Response 							_response;
 

@@ -49,7 +49,8 @@ class ServerHandler {
 		void						closeConn(int socket);
 		void						gracefulShutdown();
 		void						clientTimeout();
-		
+		void						updateLocationPath(int read_sd);
+
 		std::map<int, ServerBlock>	_servers_map;
 
 	private:
@@ -60,7 +61,8 @@ class ServerHandler {
 		// fd_set						_write_set;
 		std::map<int, Client>		_clients_map;
 		Response					_response;
-
+		std::string                 _currpath;
+		std::string					_newpath;
 };
 
 // bool start_server(std::vector<ServerBlock> s_vec);

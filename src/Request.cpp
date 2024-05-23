@@ -69,6 +69,7 @@ HttpStage Request::parseFirstLine(HttpStage stage) {
 	}
 	path = buffer;
 
+	// std::cerr << RED <<"Request path at parser: " << path << DEFAULT << std::endl;
 	_stage = HEADER;
 	return (_stage);
 }

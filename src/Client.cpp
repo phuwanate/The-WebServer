@@ -17,6 +17,7 @@ Client::Client(Client const &inst) {
 	this->_response = inst._response;
 	this->_socket = inst._socket;
 	this->_stage = inst._stage;
+	this->_cgi = inst._cgi;
 }
 
 Client& Client::operator=(Client const &cli) {
@@ -31,17 +32,22 @@ Client::~Client(){}
 bool Client::httpStage() {
 	// Cgi cgi(request.method, request.path, request.header, request.body); 
 
+
 	switch (_stage) {
 		case FIRST_LINE: {
+			// std::cout << RED << "Request path firstline: " << request.path << DEFAULT << std::endl;
 			_stage = request.parseFirstLine(_stage);
 		}
 		case HEADER: {
+			// std::cout << RED << "Request path header: " << request.path << DEFAULT << std::endl;
 			_stage = request.parseHeader(_stage); 
 		}
 		case BODY: {
+			// std::cout << RED << "Request path body: " << request.path << DEFAULT << std::endl;
 			_stage = request.parseBody(_stage);
 		}
 		case ROUTER: {
+			// std::cout << RED << "Request path before: " << request.path << DEFAULT << std::endl;
 			_cgi.initCgi(request.errNum, _socket, request.server_blocks, request);
 			_stage = _cgi.apiRouter();
 		}

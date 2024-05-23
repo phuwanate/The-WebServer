@@ -77,7 +77,8 @@ void	ServerHandler::checkStates(int *s_ready, fd_set &working_read) {
 			readytoAccept(i);
 		} else if (FD_ISSET(i, &working_read)) {
 			if (httpManage(i) == true) {
-				closeConn(i);
+				// std::cout << "Connection: " << _clients_map[i].request.header["Connection:"] << std::endl;
+					closeConn(i);
 			}
 			(*s_ready)--;
 		} 
@@ -114,28 +115,43 @@ bool    ServerHandler::httpManage(int read_sd) {
         char buffer[READ_BUFF];
 
         std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
-        int rc = recv(read_sd, buffer, sizeof(buffer) - 1, 0);
+        int rc = recv(read_sd, buffer, sizeof(buffer), 0);
         std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
         if (rc < 0) {
             std::cerr << RED << "Error: recv failed." << DEFAULT << std::endl;
-            closeConn(read_sd);
-            return (false);
+            // closeConn(read_sd);
+            // return (false);
+			return (false);
         }
         if (rc > 0) {
             buffer[rc] = 0;
             _clients_map[read_sd].request.data.write(buffer, rc);
-            ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
             _clients_map[read_sd].request.server_blocks = &_serverBlocks;
-            if(_clients_map[read_sd].httpStage() == false)
-                return (false);
+            ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
+			std::cout << "Client [" << read_sd << "] " << std::endl;
+			std::cout << "Server oldpath bef: " << _currpath << std::endl;
+            if(_clients_map[read_sd]._cgi.currpath.length() == 0)	
+				_clients_map[read_sd]._cgi.currpath = this->_currpath;
+			if(_clients_map[read_sd].httpStage() == false) {
+				updateLocationPath(read_sd);
+				return (false);
+			}
+			updateLocationPath(read_sd);
         }
         if (rc == 0) {
             std::cout << "Close conn at read request" << std::endl;
             ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-            closeConn(read_sd);
+			closeConn(read_sd);
             return (false);
         }
         return (true);
+}
+
+void	ServerHandler::updateLocationPath(int read_sd) {
+
+	if(_clients_map[read_sd]._cgi.currpath != this->_currpath)	
+		this->_currpath = _clients_map[read_sd]._cgi.currpath;
+	this->_clients_map[read_sd]._cgi.currpath.clear();
 }
 
 void	ServerHandler::listenNewConnection() {

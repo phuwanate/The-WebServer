@@ -41,6 +41,7 @@ void    Cgi::setContentTypes() {
     this->_contentTypes["css"] = "text/css";
     this->_contentTypes["jpg"] = "image/jpeg";
     this->_contentTypes["jpeg"] = "image/jpeg";
+    this->_contentTypes["png"] = "image/png";
     this->_contentTypes["webp"] = "image/webp";
     this->_contentTypes["js"] = "application/x-javascript";
 }
@@ -190,7 +191,6 @@ bool Cgi::Delete(LocationBlock &location, ServerBlock &server) {
 		if (coc_id == 0) {
 			dup2(creatFileStream(), STDIN_FILENO);
             _req.method = "DELETE";
-            // std::cout << "Root: " << root <<std::endl;
 			execute(filepath, compiler, root); 
 		} else {
 			int status;
@@ -248,7 +248,6 @@ bool Cgi::generatePage(LocationBlock &location, ServerBlock &server) {
 			}
 			close(pipes[0]);
 			cgiResponse(exitPID, exit_status, "/generate", stream);
-            // std::cerr << YELLOW << "Finish" << DEFAULT << std::endl;
 		}
 		exit(0);
     }
@@ -340,22 +339,18 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
     if (prepareFilePath(server, location, root, endpoint, filepath) == false)
         return false;
-    std::cout << YELLOW << "ServeFile" << DEFAULT << std::endl;
     std::cout << "This filepath:" << filepath << std::endl;
 
     if (isFileExists(filepath) == true) {
         std::cout << "This filepath:" << filepath << " does exists." << std::endl;
         if (isDir(filepath)) {
             std::cout << "This filepath:" << filepath << "is directory." << std::endl;
-        //if dirpath == directory
-        // get index to concat with path
             if (location.getIndex().size() != 0) {
-                // std::cout << YELLOW << "Use location parameters." << DEFAULT << std::endl;
                 index = location.getIndex();
             }
             if (isIndexExsists(filepath, index) == false) {
                 if (location.getAutoIndex() == true) {
-                    //resp.byAutoindex();
+                    _resp.byAutoIndex(_socket, 200, filepath);
                     return true;
                 }
                 else {
@@ -366,13 +361,13 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
                 }
             } else {
                 //found index in location block and can be use;
-                // std::cout << YELLOW << "Healthy request by location block." << DEFAULT << std::endl; 
+                 std::cout << YELLOW << "ServeFile" << DEFAULT << std::endl;
                 std::string contentTypes = checkContentType(filepath);
                 _resp.byFile(_socket, 200, filepath, contentTypes);
                 return true;
             }
         }
-        // std::cout << "This filepath:" << filepath << " is a file." << std::endl;
+        std::cout << RED << "This filepath:" << filepath << " is a file." << std::endl;
         std::string contentTypes = checkContentType(filepath);
         _resp.byFile(_socket, 200, filepath, contentTypes);
         return true;
@@ -432,13 +427,11 @@ bool Cgi::useServerparameter(ServerBlock &server){
         serv_root += "/";
     index = server.getIndex();
     filepath = "./" + serv_root;
-    // std::cout << "filepath server : " << filepath << std::endl;
     if (isIndexExsists(filepath, index) == false) {
         //there is no index exists in server_root check if autoindex = on
-        // std::cout << "filepath server : " << filepath + index[0] << "does not exists." << std::endl;
     
         if (server.getAutoindex() == true) {
-            //resp.byAutoindex();
+            _resp.byAutoIndex(_socket, 200, filepath);
             return true;
         }
         else {
@@ -463,30 +456,34 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
         root += "/";
     }
     std::cout << "request path: " << _req.path << std::endl;
+    //file on directory
     if (checkContentType(_req.path) == "unkown") {
+        //directory
         if (location.getDirectoryPath().length() != 0) {
+            std::cout << RED << "Request as directory." << DEFAULT << std::endl;
             endpoint = location.getDirectoryPath();
-            if (endpoint[endpoint.size() - 1] != '/') {
-                endpoint += "/";
-            }
-        }else
-            return false;
-        
-        // if (endpoint[0] == '/')
-        //     filepath = "./" + root.substr(0, root.find_last_of("/")) + endpoint;
-        // else
-            filepath = "./" + root + endpoint;
-            _oldpath = filepath;
+        }
+        else {
+            return (false);
+        }
+        if(endpoint.length() != 0)
+            currpath = endpoint;
+        filepath = "./" + root + currpath + "/";
     }
     else {
+        //full path with root.
         if (_req.path.find(root) != std::string::npos) {
             filepath = "." + _req.path;
             std::cout << "The path contains the substring." << std::endl;
         } else {
-            filepath = _oldpath.substr(0, _oldpath.find_last_of("/")) + _req.path;
+            filepath = "./" + server.getRoot() + currpath + _req.path;
+            // else
+            //     filepath = _oldpath.substr(0, _oldpath.find_last_of("/")) + _req.path;
             std::cout << "The path does not contain the substring." << std::endl;
         }
     }
+    std::cout << "Loc path: " << this->currpath << std::endl;
+    // std::cout << "Old Path: " << _oldpath << std::endl;
     std::cout << "Prepare: " << filepath << std::endl;
     // exit(0);
     return true;

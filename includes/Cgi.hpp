@@ -47,7 +47,9 @@ class Cgi {
         std::string                     checkContentType(std::string file);
         bool                            useServerparameter(ServerBlock &server);
         bool    prepareFilePath(ServerBlock &server, LocationBlock &location, std::string &root, std::string &endpoint, std::string &filepath);
-        std::vector<ServerBlock>*       server_blocks;
+        
+        std::vector<ServerBlock>*           server_blocks;
+        std::string                         currpath;
 
     private:
         Request                             _req;
@@ -55,7 +57,6 @@ class Cgi {
         int                                 _errnum;
         std::map<std::string, std::string>  _contentTypes;
 	    int				                    _socket;
-        std::string                         _oldpath;
 
 };
 

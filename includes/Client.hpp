@@ -28,12 +28,13 @@ class Client {
 		Request						request;
 		int							sever_socket;
 		std::vector<ServerBlock>	server_blocks;
+		Cgi							_cgi;
+
 		
 	private:
 		Response					_response;
 		int							_socket;
 		HttpStage					_stage;
-		Cgi							_cgi;
 
 };
 

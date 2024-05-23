@@ -62,6 +62,78 @@ void Response::byRedirect(int socket, int status, std::string const &location) {
 	send(socket, ss.str().c_str(), ss.str().size(), 0);
 }
 
+void Response::byAutoIndex(int socket, int status, const std::string& directory_path) {
+	std::string firstLine = createFirstLine(status);
+	std::string body = buildIndex(directory_path);
+	std::string response = createResponse(firstLine, body, "text/html");
+
+	send(socket, response.c_str(), response.size(), 0);
+}
+
+std::string Response::buildIndex(const std::string& directory_path)
+{
+    std::string body;
+    DIR *directory;
+    struct dirent *dir_entry;
+
+    if ((directory = opendir(directory_path.c_str())) != NULL)
+    {
+        body.append("<!DOCTYPE html>\n<html>\n\t<head>\n");
+        body.append("\t\t<title> index of " + directory_path + "</title>\n");
+        body.append("\t\t<style>\n\t\t\ttable, th, td{\n\t\t\t\tborder-collapse: collapse;\n\t\t\t}\n");
+        body.append("\t\t\tth, td{\n\t\t\t\tpadding: 5px;\n\t\t\t}\n");
+        body.append("\t\t\tth {\n\t\t\t\ttext-align: left;\n\t\t}\n");
+        body.append("\t\t</style>\n\t</head>\n\n");
+
+        body.append("\t<body>\n\t<h1> Index of " + directory_path + "</h1>\n");
+        body.append("\t\t<table style=\"width:100%; font-size: 15px\">\n");
+        body.append("\t\t\t<tr>\n\t\t\t\t<th style=\"width:60%\">File Name</th>\n");
+        body.append("\t\t\t\t<th style=\"width:300\">Last Modification</th>\n");
+        body.append("\t\t\t\t<th style=\"width:100\">File Size</th>\n");
+        body.append("\t\t\t</tr>\n");
+
+        while ((dir_entry = readdir(directory)) != NULL)
+        {
+            struct stat f_stat;
+            std::string f_name = dir_entry->d_name;
+            stat(f_name.c_str(), &f_stat);
+
+            //file name
+            // body.append("\t\t\t<tr>\n\t\t\t\t<td>" + f_name);
+            // if (S_ISDIR(f_stat.st_mode))
+            //     body.append("/");
+            // body.append("</td>\n");
+			// File name with link
+			body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + f_name + "\">" + f_name);
+			if (S_ISDIR(f_stat.st_mode))
+				body.append("/");
+			body.append("</a></td>\n");
+
+
+            //file last modified time
+            body.append("\t\t\t\t<td>");
+            body.append(ctime(&f_stat.st_mtime));
+            body.append("</td>\n");
+
+            //file size
+            body.append("\t\t\t\t<td>");
+            if (S_ISDIR(f_stat.st_mode))
+                body.append("-");
+            else{
+                std::ostringstream stream;
+				stream << f_stat.st_size;
+				body.append(stream.str());
+			}
+			body.append("</td>\n\t\t\t</tr>");
+        }
+        closedir(directory);
+        body.append("\t\t</table>\n\t</body>\n</html>\n");
+        return body;
+    }
+    else
+        return "";
+}
+
 std::string Response::createFirstLine(int status) {
 	std::string firstLine = "HTTP/1.1 " + std::to_string(status) + " " + _status[status];
 	return (firstLine);

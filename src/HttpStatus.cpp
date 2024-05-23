@@ -11,6 +11,7 @@ std::map<int, std::string> initStatusrMsg() {
 	statusMsg[405] = "Method Not Allowed"; //karn
 	statusMsg[413] = "Content Too Large"; // > body max, karn
 	statusMsg[422] = "Unprocessable Content";
+	statusMsg[500] = "Internal Server Error";
 	statusMsg[502] = "Bad Gateway";
 	
 	return (statusMsg);
