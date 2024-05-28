@@ -46,7 +46,7 @@ class Cgi {
         bool                            isDir(const std::string& filepath);
         bool                            isIndexExists(std::string &filepath, std::vector<std::string> index);
         std::string                     checkContentType(std::string file);
-        bool                            useServerparameter(ServerBlock &server);
+        bool                            useServerparameter(std::string &filepath, ServerBlock &server, LocationBlock &location);
         bool    prepareFilePath(ServerBlock &server, LocationBlock &location, std::string &root, std::string &endpoint, std::string &filepath);
         
         std::vector<ServerBlock>*           server_blocks;

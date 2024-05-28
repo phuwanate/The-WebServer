@@ -124,7 +124,7 @@ void	LocationBlock::setClientMaxBodySize(size_t val) {
 void	LocationBlock::__copyAttributes(ServerBlock &serverBlock) {
 	// setRoot(serverBlock.getRoot());
 	// setIndex(serverBlock.getIndex());
-	setAutoindex(serverBlock.getAutoindex());
+	// setAutoindex(serverBlock.getAutoindex());
 	setClientMaxBodySize(serverBlock.getClientMaxBodySize());
 }
 

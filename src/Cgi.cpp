@@ -332,7 +332,6 @@ void Cgi::execute(std::string &file, std::string &compiler, std::string &root){
 
 bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
-    //need root path + dirpath
     std::string root;
     std::string endpoint;
     std::vector<std::string> index;
@@ -350,16 +349,15 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
                 index = location.getIndex();
             }
             if (isIndexExists(filepath, index) == false) {
-                if (location.getAutoIndex() == true) {
-                    _resp.byAutoIndex(_socket, 200, filepath);
+                // if (location.getAutoIndex() == true) {
+                //     _resp.byAutoIndex(_socket, 200, filepath);
+                //     return true;
+                // }
+                
+                if (useServerparameter(filepath, server, location) == true)
                     return true;
-                }
-                else {
-                    if (useServerparameter(server) == true)
-                        return true;
-                    else
-                        return false;
-                }
+                else
+                    return false;
             } else {
                  std::cout << YELLOW << "ServeFile" << DEFAULT << std::endl;
                 // std::string contentTypes = checkContentType(filepath);
@@ -420,22 +418,17 @@ std::string Cgi::checkContentType(std::string file) {
     return type;
 }
 
-bool Cgi::useServerparameter(ServerBlock &server){
+bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, LocationBlock &location){
 
     //in location path cannot found index, go back to use server_index.
-    std::string serv_root = server.getRoot();
     std::vector<std::string> index;
-    std::string filepath;
     
     // std::cout << YELLOW << "Going back to outter block for server paramters." << DEFAULT << std::endl;
-    if (serv_root[serv_root.size() - 1] != '/')
-        serv_root += "/";
     index = server.getIndex();
-    filepath = "./" + serv_root;
     if (isIndexExists(filepath, index) == false) {
         //there is no index exists in server_root check if autoindex = on
     
-        if (server.getAutoindex() == true) {
+        if (location.getAutoIndex() == true) {
             _resp.byAutoIndex(_socket, 200, filepath);
             return true;
         }
