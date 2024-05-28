@@ -2,6 +2,7 @@
 #include "ServerBlock.hpp"
 
 Request::Request():errNum(0), _stage(FIRST_LINE) {
+	// std::cout << RED << "Request Constructor" << DEFAULT << std::endl;
 }
 
 Request::Request(std::vector<ServerBlock>*	server_blocks):errNum(0), _stage(FIRST_LINE) {

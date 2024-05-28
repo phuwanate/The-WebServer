@@ -32,22 +32,22 @@ Client::~Client(){}
 bool Client::httpStage() {
 	// Cgi cgi(request.method, request.path, request.header, request.body); 
 
-
+	std::cout << "Here 1" << std::endl;
 	switch (_stage) {
 		case FIRST_LINE: {
-			// std::cout << RED << "Request path firstline: " << request.path << DEFAULT << std::endl;
+			std::cout << RED << "Request path firstline: " << DEFAULT << std::endl;
 			_stage = request.parseFirstLine(_stage);
 		}
 		case HEADER: {
-			// std::cout << RED << "Request path header: " << request.path << DEFAULT << std::endl;
+			std::cout << RED << "Request path header: " << request.path << DEFAULT << std::endl;
 			_stage = request.parseHeader(_stage); 
 		}
 		case BODY: {
-			// std::cout << RED << "Request path body: " << request.path << DEFAULT << std::endl;
+			std::cout << RED << "Request path body: " << request.path << DEFAULT << std::endl;
 			_stage = request.parseBody(_stage);
 		}
 		case ROUTER: {
-			// std::cout << RED << "Request path before: " << request.path << DEFAULT << std::endl;
+			std::cout << RED << "Request path before: " << request.path << DEFAULT << std::endl;
 			_cgi.initCgi(request.errNum, _socket, request.server_blocks, request);
 			_stage = _cgi.apiRouter();
 		}
@@ -57,7 +57,10 @@ bool Client::httpStage() {
 			return (true); 
 		}
 		default:
+			std::cout << "Stage: " << _stage << std::endl;
+			std::cout << "Here 2" << std::endl;
 			break;
 	}
+	std::cout << "Here 3" << std::endl;
 	return (false); 
 }
