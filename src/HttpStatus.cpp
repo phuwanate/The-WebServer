@@ -7,6 +7,7 @@ std::map<int, std::string> initStatusrMsg() {
 	statusMsg[201] = "Created"; // first
 	statusMsg[307] = "Temporary Redirect"; 
 	statusMsg[400] = "Bad Request";
+	statusMsg[403] = "ForBidden";//first
 	statusMsg[404] = "Not Found"; //first
 	statusMsg[405] = "Method Not Allowed"; //karn
 	statusMsg[413] = "Content Too Large"; // > body max, karn

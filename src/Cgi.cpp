@@ -48,7 +48,11 @@ void    Cgi::setContentTypes() {
 
 std::string Cgi::getType(std::string key) {
 
-    return this->_contentTypes[key];
+    if (this->_contentTypes.count(key) > 0) {
+        return this->_contentTypes[key];
+    } else {
+        return "application/octet-stream"; // Default content type
+    }
 }
 
 void    Cgi::initCgi(int errnum, int socket, std::vector<ServerBlock>* instptr, Request &reqinst) {
@@ -339,7 +343,10 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
     if (prepareFilePath(server, location, root, endpoint, filepath) == false)
         return false;
-    // std::cout << "This filepath:" << filepath << std::endl;
+    if (!(hasPermission(filepath, R_OK))){
+        _resp.byStatus(_socket, 403);
+        return (true);
+    }
 
     if (isFileExists(filepath) == true) {
         if (isDir(filepath)) {
@@ -349,19 +356,13 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
                 index = location.getIndex();
             }
             if (isIndexExists(filepath, index) == false) {
-                // if (location.getAutoIndex() == true) {
-                //     _resp.byAutoIndex(_socket, 200, filepath);
-                //     return true;
-                // }
-                
                 if (useServerparameter(filepath, server, location) == true)
                     return true;
                 else
                     return false;
             } else {
                  std::cout << YELLOW << "ServeFile" << DEFAULT << std::endl;
-                // std::string contentTypes = checkContentType(filepath);
-                // _resp.byFile(_socket, 200, filepath, contentTypes);
+
                 _resp.byRedirect(_socket, 307, _truePath);
                 return true;
             }
@@ -387,6 +388,10 @@ bool Cgi::isDir(const std::string& filepath) {
     return false;
 }
 
+bool Cgi::hasPermission(const std::string& filepath, int mode) {
+    return (access(filepath.c_str(), mode) == 0);
+}
+
 bool Cgi::isIndexExists(std::string &filepath, std::vector<std::string> index) {
 
     std::vector<std::string>::iterator it = index.begin();
@@ -406,7 +411,7 @@ bool Cgi::isIndexExists(std::string &filepath, std::vector<std::string> index) {
 
 std::string Cgi::checkContentType(std::string file) {
 
-    std::string type = "direcotry";
+    std::string type = "unkown";
     size_t      found = file.find_last_of('.');
     std::string file_ext;
     
@@ -454,30 +459,32 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     // }
     std::cout << "request path: " << _req.path << std::endl;
     //file or directory
-    if (checkContentType(_req.path) == "direcotry") {
+    if (checkContentType(_req.path) == "unkown") {
         //directory
-        if (location.getDirectoryPath().length() != 0) {
-            endpoint = location.getDirectoryPath();
+        // if (location.getDirectoryPath().length() != 0) {
+        filepath = "./" + root + _req.path;
+        if (isFileExists(filepath) == true) {
+            if (isDir(filepath)) {
+                filepath += "/";
+            }
+            if (!(hasPermission(filepath, R_OK))){
+                _resp.byStatus(_socket, 403);
+                return (true);
+            }
         }
         else {
             // not exists directory return 404.
             return (false);
         }
-        // if(endpoint.length() != 0)
-        //     currpath = endpoint;
-        // filepath = "./" + root + currpath + "/";
-        filepath = "./" + root + endpoint + "/";
+        // filepath = "./" + root + endpoint + "/";
     }
     else {
         //full path with root.
         if (_req.path.find(root) != std::string::npos) {
             filepath = "." + _req.path;
-            // std::cout << "The path contains the substring." << std::endl;
         } else {
             // redirect exactly path (without root.)
-            // filepath = "./" + root + endpoint + _req.path;
             filepath = "./" + root + _req.path;
-            // std::cout << "The path does not contain the substring." << std::endl;
         }
     }
     std::cout << "Prepare: " << filepath << std::endl;

@@ -44,6 +44,7 @@ class Cgi {
         bool                            serveFile(ServerBlock &server, LocationBlock &location);
         bool                            isFileExists(const std::string& file);
         bool                            isDir(const std::string& filepath);
+        bool                            hasPermission(const std::string& filepath, int mode);
         bool                            isIndexExists(std::string &filepath, std::vector<std::string> index);
         std::string                     checkContentType(std::string file);
         bool                            useServerparameter(std::string &filepath, ServerBlock &server, LocationBlock &location);
