@@ -42,11 +42,11 @@ void	ServerHandler::initHandler() {
 
 void	ServerHandler::startServerHandler() {
 		fd_set working_read;
-		struct timeval timeout;
+		// struct timeval timeout;
 		int s_ready;
 		
-		timeout.tv_sec = 60;
-		timeout.tv_usec = 0;
+		// timeout.tv_sec = 60;
+		// timeout.tv_usec = 0;b
 
 		listenNewConnection();
 		
