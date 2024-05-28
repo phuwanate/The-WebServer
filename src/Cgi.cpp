@@ -63,6 +63,7 @@ void    Cgi::initCgi(int errnum, int socket, std::vector<ServerBlock>* instptr, 
 HttpStage Cgi::apiRouter() {
     LocationBlock location = searchLocation(_req.header["Host"], _req.path, *server_blocks);
     ServerBlock server = searchServer(_req.header["Host"], *server_blocks);
+
     
     if (server.getServerName().length() == 0) {
         _resp.byStatus(_socket, 400);
@@ -449,6 +450,7 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     //need to know is it a full path with file_name or it just a directory.
     if (location.getRoot().length() != 0) {
         root = location.getRoot();
+        printf("location root: %s", root.c_str());
     } else {
         root = server.getRoot();
     }

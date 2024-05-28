@@ -54,7 +54,7 @@ void	ServerHandler::startServerHandler() {
 			std::memcpy(&working_read, &_read_set, sizeof(_read_set));
 
 			std::cout << RED << "Waiting on select..." << DEFAULT << std::endl;
-			s_ready = select(_max_sd + 1, &working_read, NULL, NULL, &timeout);
+			s_ready = select(_max_sd + 1, &working_read, NULL, NULL, NULL);
 			if (s_ready < 0) {
 				std::cerr << RED << "Error: select failed..." << DEFAULT << std::endl;
 				break;
@@ -131,13 +131,13 @@ bool    ServerHandler::httpManage(int read_sd) {
 				ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
 				std::cout << "Client [" << read_sd << "] " << std::endl;
 				std::cout << "Server oldpath bef: " << _currpath << std::endl;
-				if(_clients_map[read_sd]._cgi.currpath.length() == 0)	
-					_clients_map[read_sd]._cgi.currpath = this->_currpath;
+				// if(_clients_map[read_sd]._cgi.currpath.length() == 0)	
+				// 	_clients_map[read_sd]._cgi.currpath = this->_currpath;
 				if(_clients_map[read_sd].httpStage() == false) {
-					updateLocationPath(read_sd);
+					// updateLocationPath(read_sd);
 					return (false);
 				}
-				updateLocationPath(read_sd);
+				// updateLocationPath(read_sd);
 			}
 			if (rc == 0) {
 				std::cout << "Close conn at read request" << std::endl;
