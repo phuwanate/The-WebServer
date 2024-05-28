@@ -423,10 +423,9 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
     //in location path cannot found index, go back to use server_index.
     std::vector<std::string> index;
     
-    // std::cout << YELLOW << "Going back to outter block for server paramters." << DEFAULT << std::endl;
     index = server.getIndex();
     if (isIndexExists(filepath, index) == false) {
-        //there is no index exists in server_root check if autoindex = on
+        //there is no server's index exists in root+location_path check if autoindex = on
     
         if (location.getAutoIndex() == true) {
             _resp.byAutoIndex(_socket, 200, filepath);
@@ -437,8 +436,6 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
             return false;
         }
     }
-    // std::string contentTypes = checkContentType(filepath);
-    // _resp.byFile(_socket, 200, filepath, contentTypes);
     std::cout << "True path: " << _truePath << std::endl;
     _resp.byRedirect(_socket, 307, _truePath);
     return true;
