@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <string.h>
 #include <sys/socket.h>
 
 #define DEFAULT "\033[0m"

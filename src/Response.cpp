@@ -135,8 +135,18 @@ std::string Response::buildIndex(const std::string& directory_path)
 }
 
 std::string Response::createFirstLine(int status) {
-	std::string firstLine = "HTTP/1.1 " + std::to_string(status) + " " + _status[status];
+	// std::string firstLine = "HTTP/1.1 " + std::to_string(status) + " " + _status[status];
+	std::string firstLine = "HTTP/1.1 " + ft_to_string(status) + " " + _status[status];
 	return (firstLine);
+}
+
+std::string Response::ft_to_string(int val) {
+
+	std::ostringstream conv;
+
+	conv << val;
+
+	return (conv.str());
 }
 
 std::string Response::createBodyByStatus(int status) {

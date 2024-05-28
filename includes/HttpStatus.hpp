@@ -2,6 +2,7 @@
 # define HTTPSTATUS_HPP
 
 #include <map>
+#include <string>
 
 enum HttpStage {
 	FIRST_LINE,

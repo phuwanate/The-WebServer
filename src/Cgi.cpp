@@ -112,7 +112,7 @@ HttpStage Cgi::apiRouter() {
 
 long Cgi::creatFileStream() {
     FILE *file = tmpfile();
-    if (file == nullptr) {
+    if (file == NULL) {
         std::cerr << "Failed to create temporary file" << std::endl;
         return -1;
     }

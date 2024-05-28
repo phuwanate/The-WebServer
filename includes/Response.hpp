@@ -6,6 +6,9 @@
 #include <map>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <stdio.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -24,6 +27,8 @@ class Response {
 		void byRedirect(int socket, int status, std::string const &location);
 		void byAutoIndex(int socket, int status, const std::string& directory_path);
 		void error404(int socket, std::string location404);
+		std::string ft_to_string(int val);
+
 	private:
 		std::map<int, std::string>		_status;
 

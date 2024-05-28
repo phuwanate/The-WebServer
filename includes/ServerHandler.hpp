@@ -11,6 +11,8 @@
 #include <fstream>
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstring>
+
 
 #include "Config.hpp"
 #include "LocationBlock.hpp"
@@ -18,7 +20,7 @@
 #include "Client.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
-#include "mock.hpp"
+// #include "mock.hpp"
 
 #define SERVER_PORT  12345
 
