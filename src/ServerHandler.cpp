@@ -114,7 +114,7 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 bool    ServerHandler::httpManage(int read_sd) {
         char buffer[READ_BUFF];
 
-		while(true){
+		// while(true){
 			std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
 			int rc = recv(read_sd, buffer, sizeof(buffer), 0);
 			std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
@@ -130,7 +130,6 @@ bool    ServerHandler::httpManage(int read_sd) {
 				_clients_map[read_sd].request.server_blocks = &_serverBlocks;
 				ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
 				std::cout << "Client [" << read_sd << "] " << std::endl;
-				std::cout << "Server oldpath bef: " << _currpath << std::endl;
 				// if(_clients_map[read_sd]._cgi.currpath.length() == 0)	
 				// 	_clients_map[read_sd]._cgi.currpath = this->_currpath;
 				if(_clients_map[read_sd].httpStage() == false) {
@@ -144,9 +143,9 @@ bool    ServerHandler::httpManage(int read_sd) {
 				ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
 				// closeConn(read_sd);
 				// return (false);
-				break ;
+				// break ;
 			}
-		}
+		// }
         return (true);
 }
 

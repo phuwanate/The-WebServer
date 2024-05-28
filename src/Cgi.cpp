@@ -93,10 +93,10 @@ HttpStage Cgi::apiRouter() {
             if (Delete(location, server) == false)
                 _resp.error404(_socket, _req.setDefaultErrorPage());
         }
-        else if (location.getAlias().length() != 0) {
+        else if (location.getReturn().length() != 0) {
             //Redirect
-            std::cout << YELLOW << "Redirect to :" << location.getAlias() << DEFAULT << std::endl;
-            _resp.byRedirect(_socket, 307, location.getAlias());
+            std::cout << YELLOW << "Redirect to :" << location.getReturn() << DEFAULT << std::endl;
+            _resp.byRedirect(_socket, 307, location.getReturn());
         }
         else
             if (serveFile(server, location) == false)
@@ -144,7 +144,7 @@ bool Cgi::upload(LocationBlock &location, ServerBlock &server) {
     std::string filepath = "./" + root + "/cgi";
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
-    if(isIndexExsists(filepath, location.getIndex()) == false)
+    if(isIndexExists(filepath, location.getIndex()) == false)
         return false;
 
     // std::cout << "Cgi File: " << filepath << std::endl;
@@ -177,7 +177,7 @@ bool Cgi::Delete(LocationBlock &location, ServerBlock &server) {
     std::string filepath = "./" + root + "/cgi";
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
-    if(isIndexExsists(filepath, location.getIndex()) == false)
+    if(isIndexExists(filepath, location.getIndex()) == false)
         return false;
 
     // std::cerr << "Cgi File: " << filepath << std::endl;
@@ -209,7 +209,7 @@ bool Cgi::generatePage(LocationBlock &location, ServerBlock &server) {
     std::string filepath = "./" + root + _req.path;
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
-    if(isIndexExsists(filepath, location.getIndex()) == false)
+    if(isIndexExists(filepath, location.getIndex()) == false)
         return false;
 
     // std::cout << "Cgi File: " << filepath << std::endl;
@@ -343,13 +343,13 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
     // std::cout << "This filepath:" << filepath << std::endl;
 
     if (isFileExists(filepath) == true) {
-        // std::cout << "This filepath:" << filepath << " does exists." << std::endl;
         if (isDir(filepath)) {
-            // std::cout << "This filepath:" << filepath << "is directory." << std::endl;
+            std::cout << "This filepath:" << filepath << " does exists." << std::endl;
+            //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {
                 index = location.getIndex();
             }
-            if (isIndexExsists(filepath, index) == false) {
+            if (isIndexExists(filepath, index) == false) {
                 if (location.getAutoIndex() == true) {
                     _resp.byAutoIndex(_socket, 200, filepath);
                     return true;
@@ -361,14 +361,14 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
                         return false;
                 }
             } else {
-                //found index in location block and can be use;
                  std::cout << YELLOW << "ServeFile" << DEFAULT << std::endl;
-                std::string contentTypes = checkContentType(filepath);
-                _resp.byFile(_socket, 200, filepath, contentTypes);
+                // std::string contentTypes = checkContentType(filepath);
+                // _resp.byFile(_socket, 200, filepath, contentTypes);
+                _resp.byRedirect(_socket, 307, _truePath);
                 return true;
             }
         }
-        // std::cout << RED << "This filepath:" << filepath << " is a file." << std::endl;
+        //Request a file.
         std::string contentTypes = checkContentType(filepath);
         _resp.byFile(_socket, 200, filepath, contentTypes);
         return true;
@@ -389,13 +389,17 @@ bool Cgi::isDir(const std::string& filepath) {
     return false;
 }
 
-bool Cgi::isIndexExsists(std::string &filepath, std::vector<std::string> index) {
+bool Cgi::isIndexExists(std::string &filepath, std::vector<std::string> index) {
 
     std::vector<std::string>::iterator it = index.begin();
     for (; it != index.end(); it++) {
         if (isFileExists(filepath + *it))
         {
             filepath += *it;
+            if (_req.path == "/")
+                _truePath = _req.path + *it;
+            else
+                _truePath = _req.path + "/" + *it;
             return true;
         }
     }
@@ -404,7 +408,7 @@ bool Cgi::isIndexExsists(std::string &filepath, std::vector<std::string> index) 
 
 std::string Cgi::checkContentType(std::string file) {
 
-    std::string type = "unkown";
+    std::string type = "direcotry";
     size_t      found = file.find_last_of('.');
     std::string file_ext;
     
@@ -428,7 +432,7 @@ bool Cgi::useServerparameter(ServerBlock &server){
         serv_root += "/";
     index = server.getIndex();
     filepath = "./" + serv_root;
-    if (isIndexExsists(filepath, index) == false) {
+    if (isIndexExists(filepath, index) == false) {
         //there is no index exists in server_root check if autoindex = on
     
         if (server.getAutoindex() == true) {
@@ -440,8 +444,10 @@ bool Cgi::useServerparameter(ServerBlock &server){
             return false;
         }
     }
-    std::string contentTypes = checkContentType(filepath);
-    _resp.byFile(_socket, 200, filepath, contentTypes);
+    // std::string contentTypes = checkContentType(filepath);
+    // _resp.byFile(_socket, 200, filepath, contentTypes);
+    std::cout << "True path: " << _truePath << std::endl;
+    _resp.byRedirect(_socket, 307, _truePath);
     return true;
 }
 
@@ -450,27 +456,27 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     //need to know is it a full path with file_name or it just a directory.
     if (location.getRoot().length() != 0) {
         root = location.getRoot();
-        printf("location root: %s", root.c_str());
     } else {
         root = server.getRoot();
     }
-    if (root[root.size() - 1] != '/' && location.getDirectoryPath()[0] != '/') {
-        root += "/";
-    }
+    // if (root[root.size() - 1] != '/' && location.getDirectoryPath()[0] != '/') {
+    //     root += "/";
+    // }
     std::cout << "request path: " << _req.path << std::endl;
-    //file on directory
-    if (checkContentType(_req.path) == "unkown") {
+    //file or directory
+    if (checkContentType(_req.path) == "direcotry") {
         //directory
         if (location.getDirectoryPath().length() != 0) {
-            // std::cout << RED << "Request as directory." << DEFAULT << std::endl;
             endpoint = location.getDirectoryPath();
         }
         else {
+            // not exists directory return 404.
             return (false);
         }
-        if(endpoint.length() != 0)
-            currpath = endpoint;
-        filepath = "./" + root + currpath + "/";
+        // if(endpoint.length() != 0)
+        //     currpath = endpoint;
+        // filepath = "./" + root + currpath + "/";
+        filepath = "./" + root + endpoint + "/";
     }
     else {
         //full path with root.
@@ -478,14 +484,13 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
             filepath = "." + _req.path;
             // std::cout << "The path contains the substring." << std::endl;
         } else {
-            filepath = "./" + server.getRoot() + currpath + _req.path;
+            // redirect exactly path (without root.)
+            // filepath = "./" + root + endpoint + _req.path;
+            filepath = "./" + root + _req.path;
             // std::cout << "The path does not contain the substring." << std::endl;
         }
     }
-    std::cout << "Loc path: " << this->currpath << std::endl;
-    // std::cout << "Old Path: " << _oldpath << std::endl;
-    // std::cout << "Prepare: " << filepath << std::endl;
-    // exit(0);
+    std::cout << "Prepare: " << filepath << std::endl;
     return true;
 }
 

@@ -44,7 +44,7 @@ class Cgi {
         bool                            serveFile(ServerBlock &server, LocationBlock &location);
         bool                            isFileExists(const std::string& file);
         bool                            isDir(const std::string& filepath);
-        bool                            isIndexExsists(std::string &filepath, std::vector<std::string> index);
+        bool                            isIndexExists(std::string &filepath, std::vector<std::string> index);
         std::string                     checkContentType(std::string file);
         bool                            useServerparameter(ServerBlock &server);
         bool    prepareFilePath(ServerBlock &server, LocationBlock &location, std::string &root, std::string &endpoint, std::string &filepath);
@@ -58,6 +58,7 @@ class Cgi {
         int                                 _errnum;
         std::map<std::string, std::string>  _contentTypes;
 	    int				                    _socket;
+        std::string                         _truePath;
 
 };
 
