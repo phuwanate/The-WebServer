@@ -73,6 +73,7 @@ HttpStage Cgi::apiRouter() {
     LocationBlock location = searchLocation(_req.header["Host"], _req.path, *server_blocks);
     ServerBlock server = searchServer(_req.header["Host"], *server_blocks);
 
+    std::cout << RED << "errnum: " << _errnum << DEFAULT << std::endl;
     if (server.getServerName().length() == 0) {
         _resp.byStatus(_socket, 400);
         return RESPONSED;

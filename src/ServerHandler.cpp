@@ -126,8 +126,8 @@ bool    ServerHandler::httpManage(int read_sd) {
 			if (rc == 0) {
 				std::cout << "Close conn at read request" << std::endl;
 				ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-				closeConn(read_sd);
-				break ;
+				return (true);
+				// break ;
 			}
 			buffer[rc] = 0;
 			_clients_map[read_sd].request.data.write(buffer, rc);
