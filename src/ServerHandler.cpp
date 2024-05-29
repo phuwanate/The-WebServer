@@ -113,40 +113,35 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 
 bool    ServerHandler::httpManage(int read_sd) {
         char buffer[READ_BUFF];
+		int rc = 0;
 
-		// while(true){
+		while(true){
 			std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
-			int rc = recv(read_sd, buffer, sizeof(buffer), 0);
+			rc = recv(read_sd, buffer, sizeof(buffer), 0);
 			std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
 			if (rc < 0) {
-				// std::cerr << RED << "Error: recv failed." << DEFAULT << std::endl;
-				// closeConn(read_sd);
+				break ;
 				// return (false);
-				return (false);
-			}
-			if (rc > 0) {
-				buffer[rc] = 0;
-				_clients_map[read_sd].request.data.write(buffer, rc);
-				_clients_map[read_sd].request.server_blocks = &_serverBlocks;
-				ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-				std::cout << "Client [" << read_sd << "] " << std::endl;
-				// if(_clients_map[read_sd]._cgi.currpath.length() == 0)	
-				// 	_clients_map[read_sd]._cgi.currpath = this->_currpath;
-				if(_clients_map[read_sd].httpStage() == false) {
-					// updateLocationPath(read_sd);
-					return (false);
-				}
-				// updateLocationPath(read_sd);
 			}
 			if (rc == 0) {
 				std::cout << "Close conn at read request" << std::endl;
 				ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-				// closeConn(read_sd);
-				// return (false);
-				// break ;
+				closeConn(read_sd);
+				break ;
 			}
+			buffer[rc] = 0;
+			_clients_map[read_sd].request.data.write(buffer, rc);
+		}
+		// if (rc > 0) {
+		_clients_map[read_sd].request.server_blocks = &_serverBlocks;
+		ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
+		std::cout << "Client [" << read_sd << "] " << std::endl;
+		if(_clients_map[read_sd].httpStage() == false) {
+			return (false);
+		}
 		// }
-        return (true);
+		// return true;
+        return (false);
 }
 
 void	ServerHandler::updateLocationPath(int read_sd) {
