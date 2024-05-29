@@ -73,7 +73,6 @@ HttpStage Cgi::apiRouter() {
     LocationBlock location = searchLocation(_req.header["Host"], _req.path, *server_blocks);
     ServerBlock server = searchServer(_req.header["Host"], *server_blocks);
 
-    std::cout << RED << "cgi errnum: " << _errnum << DEFAULT << std::endl;
     if (server.getServerName().length() == 0) {
         _resp.byStatus(_socket, 400);
         return RESPONSED;
@@ -463,7 +462,7 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
             }
         }
     }
-    std::cout << "True path: " << _truePath << std::endl;
+    std::cout << "True path: " << _truePath << "on socket: " << _socket << std::endl;
     _resp.byRedirect(_socket, 307, _truePath);
     return true;
 }

@@ -132,16 +132,13 @@ bool    ServerHandler::httpManage(int read_sd) {
 			buffer[rc] = 0;
 			_clients_map[read_sd].request.data.write(buffer, rc);
 		}
-		// if (rc > 0) {
 		_clients_map[read_sd].request.server_blocks = &_serverBlocks;
 		ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
 		std::cout << "Client [" << read_sd << "] " << std::endl;
 		if(_clients_map[read_sd].httpStage() == false) {
 			return (false);
 		}
-		// }
-		// return true;
-        return (false);
+        return (true);
 }
 
 void	ServerHandler::updateLocationPath(int read_sd) {
