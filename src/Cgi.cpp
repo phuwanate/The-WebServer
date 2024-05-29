@@ -24,6 +24,11 @@ Cgi::~Cgi() {
 
 }
 
+int     Cgi::getErrnum() {
+
+    return this->_errnum;
+}
+
 void     Cgi::setErrnum(int val) {
 
     this->_errnum = val;
@@ -68,7 +73,7 @@ HttpStage Cgi::apiRouter() {
     LocationBlock location = searchLocation(_req.header["Host"], _req.path, *server_blocks);
     ServerBlock server = searchServer(_req.header["Host"], *server_blocks);
 
-    
+    std::cout << RED << "cgi errnum: " << _errnum << DEFAULT << std::endl;
     if (server.getServerName().length() == 0) {
         _resp.byStatus(_socket, 400);
         return RESPONSED;
@@ -85,17 +90,17 @@ HttpStage Cgi::apiRouter() {
         else if (location.getDirectoryPath() == "/cgi") {
             //Generate page with cgi
             if (generatePage(location, server) == false)
-                _resp.error404(_socket, _req.setDefaultErrorPage());
+                _resp.errorDefault(_socket, _req.setDefaultErrorPage(404), 404);
         }
         else if (location.getDirectoryPath() == "/upload") {
             //Upload file
             if (upload(location, server) == false)
-                _resp.error404(_socket, _req.setDefaultErrorPage());
+                _resp.errorDefault(_socket, _req.setDefaultErrorPage(404), 404);
         }
         else if (location.getDirectoryPath() == "/delete") {
             //Delete file
             if (Delete(location, server) == false)
-                _resp.error404(_socket, _req.setDefaultErrorPage());
+                _resp.errorDefault(_socket, _req.setDefaultErrorPage(404), 404);
         }
         else if (location.getReturn().length() != 0) {
             //Redirect
@@ -104,12 +109,12 @@ HttpStage Cgi::apiRouter() {
         }
         else
             if (serveFile(server, location) == false)
-                _resp.error404(_socket, _req.setDefaultErrorPage());
+                _resp.errorDefault(_socket, _req.setDefaultErrorPage(404), 404);
         return RESPONSED;
     }
     //location wasn't found
     if (serveFile(server, location) == false)
-        _resp.error404(_socket, _req.setDefaultErrorPage());
+        _resp.errorDefault(_socket, _req.setDefaultErrorPage(404), 404);
     return RESPONSED;
     // serveFile();
     // _resp.byFile(_socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
@@ -143,7 +148,6 @@ long Cgi::creatFileStream() {
 }
 
 bool Cgi::upload(LocationBlock &location, ServerBlock &server) {
-
     std::string root = server.getRoot();
     std::string filepath = "./" + root + "/cgi";
     if (_req.path[_req.path.length() - 1] != '/')
@@ -151,10 +155,8 @@ bool Cgi::upload(LocationBlock &location, ServerBlock &server) {
     if(isIndexExists(filepath, location.getIndex()) == false)
         return false;
 
-    // std::cout << "Cgi File: " << filepath << std::endl;
     std::string extension = filepath.substr(filepath.find_last_of("."));
     std::string compiler = location.getCgiMap()[extension];
-    // std::cout << "Cgi compiler: " << compiler << std::endl;
 
     pid_t p_id = fork();
     if(p_id == 0)
@@ -343,14 +345,14 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
     if (prepareFilePath(server, location, root, endpoint, filepath) == false)
         return false;
-    if (!(hasPermission(filepath, R_OK))){
-        _resp.byStatus(_socket, 403);
-        return (true);
-    }
 
     if (isFileExists(filepath) == true) {
+        if (!(hasPermission(filepath, R_OK))){
+            _resp.byStatus(_socket, 403);
+            return (true);
+        }
         if (isDir(filepath)) {
-            std::cout << "This filepath:" << filepath << " does exists." << std::endl;
+            // std::cout << "This filepath:" << filepath << " does exists." << std::endl;
             //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {
                 index = location.getIndex();

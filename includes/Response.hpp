@@ -26,7 +26,7 @@ class Response {
 		void byFile(int socket, int status, std::string const &location,  std::string const &content_type);
 		void byRedirect(int socket, int status, std::string const &location);
 		void byAutoIndex(int socket, int status, const std::string& directory_path);
-		void error404(int socket, std::string location404);
+		void errorDefault(int socket, std::string defLoc, int status);
 		std::string ft_to_string(int val);
 
 	private:

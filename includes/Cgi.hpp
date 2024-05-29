@@ -25,6 +25,7 @@ class Cgi {
         Cgi &operator=(Cgi const &inst);
         ~Cgi();
 
+        int                             getErrnum();
         void                            setErrnum(int val);
         void                            setSocket(int val);
         void    setContentTypes();

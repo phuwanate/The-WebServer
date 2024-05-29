@@ -45,8 +45,8 @@ bool Client::httpStage() {
 			_stage = request.parseBody(_stage);
 		}
 		case ROUTER: {
-			// std::cout << RED << "Request path before: " << request.path << DEFAULT << std::endl;
 			_cgi.initCgi(request.errNum, _socket, request.server_blocks, request);
+
 			_stage = _cgi.apiRouter();
 		}
 		case RESPONSED: {

@@ -18,12 +18,12 @@ Response& Response::operator=(Response const &other) {
 Response::~Response() {
 }
 
-void Response::error404(int socket, std::string location404) {
-	if (location404.empty()){
-		byStatus(socket, 404);
+void Response::errorDefault(int socket, std::string defLoc, int status) {
+	if (defLoc.empty()){
+		byStatus(socket, status);
 		return ;
 	}
-	byFile(socket, 404, location404, "text/html; charset=UTF-8");
+	byFile(socket, 404, defLoc, "text/html; charset=UTF-8");
 }
 
 void Response::byStatus(int socket, int status){

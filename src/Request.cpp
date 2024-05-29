@@ -76,7 +76,7 @@ HttpStage Request::parseFirstLine(HttpStage stage) {
 }
 
 bool Request::isMultipart() {
-	std::string value = header["content-type"];
+	std::string value = header["Content-Type"];
 
 	if (value.empty()) {
 		_stage = ROUTER;
@@ -101,10 +101,10 @@ bool Request::validBodyLength(){
 		return (false);
 	}
 	size_t max = server.getClientMaxBodySize();
-
 	if (header["Content-Length"].length()) {
 		size_t length = std::atoi(header["Content-Length"].c_str());
 		if (length > max) {
+			std::cout << RED << "Content is too Large: " << length << std::endl;
 			_stage = ROUTER;
 			errNum = 413;
 			return (false);
@@ -136,16 +136,18 @@ HttpStage Request::parseHeader(HttpStage stage) {
 		header[key] = value;
 		std::getline(data, buffer);
 	}
-	if (isMultipart() && validBodyLength())
+
+	if (isMultipart() && validBodyLength()){
 		_stage = BODY;
-	location404 = setDefaultErrorPage();
+	}
+	location404 = setDefaultErrorPage(404);
 	return (_stage);
 }
 
-std::string	Request::setDefaultErrorPage() {
+std::string	Request::setDefaultErrorPage(int error_key) {
 	ServerBlock server = searchServer(header["Host"], *server_blocks);
 	// std::map<int, std::string> errorPageMap = server.getErrorPage();
-	std::string location404 = "./" + server.getRoot() + "/" + server.getErrorPage()[404];
+	std::string location404 = "./" + server.getRoot() + "/" + server.getErrorPage()[error_key];
 
 	if (location404.empty())
 		return (location404);
