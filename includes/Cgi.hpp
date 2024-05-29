@@ -46,7 +46,7 @@ class Cgi {
         bool                            isFileExists(const std::string& file);
         bool                            isDir(const std::string& filepath);
         bool                            hasPermission(const std::string& filepath, int mode);
-        bool                            isIndexExists(std::string &filepath, std::vector<std::string> index);
+        bool                            isIndexExists(std::string &filepath, std::vector<std::string> index, LocationBlock &location);
         std::string                     checkContentType(std::string file);
         bool                            useServerparameter(std::string &filepath, ServerBlock &server, LocationBlock &location);
         bool    prepareFilePath(ServerBlock &server, LocationBlock &location, std::string &root, std::string &endpoint, std::string &filepath);

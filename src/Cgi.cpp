@@ -152,7 +152,7 @@ bool Cgi::upload(LocationBlock &location, ServerBlock &server) {
     std::string filepath = "./" + root + "/cgi";
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
-    if(isIndexExists(filepath, location.getIndex()) == false)
+    if(isIndexExists(filepath, location.getIndex(), location) == false)
         return false;
 
     std::string extension = filepath.substr(filepath.find_last_of("."));
@@ -183,7 +183,7 @@ bool Cgi::Delete(LocationBlock &location, ServerBlock &server) {
     std::string filepath = "./" + root + "/cgi";
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
-    if(isIndexExists(filepath, location.getIndex()) == false)
+    if(isIndexExists(filepath, location.getIndex(), location) == false)
         return false;
 
     // std::cerr << "Cgi File: " << filepath << std::endl;
@@ -215,7 +215,7 @@ bool Cgi::generatePage(LocationBlock &location, ServerBlock &server) {
     std::string filepath = "./" + root + _req.path;
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
-    if(isIndexExists(filepath, location.getIndex()) == false)
+    if(isIndexExists(filepath, location.getIndex(), location) == false)
         return false;
 
     // std::cout << "Cgi File: " << filepath << std::endl;
@@ -357,7 +357,7 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
             if (location.getIndex().size() != 0) {
                 index = location.getIndex();
             }
-            if (isIndexExists(filepath, index) == false) {
+            if (isIndexExists(filepath, index, location) == false) {
                 if (useServerparameter(filepath, server, location) == true)
                     return true;
                 else
@@ -394,13 +394,22 @@ bool Cgi::hasPermission(const std::string& filepath, int mode) {
     return (access(filepath.c_str(), mode) == 0);
 }
 
-bool Cgi::isIndexExists(std::string &filepath, std::vector<std::string> index) {
+bool Cgi::isIndexExists(std::string &filepath, std::vector<std::string> index, LocationBlock &location) {
 
     std::vector<std::string>::iterator it = index.begin();
     for (; it != index.end(); it++) {
         if (isFileExists(filepath + *it))
         {
             filepath += *it;
+            if (location.getAlias().length() != 0) {
+                _truePath = "./" + location.getAlias() + "/" + *it;
+                return true;
+            }
+            if (location.getRoot().length() != 0) {
+                _truePath = filepath;
+                return true;
+            }
+
             if (_req.path == "/")
                 _truePath = _req.path + *it;
             else
@@ -431,7 +440,7 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
     std::vector<std::string> index;
     
     index = server.getIndex();
-    if (isIndexExists(filepath, index) == false) {
+    if (isIndexExists(filepath, index, location) == false) {
         //there is no server's index exists in root+location_path check if autoindex = on
     
         if (location.getAutoIndex() == true) {
@@ -459,12 +468,14 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     // if (root[root.size() - 1] != '/' && location.getDirectoryPath()[0] != '/') {
     //     root += "/";
     // }
+    std::cout << "root path: " << root << std::endl;
     std::cout << "request path: " << _req.path << std::endl;
     //file or directory
     if (checkContentType(_req.path) == "unkown") {
         //directory
-        // if (location.getDirectoryPath().length() != 0) {
         filepath = "./" + root + _req.path;
+        if (location.getAlias().length() != 0)
+            filepath = "./" + location.getAlias();
         if (isFileExists(filepath) == true) {
             if (isDir(filepath)) {
                 filepath += "/";
@@ -482,7 +493,7 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     }
     else {
         //full path with root.
-        if (_req.path.find(root) != std::string::npos) {
+        if ((isFileExists("." + _req.path) == true) || (_req.path.find(root) != std::string::npos)) {
             filepath = "." + _req.path;
         } else {
             // redirect exactly path (without root.)
