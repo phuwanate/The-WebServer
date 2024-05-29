@@ -443,13 +443,24 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
     if (isIndexExists(filepath, index, location) == false) {
         //there is no server's index exists in root+location_path check if autoindex = on
     
-        if (location.getAutoIndex() == true) {
-            _resp.byAutoIndex(_socket, 200, filepath);
-            return true;
-        }
-        else {
-            //autoindex = off go to response error default
-            return false;
+        if (location.getDirectoryPath().length() != 0) {
+            if (location.getAutoIndex() == true) {
+                _resp.byAutoIndex(_socket, 200, filepath);
+                return true;
+            }
+            else {
+                //autoindex = off go to response error default
+                return false;
+            }
+        } else {
+            if (server.getAutoindex() == true) {
+                _resp.byAutoIndex(_socket, 200, filepath);
+                return true;
+            }
+            else {
+                //autoindex = off go to response error default
+                return false;
+            }
         }
     }
     std::cout << "True path: " << _truePath << std::endl;
