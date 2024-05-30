@@ -3,11 +3,15 @@
 
 Client::Client(){}
 
-Client::Client(int new_sd, int listen_sd, std::vector<ServerBlock>  serverBlocks){
+Client::Client(int new_sd, int listen_sd, std::vector<ServerBlock>  &serverBlocks){
 	this->_socket = new_sd;
 	this->sever_socket = listen_sd;
 	this->server_blocks = serverBlocks;
-	this->request.sever_socket = listen_sd;
+	
+	//First Edited
+	this->request = new Request;
+	request->sever_socket = listen_sd;
+	this->_stage = request->_stage;
 }
 
 Client::Client(Client const &inst) {
@@ -30,33 +34,29 @@ Client& Client::operator=(Client const &cli) {
 Client::~Client(){}
 
 bool Client::httpStage() {
-
-	switch (_stage) {
-		case FIRST_LINE: {
-			// std::cout << RED << "Request path firstline: " << DEFAULT << std::endl;
-			_stage = request.parseFirstLine(_stage);
-		}
-		case HEADER: {
-			// std::cout << RED << "Request path header: " << request.path << DEFAULT << std::endl;
-			_stage = request.parseHeader(_stage); 
-		}
-		case BODY: {
-			// std::cout << RED << "Request path body: " << request.path << DEFAULT << std::endl;
-			_stage = request.parseBody(_stage);
-		}
-		case ROUTER: {
-			_cgi.initCgi(request.errNum, _socket, request.server_blocks, request);
-
-			_stage = _cgi.apiRouter();
-		}
-		case RESPONSED: {
-			request.clear();
-			_stage = FIRST_LINE;
-			return (true); 
-		}
-		default:
-			std::cout << "Stage: " << _stage << std::endl;
-			break;
+	if (_stage == FIRST_LINE) {
+		std::cout << GREEN << "FIRSTLINE \n" << DEFAULT << std::endl;
+		_stage = request->parseFirstLine(_stage, _socket);
+		if (_stage == FIRST_LINE)
+			return (true);
+	} 
+	if (_stage == HEADER) {
+		std::cout << GREEN << "HEADER \n" << DEFAULT << std::endl;
+		_stage = request->parseHeader(_stage);
+	}
+	if (_stage == BODY) {
+		std::cout << GREEN << "BODY \n" << DEFAULT << std::endl;
+		_stage = request->parseBody (_stage);
+	}
+	if (_stage == ROUTER) {
+		std::cout << GREEN << "ROUTER \n" << DEFAULT << std::endl;
+		_cgi.initCgi(request->errNum, _socket, request->server_blocks, *request);
+		_stage = _cgi.apiRouter();
+	}
+	if (_stage == RESPONSED) {
+		request->clear();
+		_stage = FIRST_LINE;
+		// return (true);
 	}
 	return (false); 
 }

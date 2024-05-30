@@ -48,7 +48,7 @@ Request::~Request() {
 }
 
 
-HttpStage Request::parseFirstLine(HttpStage stage) {
+HttpStage Request::parseFirstLine(HttpStage stage, int socket) {
 	_stage = stage;
 	std::string buffer;
 	std::getline(data, buffer);
@@ -56,18 +56,19 @@ HttpStage Request::parseFirstLine(HttpStage stage) {
 
 	line >> buffer;
 	if (line.fail()) {
-		_stage = ROUTER;
 		errNum = 400;
+		_response.byStatus(socket, 400);
 		return (_stage);
 	}
 	method = buffer;
 
 	line >> buffer;
 	if (line.fail()) {
-		_stage = ROUTER;
 		errNum = 400;
+		_response.byStatus(socket, 400);
 		return (_stage);
 	}
+
 	path = buffer;
 
 	// std::cerr << RED <<"Request path at parser: " << path << DEFAULT << std::endl;
@@ -116,6 +117,7 @@ bool Request::validBodyLength(){
 HttpStage Request::parseHeader(HttpStage stage) {
 	_stage = stage;
 	std::string buffer;
+
 	std::getline(data, buffer);
 
 	while(buffer.length() && buffer.c_str()[0] != '\r')
@@ -183,6 +185,8 @@ void	Request::clear() {
 	body.clear();
 	data.str(std::string());
 	data.clear();
+	working_data.str(std::string());
+	working_data.clear();
 	_boundary = std::string();
 	errNum = 0;
 }

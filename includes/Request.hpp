@@ -36,11 +36,12 @@ class Request {
 		int									sever_socket; //set by client
 		std::vector<ServerBlock>*			server_blocks; // set by serverhandler
 		std::stringstream					data; //set by client
+		std::stringstream					working_data;
 		int									socket; //set by client
 		std::string							location404; //use by cgi
 		int									errNum;
 
-		HttpStage							parseFirstLine(HttpStage stage); //use by client
+		HttpStage							parseFirstLine(HttpStage stage, int socket); //use by client
 		HttpStage							parseHeader(HttpStage stage); //use by client
 		HttpStage							parseBody(HttpStage stage); //use by client
 		void								clear();

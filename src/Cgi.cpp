@@ -74,12 +74,12 @@ HttpStage Cgi::apiRouter() {
     ServerBlock server = searchServer(_req.header["Host"], *server_blocks);
 
     std::cout << RED << "errnum: " << _errnum << DEFAULT << std::endl;
-    if (server.getServerName().length() == 0) {
-        _resp.byStatus(_socket, 400);
-        return RESPONSED;
-    }
     if (_errnum != 0 && _errnum != 404) {
         _resp.byStatus(_socket, _errnum);
+        return RESPONSED;
+    }
+    if (server.getServerName().length() == 0) {
+        _resp.byStatus(_socket, 400);
         return RESPONSED;
     }
     if (location.getDirectoryPath().length() != 0) {
@@ -105,7 +105,7 @@ HttpStage Cgi::apiRouter() {
         else if (location.getReturn().length() != 0) {
             //Redirect
             std::cout << YELLOW << "Redirect to :" << location.getReturn() << DEFAULT << std::endl;
-            _resp.byRedirect(_socket, 307, location.getReturn());
+            _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + location.getReturn());
         }
         else
             if (serveFile(server, location) == false)
@@ -116,8 +116,6 @@ HttpStage Cgi::apiRouter() {
     if (serveFile(server, location) == false)
         _resp.errorDefault(_socket, _req.setDefaultErrorPage(404), 404);
     return RESPONSED;
-    // serveFile();
-    // _resp.byFile(_socket, 200, "./page-copy.html", "text/html; charset=UTF-8"); // test response
 }
 
 long Cgi::creatFileStream() {
@@ -365,7 +363,7 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
             } else {
                  std::cout << YELLOW << "ServeFile" << DEFAULT << std::endl;
 
-                _resp.byRedirect(_socket, 307, _truePath);
+                _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
                 return true;
             }
         }
@@ -410,6 +408,7 @@ bool Cgi::isIndexExists(std::string &filepath, std::vector<std::string> index, L
                 return true;
             }
 
+                // _truePath = _req.path + *it;
             if (_req.path == "/")
                 _truePath = _req.path + *it;
             else
@@ -463,8 +462,8 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
             }
         }
     }
-    std::cout << "True path: " << _truePath << "on socket: " << _socket << std::endl;
-    _resp.byRedirect(_socket, 307, _truePath);
+    std::cout << "True path: " << _truePath << " on socket: " << _socket << std::endl;
+    _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
     return true;
 }
 

@@ -15,7 +15,7 @@
 #define GREEN   "\033[32m"
 #define YELLOW  "\033[33m"
 
-#define MAX_CON 1000
+#define MAX_CON 10
 #define READ_BUFF 100000
 
 class ServerBlock;

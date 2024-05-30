@@ -5,7 +5,8 @@ std::map<int, std::string> initStatusrMsg() {
 
 	statusMsg[200] = "OK"; //no error
 	statusMsg[201] = "Created"; // first
-	statusMsg[307] = "Temporary Redirect"; 
+	statusMsg[301] = "Moved Permanently";
+	statusMsg[307] = "Temporary Redirect";
 	statusMsg[400] = "Bad Request";
 	statusMsg[403] = "ForBidden";//first
 	statusMsg[404] = "Not Found"; //first

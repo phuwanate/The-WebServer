@@ -73,14 +73,14 @@ void	ServerHandler::startServerHandler() {
 void	ServerHandler::checkStates(int *s_ready, fd_set &working_read) {
 	for (int i = 0; i <= _max_sd; i++)
 	{
-		if (FD_ISSET(i, &_listen_set)) {
-			readytoAccept(i);
-		} else if (FD_ISSET(i, &working_read)) {
-			if (httpManage(i) == true) {
-				// std::cout << "Connection: " << _clients_map[i].request.header["Connection:"] << std::endl;
+		if (FD_ISSET(i, &working_read)) {
+			if (FD_ISSET(i, &_listen_set))
+				readytoAccept(i);
+			else{
+				if (httpManage(i) == true)
 					closeConn(i);
+				(*s_ready)--;
 			}
-			(*s_ready)--;
 		} 
 	}
 	(void)s_ready;
@@ -103,8 +103,11 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 		return ;
 	}
 
-	Client new_client(new_sd, listen_sd, _serverBlocks);
-	_clients_map[new_sd] = new_client;
+	_clients_map[new_sd] = new Client (new_sd, listen_sd, _serverBlocks);
+	// _clients_map[new_sd] = new_client;
+	std::cout << RED << "socket at init proc: " << _clients_map[new_sd]->_socket << DEFAULT << std::endl;
+	std::cout << RED << "state at init proc: " << _clients_map[new_sd]->request->_stage << DEFAULT << std::endl;
+
 
 	addMasterSet(new_sd, &_read_set);
 	usleep(200);
@@ -115,10 +118,9 @@ bool    ServerHandler::httpManage(int read_sd) {
         char buffer[READ_BUFF];
 		int rc = 0;
 
+
 		while(true){
-			std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
 			rc = recv(read_sd, buffer, sizeof(buffer), 0);
-			std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
 			if (rc < 0) {
 				break ;
 				// return (false);
@@ -130,12 +132,17 @@ bool    ServerHandler::httpManage(int read_sd) {
 				// break ;
 			}
 			buffer[rc] = 0;
-			_clients_map[read_sd].request.data.write(buffer, rc);
+			// _clients_map[read_sd]->request->data.write(buffer, rc);
+			_clients_map[read_sd]->request->working_data.write(buffer, rc);
+			std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
+			std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
 		}
-		_clients_map[read_sd].request.server_blocks = &_serverBlocks;
+		_clients_map[read_sd]->request->server_blocks = &_serverBlocks;
 		ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
 		std::cout << "Client [" << read_sd << "] " << std::endl;
-		if(_clients_map[read_sd].httpStage() == false) {
+		// std::cout << "Full Request: \n" << _clients_map[read_sd]->request->working_data.str() << std::endl;
+		_clients_map[read_sd]->request->data << _clients_map[read_sd]->request->working_data.rdbuf(); 
+		if(_clients_map[read_sd]->httpStage() == false) {
 			return (false);
 		}
         return (true);
@@ -143,9 +150,9 @@ bool    ServerHandler::httpManage(int read_sd) {
 
 void	ServerHandler::updateLocationPath(int read_sd) {
 
-	if(_clients_map[read_sd]._cgi.currpath != this->_currpath)	
-		this->_currpath = _clients_map[read_sd]._cgi.currpath;
-	this->_clients_map[read_sd]._cgi.currpath.clear();
+	if(_clients_map[read_sd]->_cgi.currpath != this->_currpath)	
+		this->_currpath = _clients_map[read_sd]->_cgi.currpath;
+	_clients_map[read_sd]->_cgi.currpath.clear();
 }
 
 void	ServerHandler::listenNewConnection() {
@@ -160,11 +167,11 @@ void	ServerHandler::listenNewConnection() {
 			clearSocket();
 		}
 
-		if (fcntl(s_it->getSocket(), F_SETFL, O_NONBLOCK) < 0) {
-			std::cerr << RED << "Error: listening on socket [";
-			std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
-			clearSocket();
-		}
+		// if (fcntl(s_it->getSocket(), F_SETFL, O_NONBLOCK) < 0) {
+		// 	std::cerr << RED << "Error: listening on socket [";
+		// 	std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
+		// 	clearSocket();
+		// }
 
 		if (this->_servers_map.count(s_it->getSocket()) == 0) {
 			this->_servers_map.insert(std::pair<int, ServerBlock>(s_it->getSocket(), *s_it));
@@ -199,6 +206,8 @@ void	ServerHandler::clearMasterSet(int socket, fd_set *master_set) {
 		  }
 		  _max_sd = new_max;
 	 }
+	 delete _clients_map[socket]->request;
+	 delete _clients_map[socket];
 }
 
 void	ServerHandler::clearSocket() {

@@ -28,10 +28,14 @@ void Response::errorDefault(int socket, std::string defLoc, int status) {
 
 void Response::byStatus(int socket, int status){
 	std::string firstLine = createFirstLine(status);
+	std::cout << "here1" <<std::endl;
 	std::string body = createBodyByStatus(status);
+	std::cout << "here2" <<std::endl;
 	std::string response = createResponse(firstLine, body, "text/html");
+	std::cout << "here3" <<std::endl;
 
 	send(socket, response.c_str(), response.size(), 0);
+	std::cout << "here4" <<std::endl;
 }
 
 void Response::byStringstream(int socket, int status, std::stringstream &file, const std::string &content_type) {
@@ -59,7 +63,8 @@ void Response::byRedirect(int socket, int status, std::string const &location) {
 	ss << createFirstLine(status) << "\r\n"; 
 	ss << "Location: " << location << "\r\n\r\n";
 
-	send(socket, ss.str().c_str(), ss.str().size(), 0);
+	if(send(socket, ss.str().c_str(), ss.str().size(), 0) > 0)
+		std::cout << "Stream: " << ss.str() << std::endl;
 }
 
 void Response::byAutoIndex(int socket, int status, const std::string& directory_path) {
