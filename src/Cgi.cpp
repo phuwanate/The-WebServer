@@ -362,8 +362,8 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
                     return false;
             } else {
                  std::cout << YELLOW << "ServeFile" << DEFAULT << std::endl;
-
                 _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
+
                 return true;
             }
         }
@@ -463,7 +463,8 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
         }
     }
     std::cout << "True path: " << _truePath << " on socket: " << _socket << std::endl;
-    _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
+    _resp.byRedirect(_socket, 301, "http://" + _req.header["Host"] + _truePath);
+    // _resp.byRedirect(_socket, 301, _req.header["Host"] + _truePath);
     return true;
 }
 

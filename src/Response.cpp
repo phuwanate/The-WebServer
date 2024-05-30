@@ -60,8 +60,12 @@ void Response::byFile(int socket, int status, std::string const &location,  std:
 void Response::byRedirect(int socket, int status, std::string const &location) {
 	std::stringstream ss;
 
+	// ss << "Location: " << location << "\r\n\r\n";
 	ss << createFirstLine(status) << "\r\n"; 
-	ss << "Location: " << location << "\r\n\r\n";
+	ss << "Location: " << location << "\r\n";
+	ss << "Content-Length: 0\r\n";
+    ss << "Connection: close\r\n";
+    ss << "\r\n";
 
 	if(send(socket, ss.str().c_str(), ss.str().size(), 0) > 0)
 		std::cout << "Stream: " << ss.str() << std::endl;
