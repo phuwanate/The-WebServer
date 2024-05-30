@@ -9,7 +9,8 @@ enum HttpStage {
 	HEADER,
 	BODY,
 	RESPONSED,
-	ROUTER
+	ROUTER,
+	ERROR,
 };
 
 std::map<int, std::string> initStatusrMsg();

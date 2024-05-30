@@ -37,8 +37,8 @@ bool Client::httpStage() {
 	if (_stage == FIRST_LINE) {
 		std::cout << GREEN << "FIRSTLINE \n" << DEFAULT << std::endl;
 		_stage = request->parseFirstLine(_stage, _socket);
-		if (_stage == FIRST_LINE)
-			return (true);
+		// if (_stage == FIRST_LINE)
+		// 	return (true);
 	} 
 	if (_stage == HEADER) {
 		std::cout << GREEN << "HEADER \n" << DEFAULT << std::endl;
@@ -58,5 +58,8 @@ bool Client::httpStage() {
 		_stage = FIRST_LINE;
 		// return (true);
 	}
+	std::cout << "Stage: " << _stage << std::endl; 
+	// if (_stage == ERROR)
+		// return (true);
 	return (false); 
 }

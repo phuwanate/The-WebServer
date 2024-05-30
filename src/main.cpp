@@ -25,6 +25,7 @@ int main (int ac, char **av) {
 
 	try{
 		signal(SIGINT, signalHandler);
+		signal(SIGPIPE, SIG_IGN);//for siege test
 		Config config(pathToConfigFile);
 		// config.DebugEverythinginConfig(config.getServerBlocks());
 		std::vector<ServerBlock> s_vec = config.getServerBlocks();
