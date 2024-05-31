@@ -335,24 +335,16 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
     if (prepareFilePath(server, location, root, endpoint, filepath) == false)
         return false;
     
-    
-
     if (isFileExists(filepath) == true) {
         if (!(hasPermission(filepath, R_OK))){
             _resp.byStatus(_socket, 403);
             return (true);
         }
         if (isDir(filepath)) {
-            std::cout << "This is path: " << filepath << std::endl;
             //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {
                 index = location.getIndex();  
-                if (isIndexExists(filepath, index, location) == false) {
-                    if (useServerparameter(filepath, server, location) == true)
-                        return true;
-                    else
-                        return false;
-                } else {
+                if (isIndexExists(filepath, index, location) == true) {
                     std::cout << YELLOW << "Redirect to: "<< "http://" + _req.header["Host"] + _truePath << DEFAULT << std::endl;
                     _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
 
@@ -366,7 +358,7 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
             }
         }
         //Request a file.
-        std::cout << "This is file: " << filepath << std::endl;
+        std::cout << YELLOW << "Response: " << filepath << DEFAULT << std::endl; 
         std::string contentTypes = checkContentType(filepath);
         _resp.byFile(_socket, 200, "." + filepath, contentTypes);
         return true;
@@ -464,7 +456,7 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
             }
         }
     }
-    std::cout << "True path: " << _truePath << " on socket: " << _socket << std::endl;
+    std::cout << YELLOW << "Redirect to: "<< "http://" + _req.header["Host"] + _truePath << DEFAULT << std::endl;
     _resp.byRedirect(_socket, 301, "http://" + _req.header["Host"] + _truePath);
     return true;
 }
@@ -477,8 +469,8 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     } else {
         root = server.getRoot();
     }
-    std::cout << "root path: " << root << std::endl;
-    std::cout << "request path: " << _req.path << std::endl;
+    // std::cout << "root path: " << root << std::endl;
+    // std::cout << "request path: " << _req.path << std::endl;
     //file or directory
     if (checkContentType(_req.path) == "unkown") {
         //directory
@@ -508,7 +500,7 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
             filepath = "/" + root + _req.path;
         }
     }
-    std::cout << "Prepare: " << filepath << std::endl;
+    // std::cout << "Prepare: " << filepath << std::endl;
     return true;
 }
 

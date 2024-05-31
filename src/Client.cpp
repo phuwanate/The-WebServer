@@ -55,6 +55,5 @@ bool Client::httpStage() {
 		request->clear();
 		_stage = FIRST_LINE;
 	}
-	std::cout << "Stage: " << _stage << std::endl; 
 	return (false); 
 }
