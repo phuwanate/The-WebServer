@@ -148,7 +148,6 @@ HttpStage Request::parseHeader(HttpStage stage) {
 
 std::string	Request::setDefaultErrorPage(int error_key) {
 	ServerBlock server = searchServer(header["Host"], *server_blocks);
-	// std::map<int, std::string> errorPageMap = server.getErrorPage();
 	std::string location404 = "./" + server.getRoot() + "/" + server.getErrorPage()[error_key];
 
 	if (location404.empty())

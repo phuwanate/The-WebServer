@@ -147,12 +147,12 @@ long Cgi::creatFileStream() {
 
 bool Cgi::upload(LocationBlock &location, ServerBlock &server) {
     std::string root = server.getRoot();
-    std::string filepath = "./" + root + "/cgi";
+    std::string filepath = "/" + root + "/cgi";
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
     if(isIndexExists(filepath, location.getIndex(), location) == false)
         return false;
-
+    filepath = "." + filepath;
     std::string extension = filepath.substr(filepath.find_last_of("."));
     std::string compiler = location.getCgiMap()[extension];
 
@@ -178,12 +178,12 @@ bool Cgi::upload(LocationBlock &location, ServerBlock &server) {
 bool Cgi::Delete(LocationBlock &location, ServerBlock &server) {
 
     std::string root = server.getRoot();
-    std::string filepath = "./" + root + "/cgi";
+    std::string filepath = "/" + root + "/cgi";
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
     if(isIndexExists(filepath, location.getIndex(), location) == false)
         return false;
-
+    filepath = "." + filepath;
     std::string extension = filepath.substr(filepath.find_last_of("."));
     std::string compiler = location.getCgiMap()[extension];
 
@@ -208,12 +208,12 @@ bool Cgi::Delete(LocationBlock &location, ServerBlock &server) {
 bool Cgi::generatePage(LocationBlock &location, ServerBlock &server) {
     
     std::string root = server.getRoot();
-    std::string filepath = "./" + root + _req.path;
+    std::string filepath = "/" + root + _req.path;
     if (_req.path[_req.path.length() - 1] != '/')
         filepath += "/";
     if(isIndexExists(filepath, location.getIndex(), location) == false)
         return false;
-
+    filepath = "." + filepath;
     std::string extension = filepath.substr(filepath.find_last_of("."));
     std::string compiler = location.getCgiMap()[extension];
 
@@ -334,6 +334,8 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
     if (prepareFilePath(server, location, root, endpoint, filepath) == false)
         return false;
+    
+    
 
     if (isFileExists(filepath) == true) {
         if (!(hasPermission(filepath, R_OK))){
@@ -341,25 +343,32 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
             return (true);
         }
         if (isDir(filepath)) {
+            std::cout << "This is path: " << filepath << std::endl;
             //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {
-                index = location.getIndex();
-            }
-            if (isIndexExists(filepath, index, location) == false) {
-                if (useServerparameter(filepath, server, location) == true)
-                    return true;
-                else
-                    return false;
-            } else {
-                 std::cout << YELLOW << "ServeFile" << DEFAULT << std::endl;
-                _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
+                index = location.getIndex();  
+                if (isIndexExists(filepath, index, location) == false) {
+                    if (useServerparameter(filepath, server, location) == true)
+                        return true;
+                    else
+                        return false;
+                } else {
+                    std::cout << YELLOW << "Redirect to: "<< "http://" + _req.header["Host"] + _truePath << DEFAULT << std::endl;
+                    _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
 
-                return true;
+                    return true;
+                }
+            } else {
+                if (useServerparameter(filepath, server, location) == true)
+                        return true;
+                    else
+                        return false;
             }
         }
         //Request a file.
+        std::cout << "This is file: " << filepath << std::endl;
         std::string contentTypes = checkContentType(filepath);
-        _resp.byFile(_socket, 200, filepath, contentTypes);
+        _resp.byFile(_socket, 200, "." + filepath, contentTypes);
         return true;
     }//end of if (isFileExists(filepath))
     return false;
@@ -367,19 +376,22 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
 bool Cgi::isFileExists(const std::string& filepath) {
     struct stat buffer;
-    return (stat(filepath.c_str(), &buffer) == 0);
+    std::string check = "." + filepath;
+    return (stat(check.c_str(), &buffer) == 0);
 }
 
 bool Cgi::isDir(const std::string& filepath) {
     struct stat buffer;
-    if (stat(filepath.c_str(), &buffer) == 0) {
+    std::string check = "." + filepath;
+    if (stat(check.c_str(), &buffer) == 0) {
         return S_ISDIR(buffer.st_mode);
     }
     return false;
 }
 
 bool Cgi::hasPermission(const std::string& filepath, int mode) {
-    return (access(filepath.c_str(), mode) == 0);
+    std::string check = "." + filepath;
+    return (access(check.c_str(), mode) == 0);
 }
 
 bool Cgi::isIndexExists(std::string &filepath, std::vector<std::string> index, LocationBlock &location) {
@@ -390,7 +402,7 @@ bool Cgi::isIndexExists(std::string &filepath, std::vector<std::string> index, L
         {
             filepath += *it;
             if (location.getAlias().length() != 0) {
-                _truePath = "./" + location.getAlias() + "/" + *it;
+                _truePath = "/" + location.getAlias() + "/" + *it;
                 return true;
             }
             if (location.getRoot().length() != 0) {
@@ -434,7 +446,7 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
     
         if (location.getDirectoryPath().length() != 0) {
             if (location.getAutoIndex() == true) {
-                _resp.byAutoIndex(_socket, 200, filepath);
+                _resp.byAutoIndex(_socket, 200, "." + filepath);
                 return true;
             }
             else {
@@ -443,7 +455,7 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
             }
         } else {
             if (server.getAutoindex() == true) {
-                _resp.byAutoIndex(_socket, 200, filepath);
+                _resp.byAutoIndex(_socket, 200, "." + filepath);
                 return true;
             }
             else {
@@ -470,9 +482,9 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     //file or directory
     if (checkContentType(_req.path) == "unkown") {
         //directory
-        filepath = "./" + root + _req.path;
+        filepath = "/" + root + _req.path;
         if (location.getAlias().length() != 0)
-            filepath = "./" + location.getAlias();
+            filepath = "/" + location.getAlias();
         if (isFileExists(filepath) == true) {
             if (isDir(filepath)) {
                 filepath += "/";
@@ -489,11 +501,11 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     }
     else {
         //full path with root.
-        if ((isFileExists("." + _req.path) == true) || (_req.path.find(root) != std::string::npos)) {
-            filepath = "." + _req.path;
+        if ((isFileExists(_req.path) == true) || (_req.path.find(root) != std::string::npos)) {
+            filepath = _req.path;
         } else {
             // redirect exactly path (without root.)
-            filepath = "./" + root + _req.path;
+            filepath = "/" + root + _req.path;
         }
     }
     std::cout << "Prepare: " << filepath << std::endl;
