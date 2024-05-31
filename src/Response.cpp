@@ -1,5 +1,5 @@
 #include "Response.hpp"
-
+#include <cstring>
 Response::Response(){
 	_status = initStatusrMsg();
 }
@@ -31,7 +31,9 @@ void Response::byStatus(int socket, int status){
 	std::string body = createBodyByStatus(status);
 	std::string response = createResponse(firstLine, body, "text/html");
 
-	send(socket, response.c_str(), response.size(), 0);
+	if (send(socket, response.c_str(), response.size(), 0) < 0)
+		std::cout << "Sending Error" << std::endl;
+
 }
 
 void Response::byStringstream(int socket, int status, std::stringstream &file, const std::string &content_type) {
@@ -56,7 +58,6 @@ void Response::byFile(int socket, int status, std::string const &location,  std:
 void Response::byRedirect(int socket, int status, std::string const &location) {
 	std::stringstream ss;
 
-	// ss << "Location: " << location << "\r\n\r\n";
 	ss << createFirstLine(status) << "\r\n"; 
 	ss << "Location: " << location << "\r\n";
 	ss << "Content-Length: 0\r\n";
@@ -64,7 +65,6 @@ void Response::byRedirect(int socket, int status, std::string const &location) {
     ss << "\r\n";
 
 	send(socket, ss.str().c_str(), ss.str().size(), 0);
-	// std::cout << "Stream: " << ss.str() << std::endl;
 }
 
 void Response::byAutoIndex(int socket, int status, const std::string& directory_path) {

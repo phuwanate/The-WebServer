@@ -58,6 +58,7 @@ HttpStage Request::parseFirstLine(HttpStage stage, int socket) {
 	if (line.fail()) {
 		errNum = 400;
 		_response.byStatus(socket, 400);
+		_stage = RESPONSED;
 		return (_stage);
 	}
 	method = buffer;
@@ -66,12 +67,11 @@ HttpStage Request::parseFirstLine(HttpStage stage, int socket) {
 	if (line.fail()) {
 		errNum = 400;
 		_response.byStatus(socket, 400);
+		_stage = RESPONSED;
 		return (_stage);
 	}
 
 	path = buffer;
-
-	// std::cerr << RED <<"Request path at parser: " << path << DEFAULT << std::endl;
 	_stage = HEADER;
 	return (_stage);
 }

@@ -184,10 +184,8 @@ bool Cgi::Delete(LocationBlock &location, ServerBlock &server) {
     if(isIndexExists(filepath, location.getIndex(), location) == false)
         return false;
 
-    // std::cerr << "Cgi File: " << filepath << std::endl;
     std::string extension = filepath.substr(filepath.find_last_of("."));
     std::string compiler = location.getCgiMap()[extension];
-    // std::cerr << "Cgi compiler: " << compiler << std::endl;
 
     pid_t p_id = fork();
     if(p_id == 0)
@@ -216,10 +214,8 @@ bool Cgi::generatePage(LocationBlock &location, ServerBlock &server) {
     if(isIndexExists(filepath, location.getIndex(), location) == false)
         return false;
 
-    // std::cout << "Cgi File: " << filepath << std::endl;
     std::string extension = filepath.substr(filepath.find_last_of("."));
     std::string compiler = location.getCgiMap()[extension];
-    // std::cout << "Cgi compiler: " << compiler << std::endl;
 
     pid_t p_id = fork();
     if (p_id == 0) {
@@ -249,7 +245,6 @@ bool Cgi::generatePage(LocationBlock &location, ServerBlock &server) {
                 }
                 buffer[rd] = '\0';
 				stream << buffer;
-                // std::cerr << YELLOW << "Stream: " << buffer << std::endl;
 			}
 			close(pipes[0]);
 			cgiResponse(exitPID, exit_status, "/generate", stream);
@@ -271,7 +266,6 @@ void Cgi::cgiResponse(pid_t exitPID, int status, std::string cgi_route, std::str
 		_resp.byStatus(_socket, 500);
 	} 
 	int exit_status = WEXITSTATUS(status);
-	//execve failed;
 	if (exit_status != 0) {
 		std::cerr << "Error: CGI not worked properly." << std::endl;
 		_resp.byStatus(_socket, 500);
@@ -302,7 +296,6 @@ pid_t Cgi::waitcoc(pid_t child, int *status) {
     time_t post_time = start_time + 3;
 
     while ((exit_status = waitpid(child, status, WNOHANG)) == 0) {
-    //   printf("Child process (pid: %d) hasn't exited yet...\n", child_pid);
       start_time = startTime();      
       if (post_time - start_time == 0)
         kill(child, SIGKILL);
@@ -319,9 +312,7 @@ void Cgi::execute(std::string &file, std::string &compiler, std::string &root){
         root =  "./" + root + "/upload";
     else
         root = "./" + root + _req.path;
-    // std::cerr << "method: " << _req.method << std::endl;
     std::cerr << "content-type: " << _req.header["Content-Type"] << std::endl;
-    // std::cerr << "root: " << root.c_str() << std::endl;
 
 	av[0] = strdup(compiler.c_str());
 	av[1] = strdup(file.c_str());
@@ -350,7 +341,6 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
             return (true);
         }
         if (isDir(filepath)) {
-            // std::cout << "This filepath:" << filepath << " does exists." << std::endl;
             //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {
                 index = location.getIndex();
@@ -464,7 +454,6 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
     }
     std::cout << "True path: " << _truePath << " on socket: " << _socket << std::endl;
     _resp.byRedirect(_socket, 301, "http://" + _req.header["Host"] + _truePath);
-    // _resp.byRedirect(_socket, 301, _req.header["Host"] + _truePath);
     return true;
 }
 
@@ -476,9 +465,6 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     } else {
         root = server.getRoot();
     }
-    // if (root[root.size() - 1] != '/' && location.getDirectoryPath()[0] != '/') {
-    //     root += "/";
-    // }
     std::cout << "root path: " << root << std::endl;
     std::cout << "request path: " << _req.path << std::endl;
     //file or directory
@@ -500,7 +486,6 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
             // not exists directory return 404.
             return (false);
         }
-        // filepath = "./" + root + endpoint + "/";
     }
     else {
         //full path with root.
