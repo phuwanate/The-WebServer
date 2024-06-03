@@ -113,9 +113,10 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 	usleep(200);
 	std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
 }
-
+#include <cerrno>
 bool    ServerHandler::httpManage(int read_sd) {
-        char buffer[READ_BUFF];
+        // char buffer[READ_BUFF];
+        char buffer[1024];
 		int rc = 0;
 
 
@@ -131,7 +132,10 @@ bool    ServerHandler::httpManage(int read_sd) {
 				return (true);
 				// break ;
 			}
-			buffer[rc] = 0;
+			if (rc < sizeof(buffer)) {
+                buffer[rc] = '\0';  // Null-terminate the buffer if within bounds
+            }
+			// buffer[rc] = 0;
 			// _clients_map[read_sd]->request->data.write(buffer, rc);
 			_clients_map[read_sd]->request->working_data.write(buffer, rc);
 			std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
