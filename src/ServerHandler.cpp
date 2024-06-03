@@ -115,8 +115,7 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 }
 #include <cerrno>
 bool    ServerHandler::httpManage(int read_sd) {
-        // char buffer[READ_BUFF];
-        char buffer[1024];
+        char buffer[READ_BUFF];
 		int rc = 0;
 
 
