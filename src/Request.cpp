@@ -184,8 +184,6 @@ void	Request::clear() {
 	body.clear();
 	data.str(std::string());
 	data.clear();
-	working_data.str(std::string());
-	working_data.clear();
 	_boundary = std::string();
 	errNum = 0;
 }

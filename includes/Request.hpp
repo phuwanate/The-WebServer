@@ -36,7 +36,6 @@ class Request {
 		int									sever_socket; //set by client
 		std::vector<ServerBlock>*			server_blocks; // set by serverhandler
 		std::stringstream					data; //set by client
-		std::stringstream					working_data;
 		int									socket; //set by client
 		std::string							location404; //use by cgi
 		int									errNum;

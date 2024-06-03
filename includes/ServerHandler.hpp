@@ -60,7 +60,6 @@ class ServerHandler {
 		int							_max_sd;
 		fd_set						_listen_set;
 		fd_set						_read_set;
-		// fd_set						_write_set;
 		std::map<int, Client*>		_clients_map;
 		Response					_response;
 		std::string                 _currpath;

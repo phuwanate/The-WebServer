@@ -113,7 +113,7 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 	usleep(200);
 	std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
 }
-#include <cerrno>
+
 bool    ServerHandler::httpManage(int read_sd) {
         char buffer[READ_BUFF];
 		int rc = 0;
@@ -134,17 +134,13 @@ bool    ServerHandler::httpManage(int read_sd) {
 			if (rc < sizeof(buffer)) {
                 buffer[rc] = '\0';  // Null-terminate the buffer if within bounds
             }
-			// buffer[rc] = 0;
-			// _clients_map[read_sd]->request->data.write(buffer, rc);
-			_clients_map[read_sd]->request->working_data.write(buffer, rc);
+			_clients_map[read_sd]->request->data.write(buffer, rc);
 			std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
 			std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
 		}
 		_clients_map[read_sd]->request->server_blocks = &_serverBlocks;
 		ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
 		std::cout << "Client [" << read_sd << "] " << std::endl;
-		// std::cout << "Full Request: \n" << _clients_map[read_sd]->request->working_data.str() << std::endl;
-		_clients_map[read_sd]->request->data << _clients_map[read_sd]->request->working_data.rdbuf(); 
 		if(_clients_map[read_sd]->httpStage() == false) {
 			return (false);
 		}
