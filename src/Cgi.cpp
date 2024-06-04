@@ -343,12 +343,18 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
         if (isDir(filepath)) {
             //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {
+                std::cout << "Here" << std::endl;
                 index = location.getIndex();  
                 if (isIndexExists(filepath, index, location) == true) {
                     std::cout << YELLOW << "Redirect to: "<< "http://" + _req.header["Host"] + _truePath << DEFAULT << std::endl;
                     _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
 
                     return true;
+                } else {
+                    if (useServerparameter(filepath, server, location) == true)
+                        return true;
+                    else
+                        return false;
                 }
             } else {
                 if (useServerparameter(filepath, server, location) == true)
@@ -487,6 +493,11 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
             }
         }
         else {
+            // if (location.getDirectoryPath().length() != 0)
+            // {
+            //     if (location.getAutoIndex() == true)
+            //         _resp.byAutoIndex(_socket, 200, location.getDirectoryPath());
+            // }
             // not exists directory return 404.
             return (false);
         }
