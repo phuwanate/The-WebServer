@@ -311,8 +311,8 @@ bool	ServerBlock::manageSocket() {
 
 	ft_memset(&s_addr, 0, sizeof(s_addr));
 	s_addr.sin_family = AF_INET; //IPV4
-	s_addr.sin_addr.s_addr = getHostIP(); //IP address as Network Byte order.
-	s_addr.sin_port = htons(getPortNumb());
+	s_addr.sin_addr.s_addr = getHostIP(); //IP address as Network Byte order. 127.0.0.1
+	s_addr.sin_port = htons(getPortNumb());//8080
 
 	if (bind(_socket_fd, (struct sockaddr*) &s_addr, sizeof(s_addr)) < 0) {
 		std::cerr << RED << "Error: cannot bind socket [" << _socket_fd << "]" << DEFAULT << std::endl;

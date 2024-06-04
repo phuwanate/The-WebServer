@@ -293,7 +293,7 @@ pid_t Cgi::waitcoc(pid_t child, int *status) {
     
     pid_t exit_status;
     time_t start_time = startTime();
-    time_t post_time = start_time + 3;
+    time_t post_time = start_time + 10;
 
     while ((exit_status = waitpid(child, status, WNOHANG)) == 0) {
       start_time = startTime();      
@@ -343,11 +343,10 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
         if (isDir(filepath)) {
             //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {
-                std::cout << "Here" << std::endl;
                 index = location.getIndex();  
                 if (isIndexExists(filepath, index, location) == true) {
                     std::cout << YELLOW << "Redirect to: "<< "http://" + _req.header["Host"] + _truePath << DEFAULT << std::endl;
-                    _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + _truePath);
+                    _resp.byRedirect(_socket, 301, "http://" + _req.header["Host"] + _truePath);
 
                     return true;
                 } else {
@@ -481,8 +480,9 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
     if (checkContentType(_req.path) == "unkown") {
         //directory
         filepath = "/" + root + _req.path;
-        if (location.getAlias().length() != 0)
+        if (location.getAlias().length() != 0) {
             filepath = "/" + location.getAlias();
+        }
         if (isFileExists(filepath) == true) {
             if (isDir(filepath)) {
                 filepath += "/";
@@ -493,12 +493,6 @@ bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::str
             }
         }
         else {
-            // if (location.getDirectoryPath().length() != 0)
-            // {
-            //     if (location.getAutoIndex() == true)
-            //         _resp.byAutoIndex(_socket, 200, location.getDirectoryPath());
-            // }
-            // not exists directory return 404.
             return (false);
         }
     }

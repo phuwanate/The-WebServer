@@ -75,6 +75,15 @@ void Response::byAutoIndex(int socket, int status, const std::string& directory_
 	send(socket, response.c_str(), response.size(), 0);
 }
 
+bool Response::isDir(const std::string& filepath) {
+    struct stat buffer;
+    std::string check = filepath;
+    if (stat(check.c_str(), &buffer) == 0) {
+        return S_ISDIR(buffer.st_mode);
+    }
+    return false;
+}
+
 std::string Response::buildIndex(const std::string& directory_path)
 {
     std::string body;
@@ -103,13 +112,14 @@ std::string Response::buildIndex(const std::string& directory_path)
             std::string f_name = dir_entry->d_name;
             stat(f_name.c_str(), &f_stat);
 
-            //file name
-            // body.append("\t\t\t<tr>\n\t\t\t\t<td>" + f_name);
-            // if (S_ISDIR(f_stat.st_mode))
-            //     body.append("/");
-            // body.append("</td>\n");
-			// File name with link
-			body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + f_name + "\">" + f_name);
+			if (isDir(directory_path + f_name))	{		
+				std::cout << "Path: " << directory_path + f_name << std::endl;
+				body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + f_name + "\">" + f_name);
+			}
+			else {
+				std::cout << "File: " << directory_path + f_name << std::endl;
+				body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + directory_path + f_name + "\">" + f_name);
+			}
 			if (S_ISDIR(f_stat.st_mode))
 				body.append("/");
 			body.append("</a></td>\n");

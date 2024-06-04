@@ -34,6 +34,7 @@ class Response {
 		std::map<int, std::string>		_status;
 
 		std::string						buildIndex(const std::string& directory_path);
+		bool							isDir(const std::string& filepath);
 		std::string						createFirstLine(int status);
 		std::string						createBodyByStatus(int status);
 		std::string 					createResponse(std::string firstLine, std::string body, std::string contentType);
