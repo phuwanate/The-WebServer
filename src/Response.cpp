@@ -113,10 +113,10 @@ std::string Response::buildIndex(const std::string& directory_path, const std::s
 			std::string w_name = f_name;
 
 			if (isDir(directory_path + f_name))	{		
-				// std::cout << "Path: " << f_name << std::endl;
+				// std::cout << "Name Path: " << f_name << std::endl;
 				// std::cout << "Req Path: " << req_path << std::endl;
 				if (f_name != req_path && req_path != "/") {
-					w_name = req_path + "/"+ f_name;
+					w_name = req_path + "/" + f_name;
 					body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name + "/");
 				}else {
 					body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name);
