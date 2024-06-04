@@ -67,9 +67,9 @@ void Response::byRedirect(int socket, int status, std::string const &location) {
 	send(socket, ss.str().c_str(), ss.str().size(), 0);
 }
 
-void Response::byAutoIndex(int socket, int status, const std::string& directory_path) {
+void Response::byAutoIndex(int socket, int status, const std::string& directory_path, const std::string &req_path) {
 	std::string firstLine = createFirstLine(status);
-	std::string body = buildIndex(directory_path);
+	std::string body = buildIndex(directory_path, req_path);
 	std::string response = createResponse(firstLine, body, "text/html");
 
 	send(socket, response.c_str(), response.size(), 0);
@@ -84,7 +84,7 @@ bool Response::isDir(const std::string& filepath) {
     return false;
 }
 
-std::string Response::buildIndex(const std::string& directory_path)
+std::string Response::buildIndex(const std::string& directory_path, const std::string &req_path)
 {
     std::string body;
     DIR *directory;
@@ -110,16 +110,27 @@ std::string Response::buildIndex(const std::string& directory_path)
         {
             struct stat f_stat;
             std::string f_name = dir_entry->d_name;
-            stat(f_name.c_str(), &f_stat);
+			std::string w_name = f_name;
 
 			if (isDir(directory_path + f_name))	{		
-				std::cout << "Path: " << directory_path + f_name << std::endl;
-				body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + f_name + "\">" + f_name);
+				// std::cout << "Path: " << f_name << std::endl;
+				// std::cout << "Req Path: " << req_path << std::endl;
+				if (f_name != req_path && req_path != "/") {
+					w_name = req_path + "/"+ f_name;
+					body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name + "/");
+				}else {
+					body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name);
+				}
+
 			}
 			else {
-				std::cout << "File: " << directory_path + f_name << std::endl;
-				body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + directory_path + f_name + "\">" + f_name);
+				// std::cout << "File: " << directory_path + f_name << std::endl;
+				w_name =  req_path + "/" + f_name;
+				body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name);
 			}
+			std::cout << "Working Path: " << w_name << std::endl;
+			// w_name = "." + w_name;
+			stat(w_name.c_str(), &f_stat);
 			if (S_ISDIR(f_stat.st_mode))
 				body.append("/");
 			body.append("</a></td>\n");
