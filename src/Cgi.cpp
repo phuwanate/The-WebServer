@@ -328,11 +328,10 @@ void Cgi::execute(std::string &file, std::string &compiler, std::string &root){
 bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
     std::string root;
-    std::string endpoint;
     std::vector<std::string> index;
     std::string filepath;
 
-    if (prepareFilePath(server, location, root, endpoint, filepath) == false)
+    if (prepareFilePath(server, location, root, filepath) == false)
         return false;
     
     if (isFileExists(filepath) == true) {
@@ -466,7 +465,7 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
     return true;
 }
 
-bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::string &root, std::string &endpoint, std::string &filepath) {
+bool Cgi::prepareFilePath(ServerBlock &server, LocationBlock &location, std::string &root, std::string &filepath) {
 
     //need to know is it a full path with file_name or it just a directory.
     if (location.getRoot().length() != 0) {

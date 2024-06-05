@@ -1,10 +1,10 @@
 #include "ServerBlock.hpp"
 
-ServerBlock::ServerBlock():_portNumb(8080), _hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false) {
+ServerBlock::ServerBlock():_hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false) {
 	return;
 }
 
-ServerBlock::ServerBlock(std::string const &serverBlock):_portNumb(8080), _hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false) {
+ServerBlock::ServerBlock(std::string const &serverBlock):_hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false) {
 	__initServer(serverBlock);
 	return;
 }
@@ -36,7 +36,8 @@ ServerBlock::~ServerBlock() {
 	return;
 }
 
-size_t	ServerBlock::getPortNumb() {
+// size_t	ServerBlock::getPortNumb() {
+std::vector<size_t> ServerBlock::getPortNumb() {
 	return this->_portNumb;
 }
 
@@ -48,7 +49,7 @@ std::string	ServerBlock::getServerName() {
 	return this->_serverNames;
 }
 
-std::string	ServerBlock::getFullName() {
+std::vector<std::string>	ServerBlock::getFullName() {
 	return this->_bindingPort;
 }
 
@@ -76,20 +77,20 @@ std::vector<LocationBlock>&	ServerBlock::getLocationBlocks() {
 	return this->_locationBlocks;
 }
 
-int	ServerBlock::getSocket() {
+std::vector<int>	ServerBlock::getSocket() {
 	return this->_socket_fd;
 }
 
-std::string	ServerBlock::getRawPort() {
+std::vector<std::string>	ServerBlock::getRawPort() {
 	return this->_rawPort;
 }
 
-void	ServerBlock::setPortNumb(int val) {
-	this->_portNumb = val;
+void	ServerBlock::setPortNumb(size_t val) {
+	this->_portNumb.push_back(val);
 }
 
 void	ServerBlock::setRawPort(std::string val) {
-	this->_rawPort = val;
+	this->_rawPort.push_back(val);
 }
 
 void	ServerBlock::setHostIP(unsigned long val) {
@@ -100,9 +101,12 @@ void	ServerBlock::setServerName(std::string val) {
 	this->_serverNames = val;
 }
 
-void	ServerBlock::setBindingPort(std::string val1, std::string val2){
+void	ServerBlock::setBindingPort(std::string val1, std::vector<std::string> val2){
 	std::string colon = ":";
-	this->_bindingPort = val1 + colon + val2;
+	std::vector<std::string>::iterator it = val2.begin();
+	for(; it != val2.end(); it++) {
+		this->_bindingPort.push_back(val1 + colon + (*it));
+	}
 }
 
 void	ServerBlock::setRoot(std::string val) {
@@ -193,10 +197,14 @@ void	ServerBlock::checkAllparametersAfterParsing() {
 
 void	ServerBlock::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
 	if (directive == "listen") {
-		if (isDigit(values[0]) == false)
-			throw std::string("Error: invalid parameter \"" + values[0] + "\" in listen directive.");    
-		setRawPort(values[0]);
-		setPortNumb(convertString<int>(values[0]));
+		std::vector<std::string>::iterator it = values.begin();
+		// for (size_t i = 0; values[i] != *(values.end()); i++){
+		for (; it != values.end(); it++){
+			if (isDigit(*it) == false)
+				throw std::string("Error: invalid parameter \"" + *it + "\" in listen directive.");    
+			setRawPort(*it);
+			setPortNumb(convertString<int>(*it));
+		}
 	}
 	else if (directive == "host") {
 		if (values.size() != 1)
@@ -270,9 +278,24 @@ std::string	ServerBlock::pathToErrorPage(std::string errorFilePath) {
 }
 
 void	ServerBlock::DebugServerBlock(void) {
-		std::cout << "          Port:           " << getPortNumb() << std::endl;
+		std::vector<size_t> p_vec = getPortNumb();
+		std::vector<size_t>::iterator p_it = p_vec.begin();
+		std::cout << "          Port:           ";
+		for(; p_it != p_vec.end(); p_it++) {
+			std::cout << *p_it << " ";
+		}
+		std::cout << std::endl;
+
 		std::cout << "          Server Name:    " << getServerName() << std::endl;
-		std::cout << "	        FullName:       " << getFullName() << std::endl;
+
+		std::cout << "	        FullName:       "; 
+		std::vector<std::string> f_vec = getFullName();
+		std::vector<std::string>::iterator f_it = f_vec.begin();
+		for (; f_it != f_vec.end(); f_it++) {
+			std::cout << *f_it << " ";
+		}
+		std::cout << std::endl;
+
 		std::cout << "          Host:           " << getHostIP() << std::endl; 
 		std::cout << "          Root:           " << getRoot() << std::endl;
 		std::cout << "          client_max_body_size: " << getClientMaxBodySize() << std::endl;
@@ -294,29 +317,36 @@ void	ServerBlock::DebugServerBlock(void) {
 bool	ServerBlock::manageSocket() {
 	struct sockaddr_in s_addr;
 	int				   flag = 1;
+	std::vector<size_t> port_vec = _portNumb;
+	std::vector<size_t>::iterator port_it = port_vec.begin();
 
-	if ((_socket_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		throw std::string("Error: cannot init socket...");
+	for (; port_it != port_vec.end(); port_it++) {
+		if ((_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			throw std::string("Error: cannot init socket...");
+		}
+
+		if (setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&flag, sizeof(flag)) < 0) {
+			std::cerr << RED << "Error: cannot set socket [" << _sock << "]" << "to be reuseable..." << DEFAULT << std::endl;
+			return false;
+		}
+
+		if (fcntl(_sock ,F_SETFL, O_NONBLOCK) < 0) {
+			std::cerr << RED << "Error: cannot set socket [" << _sock << "]" << "to be non-blocking..." << DEFAULT << std::endl;
+			return false;
+		}
+
+		ft_memset(&s_addr, 0, sizeof(s_addr));
+		s_addr.sin_family = AF_INET; //IPV4
+		s_addr.sin_addr.s_addr = getHostIP(); //IP address as Network Byte order. 127.0.0.1
+		s_addr.sin_port = htons(*port_it);//8080
+
+		if (bind(_sock, (struct sockaddr*) &s_addr, sizeof(s_addr)) < 0) {
+			std::cerr << RED << "Error: cannot bind socket [" << _sock << "]" << DEFAULT << std::endl;
+			return false;
+		}
+		_socket_fd.push_back(_sock);
 	}
-
-	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&flag, sizeof(flag)) < 0) {
-		std::cerr << RED << "Error: cannot set socket [" << _socket_fd << "]" << "to be reuseable..." << DEFAULT << std::endl;
-		return false;
-	}
-
-	if (fcntl(_socket_fd ,F_SETFL, O_NONBLOCK) < 0) {
-		std::cerr << RED << "Error: cannot set socket [" << _socket_fd << "]" << "to be non-blocking..." << DEFAULT << std::endl;
-		return false;
-	}
-
-	ft_memset(&s_addr, 0, sizeof(s_addr));
-	s_addr.sin_family = AF_INET; //IPV4
-	s_addr.sin_addr.s_addr = getHostIP(); //IP address as Network Byte order. 127.0.0.1
-	s_addr.sin_port = htons(getPortNumb());//8080
-
-	if (bind(_socket_fd, (struct sockaddr*) &s_addr, sizeof(s_addr)) < 0) {
-		std::cerr << RED << "Error: cannot bind socket [" << _socket_fd << "]" << DEFAULT << std::endl;
-		return false;
-	}
+	// std::cout << "Push fd: " << _socket_fd[0] << std::endl;
+	// std::cout << "Push fd: " << _socket_fd[1] << std::endl;
 	return true;
 }

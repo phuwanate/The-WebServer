@@ -19,7 +19,8 @@ class ServerBlock {
 		ServerBlock &operator= (ServerBlock const &serverBlockInstance);
 		~ServerBlock();
 
-		size_t						getPortNumb();
+		std::vector<size_t>			getPortNumb();
+		// size_t						getPortNumb();
 		unsigned long				getHostIP();
 		std::string					getServerName();
 		std::string					getRoot();
@@ -28,15 +29,15 @@ class ServerBlock {
 		bool						getAutoindex();
 		std::map<int, std::string>	getErrorPage();
 		std::vector<LocationBlock>&	getLocationBlocks();
-		int							getSocket();
-		std::string					getFullName();
-		std::string					getRawPort();
+		std::vector<int>			getSocket();
+		std::vector<std::string>	getFullName();
+		std::vector<std::string>	getRawPort();
 		// std::map<std::string , LocationBlocks> getLocationMap();
 		
 
-		void						setPortNumb(int val);
+		void						setPortNumb(size_t val);
 		void						setHostIP(unsigned long val);
-		void						setBindingPort(std::string val1, std::string val2);
+		void						setBindingPort(std::string val1, std::vector<std::string> val2);
 		void						setServerName(std::string val);
 		void						setRawPort(std::string val);
 		void						setRoot(std::string val);
@@ -57,13 +58,15 @@ class ServerBlock {
 		void						__initServer(std::string const &serverBlock);
 		void						__initServerParameters(std::string const &directive, std::vector<std::string> values);
 
-		int							_socket_fd;
-		std::string					_rawPort;
-		size_t						_portNumb; //setup port
+		std::vector<int>			_socket_fd;
+		std::vector<std::string>	_rawPort;
+		int				   			_sock;
+		// size_t						_portNumb; //setup port
+		std::vector<size_t>			_portNumb;
 		unsigned long				_hostIP; //setup host IP address
 		size_t						_clientMaxBodySize;
 		std::string					_serverNames;
-		std::string					_bindingPort;
+		std::vector<std::string>	_bindingPort;
 		std::string					_root;
 		std::vector<std::string>	_index;
 		std::vector<LocationBlock>	_locationBlocks;

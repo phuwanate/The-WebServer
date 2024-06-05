@@ -74,8 +74,9 @@ void	ServerHandler::checkStates(int *s_ready, fd_set &working_read) {
 	for (int i = 0; i <= _max_sd; i++)
 	{
 		if (FD_ISSET(i, &working_read)) {
-			if (FD_ISSET(i, &_listen_set))
+			if (FD_ISSET(i, &_listen_set)) {
 				readytoAccept(i);
+			}
 			else{
 				if (httpManage(i) == true)
 					closeConn(i);
@@ -114,38 +115,76 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 	std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
 }
 
-bool    ServerHandler::httpManage(int read_sd) {
-        char buffer[READ_BUFF];
-		int rc = 0;
+// bool    ServerHandler::httpManage(int read_sd) {
+//         char buffer[READ_BUFF];
+// 		unsigned long rc = 0;
 
 
-		while(true){
-			rc = recv(read_sd, buffer, sizeof(buffer), 0);
-			if (rc < 0) {
-				break ;
-				// return (false);
-			}
-			if (rc == 0) {
-				std::cout << "Close conn at read request" << std::endl;
-				ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-				return (true);
-				// break ;
-			}
-			if (rc < sizeof(buffer)) {
+// 		while(true){
+// 			rc = recv(read_sd, buffer, sizeof(buffer), 0);
+// 			if (rc < 0) {
+// 				break ;
+// 				// return (false);
+// 			}
+// 			if (rc == 0) {
+// 				std::cout << "Close conn at read request" << std::endl;
+// 				ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
+// 				return (true);
+// 				// break ;
+// 			}
+// 			if (rc < sizeof(buffer)) {
+//                 buffer[rc] = '\0';  // Null-terminate the buffer if within bounds
+//             }
+// 			_clients_map[read_sd]->request->data.write(buffer, rc);
+// 			std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
+// 			std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
+// 		}
+// 		_clients_map[read_sd]->request->server_blocks = &_serverBlocks;
+// 		ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
+// 		std::cout << "Client [" << read_sd << "] " << std::endl;
+// 		if(_clients_map[read_sd]->httpStage() == false) {
+// 			return (false);
+// 		}
+//         return (true);
+// }
+
+bool ServerHandler::httpManage(int read_sd) {
+    char buffer[READ_BUFF];
+    unsigned long rc = 0;
+
+    while (true) {
+        rc = recv(read_sd, buffer, sizeof(buffer) - 1, 0); // Leave space for null-terminator
+        if (rc < 0) {
+            // std::cerr << "Error reading from socket [" << read_sd << "]" << std::endl;
+            return false;
+        }
+        if (rc == 0) {
+            std::cout << "Close connection at read request" << std::endl;
+            ft_memset(buffer, 0, sizeof(buffer)); // Clear buffer
+            return true;
+        }
+        if (rc < sizeof(buffer)) {
                 buffer[rc] = '\0';  // Null-terminate the buffer if within bounds
-            }
-			_clients_map[read_sd]->request->data.write(buffer, rc);
-			std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
-			std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
-		}
-		_clients_map[read_sd]->request->server_blocks = &_serverBlocks;
-		ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-		std::cout << "Client [" << read_sd << "] " << std::endl;
-		if(_clients_map[read_sd]->httpStage() == false) {
-			return (false);
-		}
-        return (true);
+        }
+        _clients_map[read_sd]->request->data.write(buffer, rc);
+        std::cout << YELLOW << "Read request on socket [" << read_sd << "]" << std::endl;
+        std::cout << YELLOW << "----- Request -----\n" << buffer << DEFAULT << std::endl;
+
+        // If we have read the entire request, break out of the loop
+        if (rc < sizeof(buffer) - 1) {
+            break;
+        }
+    }
+
+    _clients_map[read_sd]->request->server_blocks = &_serverBlocks;
+    ft_memset(buffer, 0, sizeof(buffer)); // Clear buffer
+    std::cout << "Client [" << read_sd << "] " << std::endl;
+    if (_clients_map[read_sd]->httpStage() == false) {
+        return false;
+    }
+    return true;
 }
+
 
 void	ServerHandler::updateLocationPath(int read_sd) {
 
@@ -155,33 +194,38 @@ void	ServerHandler::updateLocationPath(int read_sd) {
 }
 
 void	ServerHandler::listenNewConnection() {
-	FD_ZERO(&_listen_set);
-	FD_ZERO(&_read_set);
-
 	std::vector<ServerBlock>::iterator s_it = this->_serverBlocks.begin();
+	FD_ZERO(&_read_set);
+	FD_ZERO(&_listen_set);
+
+
 	for (; s_it != this->_serverBlocks.end(); s_it++) {
-		if (listen(s_it->getSocket(), MAX_CON) < 0) {
-			std::cerr << RED << "Error: listening on socket [";
-			std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
-			clearSocket();
-		}
+		std::vector<int> socket_vec = s_it->getSocket();
+		std::vector<int>::iterator socket_it = socket_vec.begin();
+		std::vector<size_t> p_vec = s_it->getPortNumb();
+		std::vector<size_t>::iterator p_it = p_vec.begin();
+		for (; socket_it != socket_vec.end(); socket_it++) {
+			if (listen(*socket_it, MAX_CON) < 0) {
+				std::cerr << RED << "Error: listening on socket [";
+				std::cout << *socket_it << "]" << DEFAULT << std::endl;
+				clearSocket();
+			}
 
-		// if (fcntl(s_it->getSocket(), F_SETFL, O_NONBLOCK) < 0) {
-		// 	std::cerr << RED << "Error: listening on socket [";
-		// 	std::cout << s_it->getSocket() << "]" << DEFAULT << std::endl;
-		// 	clearSocket();
-		// }
+			// if (fcntl(*socket_it, F_SETFL, O_NONBLOCK) < 0) {
+			// 	std::cerr << RED << "Error: listening on socket [";
+			// 	std::cout << *socket_it << "]" << DEFAULT << std::endl;
+			// 	clearSocket();
+			// }
 
-		if (this->_servers_map.count(s_it->getSocket()) == 0) {
-			this->_servers_map.insert(std::pair<int, ServerBlock>(s_it->getSocket(), *s_it));
+			addMasterSet(*socket_it, &_listen_set);
+			addMasterSet(*socket_it, &_read_set);
+			std::cout << GREEN << "Starting server ["<< s_it->getServerName() << "] on  port[" << *p_it << "] "; 
+			std::cout << "socket [" << *socket_it << "]" << DEFAULT << std::endl;
+			p_it++;
 		}
-		addMasterSet(s_it->getSocket(), &_listen_set);
-		addMasterSet(s_it->getSocket(), &_read_set);
-		std::cout << GREEN << "Starting server on : port[" << s_it->getPortNumb() << "] "; 
-		std::cout << "socket [" << s_it->getSocket() << "]" << DEFAULT << std::endl;
 	}
-	_max_sd = _serverBlocks.back().getSocket();
-	// std::cout << "max_sd: " << _max_sd << std::endl;
+	_max_sd = _serverBlocks.back().getSocket().back();
+	std::cout << "max_sd: " << _max_sd << std::endl;
 }
 
 //************************************************
@@ -212,7 +256,11 @@ void	ServerHandler::clearMasterSet(int socket, fd_set *master_set) {
 void	ServerHandler::clearSocket() {
 	std::vector<ServerBlock>::iterator s_it = this->_serverBlocks.begin();
 	for (; s_it != this->_serverBlocks.end(); s_it++) {
-		close (s_it->getSocket());
+		std::vector<int> socket_vec = s_it->getSocket();
+		std::vector<int>::iterator socket_it = socket_vec.begin();
+		for (; socket_it != socket_vec.end(); socket_it++) {
+			close (*socket_it);
+		}
 	}
 	std::cout << "Shut down...\n" << std::endl;
 	exit(-1);
@@ -240,12 +288,15 @@ void	ServerHandler::gracefulShutdown(){
 	std::vector<ServerBlock>::iterator s_it = _serverBlocks.begin();
 	int client_sd;
 	for (; s_it != _serverBlocks.end(); s_it++) {
-		close (s_it->getSocket());
-		std::cout << GREEN << "Close listening connection on : socket [";
-		std::cout << s_it->getSocket() << "] !" << DEFAULT << std::endl;
-		client_sd = s_it->getSocket();
+		std::vector<int> socket_vec = s_it->getSocket();
+		std::vector<int>::iterator socket_it = socket_vec.begin();
+		for (; socket_it != socket_vec.end(); socket_it++) {
+			close (*socket_it);
+			std::cout << GREEN << "Close listening connection on : socket [";
+			std::cout << *socket_it << "] !" << DEFAULT << std::endl;
+			client_sd = *socket_it;
+		}
 	}
-
 	client_sd += 1;
 	for (; client_sd <= _max_sd; client_sd++) {
 		closeConn(client_sd);

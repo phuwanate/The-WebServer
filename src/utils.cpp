@@ -172,11 +172,20 @@ T   convertString(std::string const &needToConvert) {
 
 ServerBlock	searchServer(std::string serverName, std::vector<ServerBlock> s_vec) {
 	std::vector<ServerBlock>::iterator s_it;
+	std::vector<std::string>::iterator f_it;
 	ServerBlock s_block;
 
+	// std::cout << "ServerName: " << s_vec[0].getFullName()[0] << std::endl;
+
+
 	for (s_it = s_vec.begin(); s_it != s_vec.end(); s_it++) {
-		if (s_it->getFullName() == serverName)
-			return *s_it;
+		std::vector<std::string> f_vec = s_it->getFullName();
+		f_it = f_vec.begin();
+		for (; f_it != f_vec.end(); f_it++) {
+			// std::cout << "FullName: " << *f_it << std::endl;
+			if (*f_it == serverName)
+				return *s_it;
+		}
 	}
 	// if (s_it == s_vec.end())
 	// 	std::cerr << "Error: Invalid server name: " << serverName << std::endl;
@@ -186,11 +195,13 @@ ServerBlock	searchServer(std::string serverName, std::vector<ServerBlock> s_vec)
 
 ServerBlock	searchServerByPort(size_t serverPort, std::vector<ServerBlock> s_vec) {
 	std::vector<ServerBlock>::iterator s_it;
+	std::vector<size_t>::iterator p_it;
 	ServerBlock s_block;
 
 	for (s_it = s_vec.begin(); s_it != s_vec.end(); s_it++) {
-		if (s_it->getPortNumb() == serverPort)
-			return *s_it;
+		for (p_it = s_it->getPortNumb().begin(); p_it != s_it->getPortNumb().end(); p_it++)
+			if (*p_it == serverPort)
+				return *s_it;
 	}
 	if (s_it == s_vec.end())
 		std::cerr << "Error: Invalid server port" << std::endl;
@@ -201,15 +212,20 @@ LocationBlock	searchLocation(std::string serverName, std::string directoryPath, 
 	std::vector<LocationBlock> l_vec;
 	std::vector<LocationBlock>::iterator l_it;
 	std::vector<ServerBlock>::iterator s_it;
+	std::vector<std::string>::iterator f_it;
 	LocationBlock  l_block;
 
 	for (s_it = s_vec.begin(); s_it != s_vec.end(); s_it++) {
-		if (s_it->getFullName() == serverName) {
-			l_vec = s_it->getLocationBlocks();
-			
-			for (l_it = l_vec.begin(); l_it != l_vec.end(); l_it++) {
-				if (l_it->getDirectoryPath() == directoryPath) {
-					return *l_it;
+		std::vector<std::string> f_vec = s_it->getFullName();
+		f_it = f_vec.begin();
+		for (; f_it != f_vec.end(); f_it++) {
+			if (*f_it == serverName) {
+				l_vec = s_it->getLocationBlocks();
+				
+				for (l_it = l_vec.begin(); l_it != l_vec.end(); l_it++) {
+					if (l_it->getDirectoryPath() == directoryPath) {
+						return *l_it;
+					}
 				}
 			}
 		}
