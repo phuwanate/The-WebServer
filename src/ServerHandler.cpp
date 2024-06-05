@@ -187,7 +187,7 @@ void	ServerHandler::listenNewConnection() {
 		}
 	}
 	_max_sd = _serverBlocks.back().getSocket().back();
-	std::cout << "max_sd: " << _max_sd << std::endl;
+	// std::cout << "max_sd: " << _max_sd << std::endl;
 }
 
 //************************************************
