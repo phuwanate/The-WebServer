@@ -26,14 +26,14 @@ class Response {
 		void byStringstream(int socket, int status, std::stringstream &file, const std::string &content_type);
 		void byFile(int socket, int status, std::string const &location,  std::string const &content_type);
 		void byRedirect(int socket, int status, std::string const &location);
-		void byAutoIndex(int socket, int status, const std::string& directory_path,const std::string &req_path);
+		void byAutoIndex(int socket, int status, const std::string& directory_path, const std::string &req_path, const std::string &root);
 		void errorDefault(int socket, std::string defLoc, int status);
 		std::string ft_to_string(int val);
 
 	private:
 		std::map<int, std::string>		_status;
 
-		std::string						buildIndex(const std::string& directory_path, const std::string &req_path);
+		std::string						buildIndex(const std::string& directory_path, const std::string &req_path, const std::string &root);
 		bool							isDir(const std::string& filepath);
 		std::string						createFirstLine(int status);
 		std::string						createBodyByStatus(int status);

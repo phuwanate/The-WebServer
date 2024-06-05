@@ -67,9 +67,9 @@ void Response::byRedirect(int socket, int status, std::string const &location) {
 	send(socket, ss.str().c_str(), ss.str().size(), 0);
 }
 
-void Response::byAutoIndex(int socket, int status, const std::string& directory_path, const std::string &req_path) {
+void Response::byAutoIndex(int socket, int status, const std::string& directory_path, const std::string &req_path, const std::string &root) {
 	std::string firstLine = createFirstLine(status);
-	std::string body = buildIndex(directory_path, req_path);
+	std::string body = buildIndex(directory_path, req_path, root);
 	std::string response = createResponse(firstLine, body, "text/html");
 
 	send(socket, response.c_str(), response.size(), 0);
@@ -84,7 +84,7 @@ bool Response::isDir(const std::string& filepath) {
     return false;
 }
 
-std::string Response::buildIndex(const std::string& directory_path, const std::string &req_path)
+std::string Response::buildIndex(const std::string& directory_path, const std::string &req_path, const std::string &root)
 {
     std::string body;
     DIR *directory;
@@ -117,19 +117,26 @@ std::string Response::buildIndex(const std::string& directory_path, const std::s
 				// std::cout << "Req Path: " << req_path << std::endl;
 				if (f_name != req_path && req_path != "/") {
 					w_name = req_path + "/" + f_name;
-					body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name + "/");
+					body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name);
 				}else {
+					w_name = req_path + f_name;
 					body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name);
 				}
 
 			}
 			else {
 				// std::cout << "File: " << directory_path + f_name << std::endl;
-				w_name =  req_path + "/" + f_name;
+				if (req_path == "/")
+					w_name = req_path + f_name;
+				else
+					w_name =  req_path + "/" + f_name;
 				body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name);
 			}
-			w_name = "./docs/curl" + w_name;
-			std::cout << "Working Path: " << w_name << std::endl;
+			// if (req_path == "/")
+			// 	w_name = "./" + root + "/" + w_name;
+			// else
+			w_name = "./" + root  + w_name;
+			// std::cout << "Working Path: " << w_name << std::endl;
 			stat(w_name.c_str(), &f_stat);
 			if (S_ISDIR(f_stat.st_mode))
 				body.append("/");

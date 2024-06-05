@@ -443,7 +443,7 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
     
         if (location.getDirectoryPath().length() != 0) {
             if (location.getAutoIndex() == true) {
-                _resp.byAutoIndex(_socket, 200, "." + filepath, _req.path);
+                _resp.byAutoIndex(_socket, 200, "." + filepath, _req.path, server.getRoot());
                 return true;
             }
             else {
@@ -452,7 +452,7 @@ bool Cgi::useServerparameter(std::string &filepath, ServerBlock &server, Locatio
             }
         } else {
             if (server.getAutoindex() == true) {
-                _resp.byAutoIndex(_socket, 200, "." + filepath, _req.path);
+                _resp.byAutoIndex(_socket, 200, "." + filepath, _req.path, server.getRoot());
                 return true;
             }
             else {
