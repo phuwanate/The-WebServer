@@ -128,8 +128,8 @@ std::string Response::buildIndex(const std::string& directory_path, const std::s
 				w_name =  req_path + "/" + f_name;
 				body.append("\t\t\t<tr>\n\t\t\t\t<td><a href=\"" + w_name + "\">" + f_name);
 			}
+			w_name = "./docs/curl" + w_name;
 			std::cout << "Working Path: " << w_name << std::endl;
-			// w_name = "." + w_name;
 			stat(w_name.c_str(), &f_stat);
 			if (S_ISDIR(f_stat.st_mode))
 				body.append("/");
