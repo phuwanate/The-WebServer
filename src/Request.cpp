@@ -96,12 +96,18 @@ bool Request::isMultipart() {
 
 bool Request::validBodyLength(){
 	ServerBlock server = searchServer(header["Host"], *server_blocks);
+	LocationBlock location = searchLocation(header["Host"], path, *server_blocks);
+	size_t max;
+	
 	if (server.getServerName().length() == 0) {
 		_stage = ROUTER;
 		errNum = 400;
 		return (false);
 	}
-	size_t max = server.getClientMaxBodySize();
+	if (location.getClientMaxBodySize() == 0)
+		max = server.getClientMaxBodySize();
+	else
+		max = location.getClientMaxBodySize();
 	if (header["Content-Length"].length()) {
 		size_t length = std::atoi(header["Content-Length"].c_str());
 		if (length > max) {

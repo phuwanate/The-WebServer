@@ -39,6 +39,7 @@ class LocationBlock {
 		void						setAllowMethod(std::string const &key, bool val);
 		void						setAutoindex(bool val);
 		void						setClientMaxBodySize(size_t val);
+		void						validateLocationPath(std::string path);
 		void						validateIndex(std::vector<std::string> index);
 		void						validateCgiExt(std::vector<std::string> extension);
 		void						DebugLocationBlock();

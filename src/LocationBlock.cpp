@@ -1,10 +1,10 @@
 #include "LocationBlock.hpp"
 
-LocationBlock::LocationBlock():_autoIndex(0) {
+LocationBlock::LocationBlock():_autoIndex(0), _clientMaxBodySize(0) {
 	return;
 }
 
-LocationBlock::LocationBlock(std::string const &locationBlock, ServerBlock &serverBlock):_autoIndex(0) {
+LocationBlock::LocationBlock(std::string const &locationBlock, ServerBlock &serverBlock):_autoIndex(0), _clientMaxBodySize(0) {
 	__copyAttributes(serverBlock);
 	__initLocation(locationBlock);
 	return;
@@ -161,6 +161,7 @@ void	LocationBlock::__initLocation(std::string const &locationBlock){
 		content = locationBlock.substr(index, locationBlock.length());
 		target = searchTarget(content);
 		if (currentDirective == "location") {
+			validateLocationPath(target);
 			if (target.find("/") != std::string::npos) {
 				setDirectoryPath(target);
 			}
@@ -198,6 +199,14 @@ void	LocationBlock::__initLocation(std::string const &locationBlock){
 }
 
 void	LocationBlock::__initLocationParameters(std::string const &directive, std::vector<std::string> values) {
+	if (values.size() > 0) {
+		std::vector<std::string>::iterator it = values.begin();
+		for (; it != values.end(); it++)
+		{
+			if (isDirective(*it) == true)
+				throw std::string ("Error: cannot set directive keyword [" + *it + "] as a value.");
+		}
+	}
 	if (directive == "alias") {
 		if (values.size() != 1)
 			throw errNumberOfParameters(directive, "location");
@@ -269,6 +278,22 @@ void LocationBlock::validateCgiExt(std::vector<std::string> extension) {
 	for (; it != extension.end(); it++) {
 		if ((*it)[0] != '.')
 			throw std::string ("Error: Invalid extension [" + *it + "] at \"cgi_extensions\" parameters.");
+	}
+}
+
+void LocationBlock::validateLocationPath(std::string path) {
+	int count = 0;
+
+	// std::cout << path << std::endl;
+	if (path != "{" && path != "}") {
+		if (path[0] != '/')
+			throw std::string ("Error: location path need to preceded by \"/\" ");
+		for (size_t i = 0; i <= path.length(); i++) {
+			if (path[i] == '/')
+				count++;
+			if (count > 1)
+				throw std::string ("Error: cannot have more than one  \"/\" at [ "+ path +" ].");
+		}
 	}
 }
 

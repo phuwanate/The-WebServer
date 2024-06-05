@@ -30,6 +30,7 @@ ServerBlock	    searchServer(std::string serverName, std::vector<ServerBlock> s_
 ServerBlock		searchServerByPort(size_t serverPort, std::vector<ServerBlock> s_vec);
 void			*ft_memset(void *s, int src, size_t n);
 void			*ft_memcpy(void *dst, const void *src, size_t n);
+bool            isDirective(const std::string &key);
 
 template <typename T>
 T				convertString(std::string const &needToConvert);

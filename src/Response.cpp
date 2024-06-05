@@ -31,9 +31,7 @@ void Response::byStatus(int socket, int status){
 	std::string body = createBodyByStatus(status);
 	std::string response = createResponse(firstLine, body, "text/html");
 
-	if (send(socket, response.c_str(), response.size(), 0) < 0)
-		std::cout << "Sending Error" << std::endl;
-
+	send(socket, response.c_str(), response.size(), 0);
 }
 
 void Response::byStringstream(int socket, int status, std::stringstream &file, const std::string &content_type) {

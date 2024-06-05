@@ -46,7 +46,7 @@ void	ServerHandler::startServerHandler() {
 		int s_ready;
 		
 		// timeout.tv_sec = 60;
-		// timeout.tv_usec = 0;b
+		// timeout.tv_usec = 0;
 
 		listenNewConnection();
 		

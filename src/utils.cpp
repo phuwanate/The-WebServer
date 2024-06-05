@@ -43,9 +43,9 @@ size_t	findFirstBrace(std::string const &content, std::string const &needle) {
 
 void	isServerConflict(ServerBlock newInstance, ServerBlock oldInstance) {
 	if ( (newInstance.getHostIP() == oldInstance.getHostIP()) && \
-	(newInstance.getPortNumb() == oldInstance.getPortNumb()) && \
-	(newInstance.getServerName() == oldInstance.getServerName()))
+	 (newInstance.getServerName() == oldInstance.getServerName()))
 		throw std::string("Error: found duplicating servers block.");
+	
 }
 
 void	isLocationDuplicate(LocationBlock newInstance, LocationBlock oldInstance) {
@@ -258,6 +258,17 @@ void	*ft_memcpy(void *dst, const void *src, size_t n){
 		}
 	}
 	return (dst);
+}
+
+bool isDirective(const std::string &key) {
+
+	if (key == "listen" || key == "host" || key == "server_name" || key == "root" || key == "client_max_body_size" \
+	|| key == "index" || key == "autoindex" || key == "error_page" || key == "location" || key == "server" \
+	|| key == "alias" || key == "allow_http_methods" || key == "return" || key == "cgi_extensions" \
+	|| key == "cgi_compiler_path") {
+		return true;	
+	}
+	return false;
 }
 
 // template int ftConvert<int>(std::string const &needToConvert);

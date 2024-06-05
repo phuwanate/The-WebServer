@@ -145,6 +145,8 @@ void	ServerBlock::__initServer(std::string const &serverBlock) {
 		content = serverBlock.substr(index, serverBlock.length());
 		target = searchTarget(content);
 		if (target == "location") {
+			if (currentDirective != "")
+				throw std::string("Error: unexpected location in configuration file.");
 			locationBlock = getBlock(content, "location ", false);
 			if (locationBlock.length() == 0)
 				throw std::string("Error: invalid location block.");
@@ -192,63 +194,83 @@ void	ServerBlock::checkAllparametersAfterParsing() {
 		throw std::string ("Error: Server must have server name in config file.");
 	if (this->_hostIP == 0)
 		throw std::string ("Error: Server must have ip-adress at \"host\" directive.");
-
+	if (this->_errorPage.size() == 0)
+		throw std::string ("Error: Server must have an errorpage at \"error_page\" directive.");
+	if (this->_index.size() == 0)
+		throw std::string ("Error: Server must have an index page at \"index\" directive.");
+	if (this->_portNumb.size() == 0)
+		throw std::string ("Error: Server must have a port number at \"listen\" directive.");
 }
 
 void	ServerBlock::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
+
+	if (values.size() > 0) {
+		std::vector<std::string>::iterator it = values.begin();
+		for (; it != values.end(); it++)
+		{
+			if (isDirective(*it) == true)
+				throw std::string ("Error: cannot set directive keyword [" + *it + "] as a value.");
+		}
+	}
 	if (directive == "listen") {
+		if (values.size() < 1)
+			throw std::string("Error: invalid number of parameters at listen directive.");
 		std::vector<std::string>::iterator it = values.begin();
 		// for (size_t i = 0; values[i] != *(values.end()); i++){
 		for (; it != values.end(); it++){
 			if (isDigit(*it) == false)
-				throw std::string("Error: invalid parameter \"" + *it + "\" in listen directive.");    
+				throw std::string("Error: invalid parameter \"" + *it + "\" at listen directive.");    
 			setRawPort(*it);
 			setPortNumb(convertString<int>(*it));
 		}
 	}
 	else if (directive == "host") {
 		if (values.size() != 1)
-			throw std::string("Error: invalid number of parameters in host directive.");
-		
+			throw std::string("Error: invalid number of parameters at host directive.");
 		if (values[0] == "localhost")
 			values[0] = "127.0.0.1";
 		validateHostIP(values[0]);
 		setHostIP(hostIPToNetworkByteOrder(values[0]));
 	}
 	else if (directive == "server_name") {
+		if (values.size() != 1)
+			throw std::string("Error: invalid number of parameters at server_name directive.");
+		if (values[0] != "localhost" && values[0] != "ubuntu")
+			throw std::string("Error: invalid hostname [" + values[0] + "] at host directive.");
+		if (values[0].find(":") != std::string::npos)
+			throw std::string("Error: invalid hostname [" + values[0] + "] at server_name directive.");
 		setServerName(values[0]);
 		setBindingPort(_serverNames, _rawPort);
 	}
 	else if (directive == "root") {
 		if (values.size() != 1)
-			throw std::string ("Error: invalid number of parameters in root directive.");
+			throw std::string ("Error: invalid number of parameters at root directive.");
 		validateRoot(values[0]);
 		setRoot(values[0]);
 	}
 	else if (directive == "client_max_body_size") {
 		if (values.size() != 1 || isDigit(values[0]) == false)
-			throw std::string ("Error: invalid parameters in client_max_body_size directive.");
+			throw std::string ("Error: invalid parameters at client_max_body_size directive.");
 		setClientMaxBodySize(convertString<size_t>(values[0]));
 	}
 	else if (directive == "index") {
-		// std::cout << getFullName() << std::endl;
 		if (values.size() < 1)
-			throw std::string ("Error: invalid number of parameters in index directive.");
+			throw std::string ("Error: invalid number of parameters at index directive.");
 		setIndex(values);
 	}
 	else if (directive == "autoindex") {
 		if (values.size() != 1)
-			throw std::string("Error: invalid number of parameters in autoindex directive.");
+			throw std::string("Error: invalid number of parameters at autoindex directive.");
 		if (values[0] == "on")
 			setAutoindex(true);
 		else if (values[0] == "off")
 			setAutoindex(false);
 		else
-			throw std::string("Error: invalid  parameter" + values[0] + "in autoindex directive.");
+			throw std::string("Error: invalid  parameter " + values[0] + " at autoindex directive.");
 	}
 	else if (directive == "error_page") {
 		if (values.size() != 2 || isDigit(values[0]) == false)
-			throw std::string("Error: invalid  parameters in error_page directive.");
+			throw std::string("Error: invalid  parameters at error_page directive.");
 		if (this->_root.length() == 0)
 			throw std::string ("Error: Server must have \"root\" directive.");
 
