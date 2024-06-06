@@ -244,7 +244,8 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 		if (values[0].find(":") != std::string::npos)
 			throw std::string("Error: invalid hostname [" + values[0] + "] at server_name directive.");
 		setServerName(values[0]);
-		// setBindingPort(_serverNames, _rawPort);
+		if (_rawPort.size() != 0)
+			setBindingPort(_serverNames, _rawPort);
 	}
 	else if (directive == "root") {
 		if (values.size() != 1)
