@@ -57,3 +57,12 @@ bool Client::httpStage() {
 	}
 	return (false); 
 }
+
+time_t Client::getWorkingTime() {
+
+    return this->_workingTime;
+}
+        
+void Client::updateWorkingTime() {
+    this->_workingTime = time(NULL);
+}

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <ctime>
 #include "Request.hpp"
 #include "ServerHandler.hpp"
 #include "HttpStatus.hpp"
@@ -22,8 +23,10 @@ class Client {
 		Client(int new_sd, int listen_sd, std::vector<ServerBlock>  &serverBlocks);
 		Client &operator=(Client const &cli);
 		~Client();
-		bool						receiveData(const char *buffer, int rc);
+
 		bool						httpStage();
+		time_t 						getWorkingTime();
+		void 						updateWorkingTime();
 
 		Request*					request;
 		int							sever_socket;
@@ -35,6 +38,7 @@ class Client {
 		
 	private:
 		Response					_response;
+		time_t						_workingTime;
 
 };
 

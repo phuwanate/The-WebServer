@@ -50,7 +50,7 @@ class ServerBlock {
 		bool						manageSocket();
 		std::string					pathToErrorPage(std::string values);
 		void						DebugServerBlock();
-		void						validateRoot(std::string root);     
+		void						validateRoot(std::string root);   
 		void						checkAllparametersAfterParsing();
 
 

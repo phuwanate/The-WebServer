@@ -26,6 +26,7 @@
 
 #define TRUE	1
 #define FALSE	0
+#define TIMEOUT 6
 
 class Config;
 class ServerBlock;
@@ -65,8 +66,5 @@ class ServerHandler {
 		std::string                 _currpath;
 		std::string					_newpath;
 };
-
-// bool start_server(std::vector<ServerBlock> s_vec);
-// bool test_request(std::vector<ServerBlock> s_vec, int socket);
 
 #endif

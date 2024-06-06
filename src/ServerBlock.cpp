@@ -222,7 +222,7 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 		std::vector<std::string>::iterator it = values.begin();
 		// for (size_t i = 0; values[i] != *(values.end()); i++){
 		for (; it != values.end(); it++){
-			if (isDigit(*it) == false)
+			if (isDigit(*it) == false || (*it).length() != 4)
 				throw std::string("Error: invalid parameter \"" + *it + "\" at listen directive.");    
 			setRawPort(*it);
 			setPortNumb(convertString<int>(*it));

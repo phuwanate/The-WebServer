@@ -78,6 +78,7 @@ void	ServerHandler::checkStates(int *s_ready, fd_set &working_read) {
 				readytoAccept(i);
 			}
 			else{
+				_clients_map[i]->updateWorkingTime();
 				if (httpManage(i) == true)
 					closeConn(i);
 				(*s_ready)--;
@@ -112,6 +113,7 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 
 	addMasterSet(new_sd, &_read_set);
 	usleep(200);
+	_clients_map[new_sd]->updateWorkingTime();
 	std::cout << GREEN << "Accept new connection on socket: [" << new_sd << "]" << std::endl;
 }
 
@@ -172,12 +174,6 @@ void	ServerHandler::listenNewConnection() {
 				std::cout << *socket_it << "]" << DEFAULT << std::endl;
 				clearSocket();
 			}
-
-			// if (fcntl(*socket_it, F_SETFL, O_NONBLOCK) < 0) {
-			// 	std::cerr << RED << "Error: listening on socket [";
-			// 	std::cout << *socket_it << "]" << DEFAULT << std::endl;
-			// 	clearSocket();
-			// }
 
 			addMasterSet(*socket_it, &_listen_set);
 			addMasterSet(*socket_it, &_read_set);
@@ -243,7 +239,7 @@ void	ServerHandler::closeConn(int socket){
 		std::cout << GREEN << "Close client connection on : socket [" << socket << "] !";
 		std::cout << DEFAULT << std::endl;
 	}
-	//  _clients_map.erase(fd);
+	_clients_map.erase(socket);
 }
 
 void	ServerHandler::gracefulShutdown(){
@@ -267,14 +263,16 @@ void	ServerHandler::gracefulShutdown(){
 }
 
 void	ServerHandler::clientTimeout(){
-	//  for (std::map<int, Client>::iterator cit = _clients_map.begin(); cit != _clients_map.end(); cit++)
-	//  {
-	// 	  if (time(NULL) - cit->second.getTime() > CONNECTION_TIMEOUT)
-	// 	  {
-	// 			std::cout << YELLOW << "Client " << cit->first << " Timeout, closing connection" << RESET << std::endl;
-	// 			closeConnection(cit->first);
-	// 			return ;
-	// 	  }   
-	//  }
-	return ;
+	std::map<int, Client* > c_vec = _clients_map;
+	std::map<int, Client* >::iterator c_it = c_vec.begin();
+
+	for (; c_it != c_vec.end(); c_it++)
+	{
+		if (time(NULL) - (*(c_it->second)).getWorkingTime() > TIMEOUT)
+		{
+				std::cout << YELLOW << "Client [" << c_it->first << "] Timeout, close connection." << DEFAULT << std::endl;
+				closeConn(c_it->first);
+				return ;
+		}   
+	}
 }

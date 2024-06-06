@@ -92,6 +92,8 @@ bool	isDigit(std::string values) {
 
 void	validateHostIP(std::string value) {
 	int validateRange;
+	std::string tmp = value;
+	int count = 0;
 	while (true) {
 		// std::cout << "here" << std::endl;
 		size_t pos = value.find(".");
@@ -110,7 +112,10 @@ void	validateHostIP(std::string value) {
 		validateRange = convertString<int>(target);
 		if (validateRange < 0 || validateRange > 255)
 			throw std::string ("Error: host number \"" + value + "\" is out of bound.");
+		count++;
 	}
+	if (count != 3)
+		throw std::string ("Error: invalid host number \"" + tmp + "\" in host directive.");
 }
 
 std::string   splitString(std::string &needToSplit, std::string const &delimeter) {
