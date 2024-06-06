@@ -199,7 +199,8 @@ void	ServerBlock::checkAllparametersAfterParsing() {
 	if (this->_index.size() == 0)
 		throw std::string ("Error: Server must have an index page at \"index\" directive.");
 	if (this->_portNumb.size() == 0)
-		throw std::string ("Error: Server must have a port number at \"listen\" directive.");
+		_portNumb.push_back(8080);
+		// throw std::string ("Error: Server must have a port number at \"listen\" directive.");
 }
 
 void	ServerBlock::__initServerParameters(std::string const &directive, std::vector<std::string> values) {
