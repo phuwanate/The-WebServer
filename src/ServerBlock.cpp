@@ -198,8 +198,11 @@ void	ServerBlock::checkAllparametersAfterParsing() {
 		throw std::string ("Error: Server must have an errorpage at \"error_page\" directive.");
 	if (this->_index.size() == 0)
 		throw std::string ("Error: Server must have an index page at \"index\" directive.");
-	if (this->_portNumb.size() == 0)
+	if (this->_portNumb.size() == 0) {
 		_portNumb.push_back(8080);
+		_rawPort.push_back("8080");
+		setBindingPort(_serverNames, _rawPort);
+	}
 		// throw std::string ("Error: Server must have a port number at \"listen\" directive.");
 }
 
@@ -241,7 +244,7 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 		if (values[0].find(":") != std::string::npos)
 			throw std::string("Error: invalid hostname [" + values[0] + "] at server_name directive.");
 		setServerName(values[0]);
-		setBindingPort(_serverNames, _rawPort);
+		// setBindingPort(_serverNames, _rawPort);
 	}
 	else if (directive == "root") {
 		if (values.size() != 1)
