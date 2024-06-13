@@ -192,8 +192,8 @@ void	ServerBlock::checkAllparametersAfterParsing() {
 		throw std::string ("Error: location blocks does not exists in configuration file.");
 	if (this->_serverNames.length() == 0)
 		throw std::string ("Error: Server must have server name in config file.");
-	if (this->_hostIP == 0)
-		throw std::string ("Error: Server must have ip-adress at \"host\" directive.");
+	// if (this->_hostIP == 0)
+	// 	throw std::string ("Error: Server must have ip-adress at \"host\" directive.");
 	if (this->_errorPage.size() == 0)
 		throw std::string ("Error: Server must have an errorpage at \"error_page\" directive.");
 	if (this->_index.size() == 0)

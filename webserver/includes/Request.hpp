@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <cstdlib>
 #include "HttpStatus.hpp"
 #include "Response.hpp"
 
