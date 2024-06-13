@@ -1,6 +1,7 @@
 version: '3'
 services:
   web:
+    image: web_server_42_img
     build: .
     ports:
       - "9001:9001"
@@ -9,5 +10,6 @@ services:
       - "9004:9004"
     volumes:
       - ./webserver:/var/webserver
+    container_name: webserver_42
     stdin_open: true
     tty: true
