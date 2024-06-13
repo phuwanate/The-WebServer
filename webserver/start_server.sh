@@ -1,2 +1,2 @@
-make
+make re
 ./webserv
