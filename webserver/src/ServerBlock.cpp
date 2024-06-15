@@ -239,10 +239,9 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 	else if (directive == "server_name") {
 		if (values.size() != 1)
 			throw std::string("Error: invalid number of parameters at server_name directive.");
+		validateFullHost(values[0]);
 		if (values[0] != "localhost" && values[0] != "ubuntu")
 			throw std::string("Error: invalid hostname [" + values[0] + "] at host directive.");
-		if (values[0].find(":") != std::string::npos)
-			throw std::string("Error: invalid hostname [" + values[0] + "] at server_name directive.");
 		setServerName(values[0]);
 		if (_rawPort.size() != 0)
 			setBindingPort(_serverNames, _rawPort);
@@ -285,6 +284,34 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 		}else{
 			throw std::string("Error: Error page file does not exists: " + errorPage);
 		}
+	}
+}
+
+void ServerBlock::validateFullHost(std::string &hostname) {
+
+	std::string w_hostname = hostname;
+	size_t count = 0;
+	if (hostname[0] == ':')
+		throw std::string("Error: invalid hostname for server.");
+	while (true){ 
+		if (w_hostname.find(":") != std::string::npos) {
+			w_hostname = w_hostname.substr(w_hostname.find(":") + 1);
+			count++;
+		}
+		else
+			break;
+		if (count > 1)
+			throw std::string("Error: invalid hostname for server.");	
+	}
+	if (count == 1) {
+		if (isDigit(w_hostname) == false || (w_hostname).length() != 4)
+				throw std::string("Error: invalid parameter \"" + w_hostname + "\" at listen directive.");    
+		setRawPort(w_hostname);
+		setPortNumb(convertString<int>(w_hostname));
+		hostname = hostname.substr(0, hostname.find(":"));
+		// std::cout << hostname << std::endl;
+		// std::cout << _portNumb[0] << std::endl;
+		// std::cout << 
 	}
 }
 

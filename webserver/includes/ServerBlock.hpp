@@ -51,6 +51,7 @@ class ServerBlock {
 		std::string					pathToErrorPage(std::string values);
 		void						DebugServerBlock();
 		void						validateRoot(std::string root);   
+		void						validateFullHost(std::string &hostname);
 		void						checkAllparametersAfterParsing();
 
 
