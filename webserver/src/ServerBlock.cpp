@@ -224,8 +224,10 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 		for (; it != values.end(); it++){
 			if (isDigit(*it) == false || (*it).length() != 4)
 				throw std::string("Error: invalid parameter \"" + *it + "\" at listen directive.");    
+			if (_portNumb.size() > 0)
+				is_portduplicate(convertString<size_t>(*it));
 			setRawPort(*it);
-			setPortNumb(convertString<int>(*it));
+			setPortNumb(convertString<size_t>(*it));
 		}
 	}
 	else if (directive == "host") {
@@ -287,6 +289,15 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 	}
 }
 
+void ServerBlock::is_portduplicate(size_t port) {
+
+	std::vector<size_t>::iterator it = _portNumb.begin();
+	for (; it != _portNumb.end(); it++) {
+		if (port == *it)
+			throw std::string("Error: Duplicated port in the same server.");
+	}
+}
+
 void ServerBlock::validateFullHost(std::string &hostname) {
 
 	std::string w_hostname = hostname;
@@ -306,12 +317,11 @@ void ServerBlock::validateFullHost(std::string &hostname) {
 	if (count == 1) {
 		if (isDigit(w_hostname) == false || (w_hostname).length() != 4)
 				throw std::string("Error: invalid parameter \"" + w_hostname + "\" at listen directive.");    
+		if (_portNumb.size() > 0)
+			is_portduplicate(convertString<size_t>(w_hostname));
 		setRawPort(w_hostname);
 		setPortNumb(convertString<int>(w_hostname));
 		hostname = hostname.substr(0, hostname.find(":"));
-		// std::cout << hostname << std::endl;
-		// std::cout << _portNumb[0] << std::endl;
-		// std::cout << 
 	}
 }
 

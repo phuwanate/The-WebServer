@@ -52,6 +52,7 @@ class ServerBlock {
 		void						DebugServerBlock();
 		void						validateRoot(std::string root);   
 		void						validateFullHost(std::string &hostname);
+		void						is_portduplicate(size_t port);
 		void						checkAllparametersAfterParsing();
 
 
