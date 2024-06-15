@@ -17,4 +17,5 @@ EXPOSE 9002
 EXPOSE 9003
 EXPOSE 9004
 
+#Comment this line if you want to start container on background.
 CMD ["bash", "start_server.sh"]
