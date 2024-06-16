@@ -35,19 +35,19 @@ Client::~Client(){}
 
 bool Client::httpStage() {
 	if (_stage == FIRST_LINE) {
-		std::cout << GREEN << "FIRSTLINE \n" << DEFAULT << std::endl;
+		// std::cout << GREEN << "FIRSTLINE \n" << DEFAULT << std::endl;
 		_stage = request->parseFirstLine(_stage, _socket);
 	} 
 	if (_stage == HEADER) {
-		std::cout << GREEN << "HEADER \n" << DEFAULT << std::endl;
+		// std::cout << GREEN << "HEADER \n" << DEFAULT << std::endl;
 		_stage = request->parseHeader(_stage);
 	}
 	if (_stage == BODY) {
-		std::cout << GREEN << "BODY \n" << DEFAULT << std::endl;
+		// std::cout << GREEN << "BODY \n" << DEFAULT << std::endl;
 		_stage = request->parseBody (_stage);
 	}
 	if (_stage == ROUTER) {
-		std::cout << GREEN << "ROUTER \n" << DEFAULT << std::endl;
+		// std::cout << GREEN << "ROUTER \n" << DEFAULT << std::endl;
 		_cgi.initCgi(request->errNum, _socket, request->server_blocks, *request);
 		_stage = _cgi.apiRouter();
 	}

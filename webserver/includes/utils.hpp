@@ -14,7 +14,7 @@ class Config;
 
 std::string		getBlock(std::string const &content, std::string const &needle, bool skipKeyword);
 size_t			findFirstBrace(std::string const &content, std::string const &needle);
-void			isServerConflict(ServerBlock newInstance,ServerBlock oldInstance);
+bool			isServerConflict(ServerBlock newInstance,ServerBlock oldInstance);
 void			isLocationDuplicate(LocationBlock newInstance, LocationBlock oldInstance);
 std::string		searchTarget(std::string const &content);
 bool			isWhiteSpace(char target);
@@ -31,6 +31,7 @@ ServerBlock		searchServerByPort(size_t serverPort, std::vector<ServerBlock> s_ve
 void			*ft_memset(void *s, int src, size_t n);
 void			*ft_memcpy(void *dst, const void *src, size_t n);
 bool            isDirective(const std::string &key);
+bool            duplicate_port(std::vector<size_t> newPort, std::vector<size_t> oldPort);
 
 template <typename T>
 T				convertString(std::string const &needToConvert);

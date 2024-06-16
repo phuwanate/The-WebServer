@@ -32,6 +32,7 @@ class ServerBlock {
 		std::vector<int>			getSocket();
 		std::vector<std::string>	getFullName();
 		std::vector<std::string>	getRawPort();
+		std::string					getRawHostIP();
 		// std::map<std::string , LocationBlocks> getLocationMap();
 		
 
@@ -63,7 +64,7 @@ class ServerBlock {
 		std::vector<int>			_socket_fd;
 		std::vector<std::string>	_rawPort;
 		int				   			_sock;
-		// size_t						_portNumb; //setup port
+		std::string					_rawHostIP;
 		std::vector<size_t>			_portNumb;
 		unsigned long				_hostIP; //setup host IP address
 		size_t						_clientMaxBodySize;

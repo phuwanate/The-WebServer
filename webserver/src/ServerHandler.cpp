@@ -107,8 +107,8 @@ void	ServerHandler::readytoAccept(int listen_sd) {
 
 	_clients_map[new_sd] = new Client (new_sd, listen_sd, _serverBlocks);
 	// _clients_map[new_sd] = new_client;
-	std::cout << RED << "socket at init proc: " << _clients_map[new_sd]->_socket << DEFAULT << std::endl;
-	std::cout << RED << "state at init proc: " << _clients_map[new_sd]->request->_stage << DEFAULT << std::endl;
+	// std::cout << RED << "socket at init proc: " << _clients_map[new_sd]->_socket << DEFAULT << std::endl;
+	// std::cout << RED << "state at init proc: " << _clients_map[new_sd]->request->_stage << DEFAULT << std::endl;
 
 
 	addMasterSet(new_sd, &_read_set);
@@ -143,7 +143,7 @@ bool    ServerHandler::httpManage(int read_sd) {
 		}
 		_clients_map[read_sd]->request->server_blocks = &_serverBlocks;
 		ft_memset(buffer, 0, sizeof(buffer));//Clear buffer
-		std::cout << "Client [" << read_sd << "] " << std::endl;
+		// std::cout << "Client [" << read_sd << "] " << std::endl;
 		if(_clients_map[read_sd]->httpStage() == false) {
 			return (false);
 		}
@@ -177,7 +177,7 @@ void	ServerHandler::listenNewConnection() {
 
 			addMasterSet(*socket_it, &_listen_set);
 			addMasterSet(*socket_it, &_read_set);
-			std::cout << GREEN << "Starting server ["<< s_it->getServerName() << "] on  port[" << *p_it << "] "; 
+			std::cout << GREEN << "Starting server ["<< s_it->getServerName() << ":" << s_it->getRawHostIP() << "] on  port[" << *p_it << "] "; 
 			std::cout << "socket [" << *socket_it << "]" << DEFAULT << std::endl;
 			p_it++;
 		}

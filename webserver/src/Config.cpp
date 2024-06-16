@@ -76,25 +76,34 @@ bool	Config::__generateConfig() {
 	std::string content = this->_fileContents;
 	std::string serverBlock;
 	bool serverFound;
-
-	for (size_t index = 0; index < content.length(); index += serverBlock.length()) {
+	bool conflict;
+	for (size_t index = 0; index < _fileContents.length(); index += serverBlock.length()) {
+		conflict = false;
+		 while (isWhiteSpace(content[index]) == true)
+        {
+            index++;
+        }
 		content = this->_fileContents.substr(index, this->_fileContents.length());
 		serverBlock = getBlock(content, "server ", true);
 		if (serverBlock.length() == 0 && serverFound != true)
 			serverFound = false;
 		if (serverBlock.length() == 0 && serverFound == false)
 			throw std::string ("Error: invalid server block.");
-		else if (serverBlock.length() == 0 && serverFound == true)
+		else if (serverBlock.length() == 0 && serverFound == true) {
 			break;//handle case: newline at the last line.
+		}
 		serverFound = true;
 		index += findFirstBrace(content, "server");
 		ServerBlock serverBlockInstance(serverBlock);
 		if (this->_serverBlocks.size() != 0) {
-			for (size_t index = 0; index < this->_serverBlocks.size(); index++){    
-				isServerConflict(serverBlockInstance, this->_serverBlocks[index]);
+			for (size_t i = 0; i < this->_serverBlocks.size(); i++){    
+				conflict = isServerConflict(serverBlockInstance, this->_serverBlocks[i]);
+				if (conflict == true)
+					break;
 			}
 		}
-		this->_serverBlocks.push_back(serverBlockInstance);
+		if (conflict == false)
+			this->_serverBlocks.push_back(serverBlockInstance);
 	}
 	return true;
 }

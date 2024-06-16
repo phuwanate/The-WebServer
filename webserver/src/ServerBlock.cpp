@@ -1,10 +1,12 @@
 #include "ServerBlock.hpp"
 
 ServerBlock::ServerBlock():_hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false) {
+	_rawHostIP = "0.0.0.0";
 	return;
 }
 
-ServerBlock::ServerBlock(std::string const &serverBlock):_hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false) {
+ServerBlock::ServerBlock(std::string const &serverBlock):_hostIP(0), _clientMaxBodySize(3000000), _autoIndex(false){
+	_rawHostIP = "0.0.0.0";
 	__initServer(serverBlock);
 	return;
 }
@@ -18,6 +20,7 @@ ServerBlock	&ServerBlock::operator= (ServerBlock const &serverBlockInstance) {
 
 		this->_socket_fd = serverBlockInstance._socket_fd;
 		this->_rawPort   = serverBlockInstance._rawPort;
+		this->_rawHostIP = serverBlockInstance._rawHostIP;
 		this->_bindingPort = serverBlockInstance._bindingPort;
 		this->_root = serverBlockInstance._root;
 		this->_index = serverBlockInstance._index;
@@ -83,6 +86,10 @@ std::vector<int>	ServerBlock::getSocket() {
 
 std::vector<std::string>	ServerBlock::getRawPort() {
 	return this->_rawPort;
+}
+
+std::string	ServerBlock::getRawHostIP() {
+	return this->_rawHostIP;
 }
 
 void	ServerBlock::setPortNumb(size_t val) {
@@ -233,15 +240,16 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 	else if (directive == "host") {
 		if (values.size() != 1)
 			throw std::string("Error: invalid number of parameters at host directive.");
-		if (values[0] == "localhost")
-			values[0] = "127.0.0.1";
 		validateHostIP(values[0]);
+		this->_rawHostIP = values[0];
 		setHostIP(hostIPToNetworkByteOrder(values[0]));
 	}
 	else if (directive == "server_name") {
 		if (values.size() != 1)
 			throw std::string("Error: invalid number of parameters at server_name directive.");
-		validateFullHost(values[0]);
+		// validateFullHost(values[0]);
+		if (values[0].find(":") != std::string::npos)
+			throw std::string("Error: invalid hostname [" + values[0] + "] at host directive.");
 		if (values[0] != "localhost" && values[0] != "ubuntu")
 			throw std::string("Error: invalid hostname [" + values[0] + "] at host directive.");
 		setServerName(values[0]);
@@ -410,7 +418,5 @@ bool	ServerBlock::manageSocket() {
 		}
 		_socket_fd.push_back(_sock);
 	}
-	// std::cout << "Push fd: " << _socket_fd[0] << std::endl;
-	// std::cout << "Push fd: " << _socket_fd[1] << std::endl;
 	return true;
 }

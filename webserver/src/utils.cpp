@@ -32,20 +32,35 @@ std::string	getBlock(std::string const &content, std::string const &needle, bool
 
 size_t	findFirstBrace(std::string const &content, std::string const &needle) {
 	size_t index = content.find(needle);
-
-	index += needle.length();
 	if (index == std::string::npos)
 		return 0;
-	for (; index < content.length() && content[index] != '{'; index++) {}
-
+	index += needle.length();
+	while (index < content.length() && content[index] != '{')
+		index++;
 	return index;
 }
 
-void	isServerConflict(ServerBlock newInstance, ServerBlock oldInstance) {
+bool	isServerConflict(ServerBlock newInstance, ServerBlock oldInstance) {
 	if ( (newInstance.getHostIP() == oldInstance.getHostIP()) && \
-	 (newInstance.getServerName() == oldInstance.getServerName()))
-		throw std::string("Error: found duplicating servers block.");
-	
+	 (newInstance.getServerName() == oldInstance.getServerName()) &&
+	 (duplicate_port(newInstance.getPortNumb(), oldInstance.getPortNumb()))) {
+	 	return true;
+	}
+	return false;
+}
+
+bool duplicate_port(std::vector<size_t> newPort, std::vector<size_t> oldPort) {
+	std::vector<size_t>::iterator n_it = newPort.begin();
+	for(; n_it != newPort.end(); n_it++) {
+		for (std::vector<size_t>::iterator o_it = oldPort.begin();o_it != oldPort.end(); o_it++) {
+			if (*n_it == *o_it) {
+				std::cout << RED << "Error: found duplicating servers block [" << *n_it << "]";
+				std::cout <<  ", [ingnore]" << DEFAULT<< std::endl;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void	isLocationDuplicate(LocationBlock newInstance, LocationBlock oldInstance) {
