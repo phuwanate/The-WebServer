@@ -283,6 +283,8 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 			throw std::string("Error: invalid  parameter " + values[0] + " at autoindex directive.");
 	}
 	else if (directive == "error_page") {
+		if (_errorPage.size() != 0)
+			throw std::string("Error: invalid numbers of error_page directive.");
 		if (values.size() != 2 || isDigit(values[0]) == false)
 			throw std::string("Error: invalid  parameters at error_page directive.");
 		if (this->_root.length() == 0)
