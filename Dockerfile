@@ -6,6 +6,7 @@ RUN apt update && apt upgrade && apt-get install -y \
     gcc \
     make \
     python3 \
+    valgrind \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory inside the container

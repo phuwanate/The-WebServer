@@ -74,6 +74,13 @@ HttpStage Cgi::apiRouter() {
     ServerBlock server = searchServer(_req.header["Host"], *server_blocks);
 
     // std::cout << RED << "errnum: " << _errnum << DEFAULT << std::endl;
+    if (location.getDirectoryPath().length() != 0) {
+        bool method_allow = location.getAllowMethods()[_req.method];
+        if (method_allow == false) {
+            _resp.byStatus(_socket, 405);
+            return RESPONSED;
+        }
+    }
     if (_errnum != 0 && _errnum != 404) {
         _resp.byStatus(_socket, _errnum);
         return RESPONSED;
@@ -83,11 +90,7 @@ HttpStage Cgi::apiRouter() {
         return RESPONSED;
     }
     if (location.getDirectoryPath().length() != 0) {
-        bool method_allow = location.getAllowMethods()[_req.method];
-        if (method_allow == false) {
-            _resp.byStatus(_socket, 405);
-        }
-        else if (location.getDirectoryPath() == "/cgi") {
+        if (location.getDirectoryPath() == "/cgi") {
             //Generate page with cgi
             if (generatePage(location, server) == false)
                 _resp.errorDefault(_socket, _req.setDefaultErrorPage(404), 404);
@@ -102,10 +105,12 @@ HttpStage Cgi::apiRouter() {
             if (Delete(location, server) == false)
                 _resp.errorDefault(_socket, _req.setDefaultErrorPage(404), 404);
         }
-        else if (location.getReturn().length() != 0) {
+        else if (location.getReturn().size() != 0) {
             //Redirect
-            std::cout << YELLOW << "Redirect to :" << location.getReturn() << DEFAULT << std::endl;
-            _resp.byRedirect(_socket, 307, "http://" + _req.header["Host"] + location.getReturn());
+            std::map<std::size_t, std::string> ret = location.getReturn();
+            std::map<std::size_t, std::string>::iterator ret_it = ret.begin();
+            std::cout << YELLOW << "Redirect to :" << ret_it->second << DEFAULT << std::endl;
+            _resp.byRedirect(_socket, ret_it->first, "http://" + _req.header["Host"] + ret_it->second);
         }
         else
             if (serveFile(server, location) == false)
@@ -259,16 +264,19 @@ void Cgi::cgiResponse(pid_t exitPID, int status, std::string cgi_route, std::str
     if(exitPID < 0) {
 		std::cerr << "Error: CGI not worked properly." << std::endl;
         _resp.byStatus(_socket, 500);
+        return ;
 	}
 
 	if (!WIFEXITED(status)) {
 		std::cerr << "Error: CGI not worked properly." << std::endl;
 		_resp.byStatus(_socket, 500);
+        return ;
 	} 
 	int exit_status = WEXITSTATUS(status);
 	if (exit_status != 0) {
 		std::cerr << "Error: CGI not worked properly." << std::endl;
 		_resp.byStatus(_socket, 500);
+        return ;
 	} 
 
     if (cgi_route == "/generate") {
@@ -333,12 +341,11 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
     if (prepareFilePath(server, location, root, filepath) == false)
         return false;
-    
-    if (isFileExists(filepath) == true) {
-        if (!(hasPermission(filepath, R_OK))){
+    if (!(hasPermission(filepath, R_OK))){
             _resp.byStatus(_socket, 403);
             return (true);
-        }
+    }
+    if (isFileExists(filepath) == true) {
         if (isDir(filepath)) {
             //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {

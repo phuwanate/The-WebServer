@@ -20,7 +20,7 @@ class LocationBlock {
 		std::string					getDirectoryPath();
 		std::string					getAlias();
 		std::string					getRoot();
-		std::string					getReturn();
+		std::map<std::size_t, std::string>	getReturn();
 		std::vector<std::string>	getIndex();
 		std::vector<std::string>	getCgiFileExtention();
 		std::vector<std::string>	getCgiCompilerPath();
@@ -32,7 +32,7 @@ class LocationBlock {
 		void						setDirectoryPath(std::string const &val); 
 		void						setRoot(std::string const &val);
 		void						setAlias(std::string const &val);
-		void						setReturn(std::string const &val);
+		void						setReturn(std::size_t key, std::string const &val);
 		void						setIndex(std::vector<std::string> const &val);
 		void						setCgiFileExtention(std::vector<std::string>  const &val);
 		void						setCgiCompilerPath(std::vector<std::string>  const &val);
@@ -55,7 +55,8 @@ class LocationBlock {
 		std::string					_directoryPath;
 		std::string					_root;
 		std::string					_alias;
-		std::string					_return;
+		// std::string					_return;
+		std::map<std::size_t, std::string>	_return;
 		std::vector<std::string>	_index;
 		std::vector<std::string>	_cgiFileExtention; //for file extension
 		std::vector<std::string>	_cgiCompilerPath; //for cgi compiler path

@@ -49,7 +49,7 @@ std::string	LocationBlock::getRoot() {
 	return this->_root;
 }
 
-std::string	LocationBlock::getReturn() {
+std::map<std::size_t, std::string>	LocationBlock::getReturn() {
 	return this->_return;
 }
 
@@ -93,8 +93,8 @@ void	LocationBlock::setRoot(std::string const &val) {
 	this->_root = val;
 }
 
-void	LocationBlock::setReturn(std::string const &val) {
-	this->_return = val;
+void	LocationBlock::setReturn(std::size_t const key, std::string const &val) {
+	this->_return[key] = val;
 }
 
 void	LocationBlock::setIndex(std::vector<std::string> const &val) {
@@ -244,9 +244,11 @@ void	LocationBlock::__initLocationParameters(std::string const &directive, std::
             throw std::string("Error: [location] invalid  parameter " + values[0] + " in autoindex directive.");
 	}
 	else if (directive == "return") {
-		if (values.size() != 1)
-			throw errNumberOfParameters(directive, "location");
-		setReturn(values[0]);
+		if (_return.size() != 0)
+			throw std::string ("Error: numbers of return directive in location block.");
+		if (values.size() != 2 || isDigit(values[0]) == false)
+			throw std::string ("Error: Invalid return directive in location block.");
+		setReturn(convertString<size_t>(values[0]), values[1]);
 	}
 	else if (directive == "cgi_extensions") {
 		if (values.size() < 1)
