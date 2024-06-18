@@ -229,7 +229,7 @@ void	ServerBlock::__initServerParameters(std::string const &directive, std::vect
 		std::vector<std::string>::iterator it = values.begin();
 		// for (size_t i = 0; values[i] != *(values.end()); i++){
 		for (; it != values.end(); it++){
-			if (isDigit(*it) == false || (*it).length() != 4)
+			if (isDigit(*it) == false || (convertString<size_t>(*it) > 65535))
 				throw std::string("Error: invalid parameter \"" + *it + "\" at listen directive.");    
 			if (_portNumb.size() > 0)
 				is_portduplicate(convertString<size_t>(*it));
