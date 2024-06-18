@@ -341,11 +341,12 @@ bool    Cgi::serveFile(ServerBlock &server, LocationBlock &location){
 
     if (prepareFilePath(server, location, root, filepath) == false)
         return false;
-    if (!(hasPermission(filepath, R_OK))){
+
+    if (isFileExists(filepath) == true) {
+        if (!(hasPermission(filepath, R_OK))){
             _resp.byStatus(_socket, 403);
             return (true);
-    }
-    if (isFileExists(filepath) == true) {
+        }
         if (isDir(filepath)) {
             //Request directory need to get truePath for redirection.
             if (location.getIndex().size() != 0) {
