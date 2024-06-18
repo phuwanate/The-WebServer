@@ -415,7 +415,10 @@ bool	ServerBlock::manageSocket() {
 		s_addr.sin_port = htons(*port_it);//8080
 
 		if (bind(_sock, (struct sockaddr*) &s_addr, sizeof(s_addr)) < 0) {
-			std::cerr << RED << "Error: cannot bind socket [" << _sock << "]" << DEFAULT << std::endl;
+			std::cerr << RED << "Error: cannot bind socket [" << _sock << "]";
+			perror("\nError: ");
+			std::cerr << DEFAULT << std::endl;
+
 			return false;
 		}
 		_socket_fd.push_back(_sock);
